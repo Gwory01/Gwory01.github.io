@@ -16,7 +16,6 @@
 
         body {
             background-color: var(--dark-bg);
-            /* Arka Plan */
             background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover;
             background-position: center;
@@ -33,7 +32,6 @@
             user-select: none;
         }
 
-        /* Sis Animasyonu */
         @keyframes mist {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -63,7 +61,6 @@
             height: 600px;
         }
 
-        /* Başlangıç Ekranı */
         #start-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -89,7 +86,6 @@
         }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
-        /* Savaş Alanı */
         .battle-scene {
             flex-grow: 1;
             display: flex;
@@ -130,7 +126,6 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
-        /* Barlar */
         .stat-bar {
             width: 100%;
             height: 15px;
@@ -224,13 +219,9 @@
             background: rgba(0,0,0,0.5);
             color: white;
             border: 1px solid #555;
-            padding: 10px 20px;
+            padding: 5px 10px;
             cursor: pointer;
-            font-weight: bold;
-            border-radius: 5px;
         }
-        .music-toggle:hover { background: var(--ruined-green); color: black; }
-
         .back-btn {
             position: fixed;
             top: 20px;
@@ -249,12 +240,7 @@
 
     <a href="index.html" class="back-btn">← Menü</a>
     <div class="mist-overlay"></div>
-    
-    <button class="music-toggle" onclick="forcePlayMusic()">🎵 MÜZİĞİ BAŞLAT</button>
-
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://opengameart.org/sites/default/files/Heroic%20Demise%20%28New%29.mp3" type="audio/mpeg">
-    </audio>
+    <button class="music-toggle" onclick="toggleMusic()">🎵 Müzik: Açık</button>
 
     <div class="game-wrapper">
         
@@ -263,7 +249,6 @@
             <h1>İNTİKAMI</h1>
             <p style="color: #aaa; margin-top: 10px;">"Hepsi... Onun için."</p>
             <button class="start-btn" onclick="startGame()">HİKAYEYE BAŞLA</button>
-            <p style="font-size: 12px; color: #666; margin-top: 20px;">(Müzik çalmazsa sağ üstteki butona basın)</p>
         </div>
 
         <div id="overlay" class="overlay-msg">
@@ -333,6 +318,61 @@
     </div>
 
 <script>
+    // --- GÜVENİLİR SES SİSTEMİ (WEB AUDIO API) ---
+    // Bu sistem dosya indirmez, tarayıcıda karanlık bir atmosfer sesi üretir.
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let ambientNodes = [];
+    let masterGain = null;
+    let isMusicPlaying = false;
+
+    function initAtmosphere() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        if (isMusicPlaying) return; // Zaten çalıyorsa tekrar başlatma
+
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.3; // Ses seviyesi
+        masterGain.connect(audioCtx.destination);
+
+        // 1. Düşük Frekanslı Drone (Derinlik)
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.value = 50; 
+        const filter1 = audioCtx.createBiquadFilter();
+        filter1.type = 'lowpass';
+        filter1.frequency.value = 150;
+        osc1.connect(filter1).connect(masterGain);
+        osc1.start();
+        ambientNodes.push(osc1);
+
+        // 2. Uğultu (Detune edilmiş sine dalgası)
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.value = 55; // Hafif uyumsuzluk korku hissi verir
+        const gain2 = audioCtx.createGain();
+        gain2.gain.value = 0.5;
+        osc2.connect(gain2).connect(masterGain);
+        osc2.start();
+        ambientNodes.push(osc2);
+
+        isMusicPlaying = true;
+        document.querySelector('.music-toggle').innerText = "🎵 Müzik: Açık";
+    }
+
+    function toggleMusic() {
+        if (!masterGain) return;
+        
+        if (isMusicPlaying) {
+            masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5); // Sesi yumuşakça kapat
+            isMusicPlaying = false;
+            document.querySelector('.music-toggle').innerText = "🎵 Müzik: Kapalı";
+        } else {
+            masterGain.gain.setTargetAtTime(0.3, audioCtx.currentTime, 0.5); // Sesi yumuşakça aç
+            isMusicPlaying = true;
+            document.querySelector('.music-toggle').innerText = "🎵 Müzik: Açık";
+        }
+    }
+
     // --- OYUN VERİLERİ ---
     const player = {
         name: "Viego",
@@ -376,43 +416,16 @@
 
     let currentEnemyIndex = 0;
     let turn = "player"; 
-    const bgMusic = document.getElementById('bgMusic');
 
-    // --- MÜZİK YÖNETİMİ ---
     function startGame() {
         document.getElementById('start-screen').style.display = 'none';
-        forcePlayMusic();
+        
+        // ATMOSFER SESİNİ BAŞLAT
+        initAtmosphere();
+        
         loadLevel(0);
     }
 
-    function forcePlayMusic() {
-        // Kullanıcı etkileşimi ile müziği başlat
-        bgMusic.volume = 0.3;
-        const playPromise = bgMusic.play();
-
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                console.log("Müzik çalıyor.");
-                document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
-            })
-            .catch(error => {
-                console.log("Müzik hatası:", error);
-                alert("Müzik yüklenemedi. Lütfen sağ üstteki butona tekrar basın.");
-            });
-        }
-    }
-
-    function toggleMusic() {
-        if (bgMusic.paused) {
-            bgMusic.play();
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
-        } else {
-            bgMusic.pause();
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: KAPALI";
-        }
-    }
-
-    // --- OYUN MANTIĞI ---
     function loadLevel(index) {
         currentEnemyIndex = index;
         const enemy = enemies[index];
