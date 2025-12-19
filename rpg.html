@@ -59,7 +59,7 @@
         }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
 
-        /* --- PENCERELER --- */
+        /* --- PENCERELER (MODAL, DIALOG, VICTORY) --- */
         .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal {
             background: rgba(10, 12, 15, 0.98);
             border: 2px solid #1a1a1a;
@@ -71,7 +71,6 @@
             text-align: center;
         }
 
-        /* Info Modal */
         .info-modal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 320px; padding: 20px; z-index: 2000; display: none;
@@ -455,7 +454,7 @@
             ]
         },
         tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü",
-            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "İksir içildi (+Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
+            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Bırak beni...\""], endingAttack: ["Viego: \"Senin olamıyorsam...\"", "Sistem: Son."], endingSurrender: ["Viego: \"Seninim.\"", "*Son*"] },
             shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA",
@@ -468,22 +467,22 @@
                 }
             },
             enemies: [
-                { id: "gangplank", name: "Gangplank", win: "Viego: \"Şehrim.\"", intro: ["GP: \"Gemimden in!\"", "Viego: \"Hayır.\""], quotes: ["Fıçı!"] },
-                { id: "yorick", name: "Yorick", win: "Viego: \"Uyu.\"", intro: ["Yorick: \"Sis bitmeli.\"", "Viego: \"Asla.\""], quotes: ["Mezar."] },
-                { id: "akshan", name: "Akshan", win: "Viego: \"Dirilme.\"", intro: ["Akshan: \"Çirkin ruh.\"", "Viego: \"Sinir bozucusun.\""], quotes: ["Bum!"] },
-                { id: "gwen", name: "Gwen", win: "Viego: \"Oyuncak.\"", intro: ["Gwen: \"Bunu istemezdi!\"", "Viego: \"Sus!\""], quotes: ["Kes!"] },
-                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Zayıf.\"", intro: ["Lucian: \"Burada biter!\"", "Senna: \"Bitti.\""], quotes: ["Işık!"] },
-                { id: "maokai", name: "Maokai", win: "Viego: \"Yan.\"", intro: ["Maokai: \"Doğayı bozdun!\"", "Viego: \"Düzelttim.\""], quotes: ["Kökler."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Örümcek.\"", intro: ["Elise: \"Tanrım aç.\"", "Viego: \"Ben ölümüm.\""], quotes: ["Isır."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Amca.\"", intro: ["Vlad: \"Trajedi.\"", "Viego: \"Alay etme.\""], quotes: ["Kan."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"Hizmet et.\"", intro: ["Hecarim: \"Savaş!\"", "Viego: \"Saldır.\""], quotes: ["Ez!"] },
-                { id: "illaoi", name: "Illaoi", win: "Viego: \"Durgun.\"", intro: ["Illaoi: \"Hareket et.\"", "Viego: \"Sonsuzum.\""], quotes: ["Vur."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Hain.\"", intro: ["Kalista: \"Dur artık.\"", "Viego: \"Yemin etmiştin.\""], quotes: ["Mızrak."] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Dostum.\"", intro: ["Ledros: \"Seni durdurmalıyım.\"", "Viego: \"Dene.\""], quotes: ["Kalkan."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanlar.\"", intro: ["LB: \"Göz yanılması.\"", "Viego: \"Gerçek!\""], quotes: ["Kopya."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Sefil.\"", intro: ["Thresh: \"Ne keyif.\"", "Viego: \"Yerini bil.\""], quotes: ["Zincir."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Hiçlik.\"", intro: ["Bel'Veth: \"Tüketeceğim.\"", "Viego: \"Onu değil.\""], quotes: ["Son."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Demir paslanır.\"", intro: ["Morde: \"Demir ebedidir.\"", "Viego: \"Sis sonsuzdur.\""], quotes: ["Yok ol."] }
+                { id: "gangplank", name: "Gangplank", win: "Viego: \"Burası benim şehrim.\"", intro: ["Gangplank: \"Gemimden defol hayalet! Bu şehir benim!\"", "Viego: \"Sisin dokunduğu her şey bana aittir.\"", "Gangplank: \"Kalbini söküp alacağım!\"", "Viego: \"Kırılacak bir kalbim kalmadı.\""], quotes: ["Fıçı!"] },
+                { id: "yorick", name: "Yorick", win: "Viego: \"Mezarını kaz.\"", intro: ["Yorick: \"Sis temizlenmeli. Durdurulmalısın.\"", "Viego: \"Sis BENİM. Kaçınılmaz olandan kaçamazsın.\"", "Yorick: \"Ben yaşayanlar için savaşıyorum. Sen bir ceset için.\""], quotes: ["Mezara gir."] },
+                { id: "akshan", name: "Akshan", win: "Viego: \"Diriliş yok.\"", intro: ["Akshan: \"Güzel yüz, çirkin ruh. Hadi düzeltelim.\"", "Viego: \"Sen sadece can sıkıcı bir böceksin.\"", "Akshan: \"Sen de mızmız bir kralsın.\""], quotes: ["Bum!"] },
+                { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"O'nun gülüşünü hatırlıyorum... Bunu istemezdi!\"", "Viego: \"Kes sesini! Sen sadece onun gölgesisin!\"", "Gwen: \"Seni durduracağım ve herkesi kurtaracağım!\""], quotes: ["Kesip biçerim!"] },
+                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Aşkınız zayıf.\"", intro: ["Lucian: \"Burada bitiyor Viego! İncittiğin herkes için!\"", "Viego: \"Sen karını kurtardın Lucian. Ben neden kurtaramayayım?!\"", "Senna: \"Çünkü o gitti Viego! Bir hayali kovalıyorsun!\""], quotes: ["Işık adına!", "Birlikte!"] },
+                { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Yaşam sularını zehirledin!\"", "Viego: \"Onları sonsuz kıldım. Bana teşekkür etmelisin.\"", "Maokai: \"Seni toprağa gömeceğim!\""], quotes: ["Doğa affetmez."] },
+                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım bir kralın ruhuna aç.\"", "Viego: \"Ben yemek değilim. Ben ölümün kendisiyim.\"", "Elise: \"Göreceğiz.\""], quotes: ["Yaklaş..."] },
+                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"Ah, Viego. Hala masalların peşinde misin?\"", "Viego: \"Sözlerine dikkat et amca. Yoksa dilini koparırım.\"", "Vladimir: \"Çok dramatiksin. Hadi yeri kırmızıya boyayalım.\""], quotes: ["Kanın kokusu..."] },
+                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti süvari.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş! Bize liderlik et Kralım!\"", "Viego: \"Sen sadece kör bir silahsın Hecarim. İtaat et.\"", "Hecarim: \"Ben sadece katliama itaat ederim!\""], quotes: ["Ezip geçin!"] },
+                { id: "illaoi", name: "Illaoi", win: "Viego: \"Tanrın sessiz kaldı.\"", intro: ["Illaoi: \"Sen durgunsun. Geçmişe saplanmışsın.\"", "Viego: \"Aşkım zamansızdır!\"", "Illaoi: \"Hareket hayattır. Sen içten ölüsün.\""], quotes: ["Hareket hayattır."] },
+                { id: "kalista", name: "Kalista", win: "Viego: \"Hain! Onu ölüme terk ettin!\"", intro: ["Kalista: \"Viego... yalvarırım. Bu deliliğe son ver.\"", "Viego: \"Beni korumaya yemin etmiştin! Onu kurtaramadın!\"", "Kalista: \"Ben gerçeğe yemin ettim. Sen kayboldun.\""], quotes: ["İntikam!"] },
+                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Yüzyıllardır seni kurtarmaya çalıştım Kralım.\"", "Viego: \"Öyleyse neden yolumdasın Ledros?\"", "Ledros: \"Çünkü hizmet ettiğim adam öldü. Geriye sadece canavar kaldı.\""], quotes: ["Düşemem."] },
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", intro: ["Viego: \"O nerede?! Bir şeyler bildiğini biliyorum!\"", "LeBlanc: \"Çok şey biliyorum. Ama gerçeği kaldırabilir misin?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
+                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Yaydıgın bu acı... Ne kadar lezzetli.\"", "Viego: \"Benimle alay etme Thresh. Sen sadece bir hizmetkarsın.\"", "Thresh: \"Hizmetkarlar sonunda efendi olur, değil mi?\""], quotes: ["Çığlık at."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
             ]
         }
     };
@@ -778,7 +777,7 @@
         if (player.wCooldown > 0) player.wCooldown--;
         triggerEffect('damage'); shakeElement(document.getElementById('player-img')); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
         log(`${enemyTrans.name} ${t.logEnemyAtk} ${dmg}.`);
-        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert(t.defeat); location.reload(); }, 1000); return; }
+        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert("DEFEAT"); location.reload(); }, 1000); return; }
         turn = "player";
     }
 
