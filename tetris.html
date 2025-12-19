@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tetris - Kedi Temalı</title>
+    <title>Tetris - Klasik Mod</title>
     <style>
         :root {
             --accent: #00ffcc;
             --btn-bg: #333;
             --text-color: #fff;
+            --panel-bg: rgba(15, 15, 20, 0.9);
         }
         body {
-            /* Kedi Arka Planı */
-            background-image: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            
+            /* YENİ ARKA PLAN: Modern Koyu Tema */
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: var(--text-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -31,26 +27,46 @@
             touch-action: none;
         }
 
-        /* Ana Menüye Dönüş Butonu */
+        /* Hafif kareli desen (Grid) */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+
+        /* Ana Menü Butonu */
         .menu-btn {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
+            top: 15px;
+            left: 15px;
+            z-index: 100;
             color: white;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 6px;
             font-size: 14px;
             border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(4px);
-            transition: background 0.2s;
         }
-        .menu-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-            border-color: var(--accent);
+
+        /* Müzik Butonu */
+        .music-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
         }
 
         /* Ana Taşıyıcı */
@@ -59,12 +75,12 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            background: rgba(0, 0, 0, 0.75);
-            padding: 25px;
-            border-radius: 20px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.1);
+            max-height: 95vh; /* Mobilde taşmayı önle */
         }
 
         /* Üst Panel */
@@ -77,36 +93,24 @@
         }
 
         select {
-            padding: 6px;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.1);
+            padding: 4px;
+            border-radius: 4px;
+            background: #333;
             color: white;
-            border: 1px solid #666;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-        }
-        select option { background: #333; }
-
-        .score-board {
-            font-size: 18px;
-            font-weight: bold;
+            border: 1px solid #555;
+            font-size: 12px;
         }
 
-        .score-board span {
-            color: var(--accent);
-            text-shadow: 0 0 10px rgba(0,255,204,0.5);
-        }
+        .score-board { font-size: 16px; font-weight: bold; }
+        .score-board span { color: var(--accent); }
 
         /* Oyun Alanı */
         .game-container {
-            border: 3px solid rgba(255,255,255,0.2);
-            border-radius: 4px;
-            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            border: 2px solid #555;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
             line-height: 0;
             background: #000;
         }
-
         canvas { display: block; }
 
         /* Mobil Kontroller */
@@ -114,53 +118,70 @@
             width: 260px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 10px;
         }
 
         .control-btn {
             background: rgba(255,255,255,0.1);
             color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 15px 0;
-            border-radius: 12px;
-            font-size: 22px;
-            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 0;
+            border-radius: 8px;
+            font-size: 20px;
             cursor: pointer;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
             user-select: none;
             touch-action: manipulation;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.1s;
         }
+        .control-btn:active { background: rgba(255,255,255,0.3); }
+        .btn-rotate { grid-column: 2; background-color: #d35400; border: none; }
 
-        .control-btn:active {
-            transform: translateY(4px);
-            box-shadow: none;
-            background: rgba(255,255,255,0.2);
-        }
-
-        .btn-rotate {
-            grid-column: 2;
-            background-color: #e67e22;
-            box-shadow: 0 4px 0 #a85a16;
-            border: none;
-        }
-        .btn-rotate:active { background-color: #d35400; }
-        
-        .desktop-hint {
-            font-size: 11px;
-            color: rgba(255,255,255,0.5);
+        /* YENİ: Geçmiş Skorlar Listesi */
+        .history-panel {
+            width: 240px;
+            height: 100px;
+            background: rgba(0,0,0,0.3);
             margin-top: 10px;
-            text-align: center;
+            border-radius: 8px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            padding: 5px;
+            font-size: 12px;
+            text-align: left;
         }
+        .history-title {
+            font-weight: bold;
+            color: #aaa;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 3px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 5px;
+            color: #ccc;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Scrollbar düzeni */
+        .history-panel::-webkit-scrollbar { width: 5px; }
+        .history-panel::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+
+        .desktop-hint { font-size: 10px; color: #666; margin-top: 5px; text-align: center; }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="menu-btn">← Menü</a>
+    <button class="music-btn" id="musicToggle" onclick="toggleMusic()">🎵 Müzik: Kapalı</button>
+
+    <audio id="bgMusic" loop>
+        <source src="https://upload.wikimedia.org/wikipedia/commons/e/e5/Tetris_theme.ogg" type="audio/ogg">
+        Tarayıcınız ses elementini desteklemiyor.
+    </audio>
 
     <div class="main-wrapper">
         <div class="header">
@@ -178,27 +199,30 @@
             <canvas id="tetris" width="240" height="400"></canvas>
         </div>
 
+        <div class="history-panel">
+            <span class="history-title" id="historyTitle">Geçmiş Skorlar</span>
+            <div id="scoreList">
+                </div>
+        </div>
+
         <div class="controls-area">
             <div style="grid-column: 1;"></div>
             <button class="control-btn btn-rotate" id="btnRotate" onclick="playerRotate(1)">↻</button>
             <div style="grid-column: 3;"></div>
-
             <button class="control-btn" onclick="playerMove(-1)">←</button>
             <button class="control-btn" onclick="playerDrop()">↓</button>
             <button class="control-btn" onclick="playerMove(1)">→</button>
         </div>
 
-        <div class="desktop-hint" id="desktopHint">
-            Klavye: Yön Tuşları
-        </div>
+        <div class="desktop-hint" id="desktopHint">Klavye: Yön Tuşları</div>
     </div>
 
 <script>
     // --- DİL SİSTEMİ ---
     const translations = {
-        tr: { score: "Skor", hint: "Klavye: Yön Tuşları" },
-        ku: { score: "Puan", hint: "Klavyeyê: Bişkokên Arasteyê" },
-        en: { score: "Score", hint: "Keyboard: Arrow Keys" }
+        tr: { score: "Skor", hint: "Klavye: Yön Tuşları", history: "Geçmiş Skorlar", musicOn: "🎵 Müzik: Açık", musicOff: "🎵 Müzik: Kapalı" },
+        ku: { score: "Puan", hint: "Klavyeyê: Bişkokên Arasteyê", history: "Puanên Borî", musicOn: "🎵 Muzîk: Veke", musicOff: "🎵 Muzîk: Girtî" },
+        en: { score: "Score", hint: "Keyboard: Arrow Keys", history: "Score History", musicOn: "🎵 Music: On", musicOff: "🎵 Music: Off" }
     };
 
     function changeLanguage() {
@@ -207,9 +231,73 @@
         const t = translations[lang];
         document.getElementById("scoreLabel").innerText = t.score;
         document.getElementById("desktopHint").innerText = t.hint;
+        document.getElementById("historyTitle").innerText = t.history;
+        updateMusicBtnText();
     }
 
-    // --- TETRIS MOTORU ---
+    // --- MÜZİK SİSTEMİ ---
+    const bgMusic = document.getElementById('bgMusic');
+    bgMusic.volume = 0.3; // Ses seviyesi %30
+    let isMusicPlaying = false;
+
+    function toggleMusic() {
+        if (isMusicPlaying) {
+            bgMusic.pause();
+            isMusicPlaying = false;
+        } else {
+            bgMusic.play().catch(e => console.log("Otomatik oynatma engellendi, etkileşim gerek."));
+            isMusicPlaying = true;
+        }
+        updateMusicBtnText();
+    }
+
+    function updateMusicBtnText() {
+        const lang = document.getElementById("languageSelector").value;
+        const btn = document.getElementById("musicToggle");
+        btn.innerText = isMusicPlaying ? translations[lang].musicOn : translations[lang].musicOff;
+    }
+
+    // --- SKOR GEÇMİŞİ SİSTEMİ ---
+    function saveGameToHistory(finalScore) {
+        if (finalScore === 0) return; // 0 puanı kaydetme
+
+        // Mevcut listeyi çek
+        let history = JSON.parse(localStorage.getItem('tetrisHistory')) || [];
+        
+        // Yeni oyun numarasını belirle
+        let gameNumber = history.length + 1;
+        
+        // Yeni skoru ekle
+        history.push({ game: gameNumber, score: finalScore });
+        
+        // Kaydet
+        localStorage.setItem('tetrisHistory', JSON.stringify(history));
+        
+        // Listeyi güncelle
+        updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
+        const list = document.getElementById('scoreList');
+        const history = JSON.parse(localStorage.getItem('tetrisHistory')) || [];
+        list.innerHTML = ""; // Temizle
+
+        // Listeyi tersten yazdır (En son oyun en üstte olsun)
+        // Eğer sıralı (1, 2, 3) isterseniz .reverse() kısmını silin.
+        history.slice().reverse().forEach(item => {
+            const div = document.createElement('div');
+            div.classList.add('history-item');
+            
+            // Dile göre "Oyun" kelimesi
+            const lang = document.getElementById("languageSelector").value;
+            const gameWord = lang === 'en' ? 'Game' : (lang === 'ku' ? 'Lîstik' : 'Oyun');
+            
+            div.innerHTML = `<span>${gameWord} ${item.game}</span> <span>${item.score}</span>`;
+            list.appendChild(div);
+        });
+    }
+
+    // --- OYUN MOTORU ---
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
@@ -248,7 +336,7 @@
                     context.fillStyle = colors[value];
                     context.fillRect(x + offset.x, y + offset.y, 1, 1);
                     context.lineWidth = 0.05;
-                    context.strokeStyle = 'white';
+                    context.strokeStyle = 'rgba(255,255,255,0.5)';
                     context.strokeRect(x + offset.x, y + offset.y, 1, 1);
                 }
             });
@@ -282,6 +370,8 @@
         player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
         
         if (collide(arena, player)) {
+            // OYUN BİTTİ
+            saveGameToHistory(player.score); // Skoru kaydet
             arena.forEach(row => row.fill(0));
             player.score = 0;
             updateScore();
@@ -366,8 +456,10 @@
         document.getElementById('score').innerText = player.score;
     }
 
-    // Klavye Kontrolleri
     document.addEventListener('keydown', event => {
+        // Müzik çalmaya başlasın (İlk etkileşimde)
+        if(bgMusic.paused && isMusicPlaying) bgMusic.play();
+
         if (event.keyCode === 37) playerMove(-1);
         else if (event.keyCode === 39) playerMove(1);
         else if (event.keyCode === 40) playerDrop();
@@ -375,16 +467,17 @@
         else if (event.keyCode === 87 || event.keyCode === 38) playerRotate(1);
     });
 
-    // Başlat
+    // Başlangıç Ayarları
+    window.onload = function() {
+        const savedLang = localStorage.getItem('selectedLang') || 'tr';
+        document.getElementById("languageSelector").value = savedLang;
+        changeLanguage();
+        updateHistoryDisplay();
+    };
+
     playerReset();
     updateScore();
     update();
-    // Sayfa açılınca, ana menüde seçilen dili otomatik uygula
-window.onload = function() {
-    const savedLang = localStorage.getItem('selectedLang') || 'tr';
-    document.getElementById("languageSelector").value = savedLang;
-    changeLanguage();
-};
 </script>
 </body>
 </html>
