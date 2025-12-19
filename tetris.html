@@ -203,6 +203,7 @@
 
     function changeLanguage() {
         const lang = document.getElementById("languageSelector").value;
+        localStorage.setItem('selectedLang', lang);
         const t = translations[lang];
         document.getElementById("scoreLabel").innerText = t.score;
         document.getElementById("desktopHint").innerText = t.hint;
@@ -378,6 +379,12 @@
     playerReset();
     updateScore();
     update();
+    // Sayfa açılınca, ana menüde seçilen dili otomatik uygula
+window.onload = function() {
+    const savedLang = localStorage.getItem('selectedLang') || 'tr';
+    document.getElementById("languageSelector").value = savedLang;
+    changeLanguage();
+};
 </script>
 </body>
 </html>
