@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tetris - Klasik Mod</title>
+    <title>Tetris - Pro Audio</title>
     <style>
         :root {
             --accent: #00ffcc;
@@ -26,7 +26,7 @@
             touch-action: none;
         }
 
-        /* Başlangıç Ekranı (Müzik İzni İçin Şart) */
+        /* Başlangıç Ekranı */
         #startOverlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -51,7 +51,6 @@
         }
         #startBtn:active { transform: scale(0.95); }
 
-        /* Grid Deseni */
         body::before {
             content: "";
             position: absolute;
@@ -63,7 +62,6 @@
             z-index: -1;
         }
 
-        /* Ana Menü Butonu */
         .menu-btn {
             position: fixed;
             top: 15px;
@@ -78,7 +76,6 @@
             border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* Müzik Butonu */
         .music-btn {
             position: fixed;
             top: 15px;
@@ -113,7 +110,6 @@
         .game-container { border: 2px solid #555; box-shadow: 0 0 15px rgba(0,0,0,0.8); line-height: 0; background: #000; }
         canvas { display: block; }
 
-        /* Geçmiş Skorlar */
         .history-panel {
             width: 240px; height: 100px; background: rgba(0,0,0,0.3); margin-top: 10px;
             border-radius: 8px; overflow-y: auto; border: 1px solid #444; padding: 5px; font-size: 12px; text-align: left;
@@ -121,7 +117,6 @@
         .history-title { font-weight: bold; color: #aaa; text-align: center; border-bottom: 1px solid #444; padding-bottom: 3px; display: block; }
         .history-item { display: flex; justify-content: space-between; padding: 2px 5px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* Kontroller */
         .controls-area { width: 260px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
         .control-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 12px 0; border-radius: 8px; font-size: 20px; cursor: pointer; user-select: none; }
         .btn-rotate { grid-column: 2; background-color: #d35400; border: none; }
@@ -133,7 +128,7 @@
     <div id="startOverlay">
         <h1 style="color:white; margin-bottom:20px; text-shadow:0 0 10px #fff;">TETRIS</h1>
         <button id="startBtn" onclick="startGameWithMusic()">▶ OYUNA BAŞLA</button>
-        <p style="color:#aaa; margin-top:10px; font-size:12px;">Müzik ve kontroller için tıklayın</p>
+        <p style="color:#aaa; margin-top:10px; font-size:12px;">Müzik ve sesler için tıklayın</p>
     </div>
 
     <a href="index.html" class="menu-btn">← Menü</a>
@@ -141,6 +136,14 @@
 
     <audio id="bgMusic" loop>
         <source src="https://ia800504.us.archive.org/33/items/TetrisThemeMusic/Tetris.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sndScore">
+        <source src="https://ia800300.us.archive.org/2/items/Mario_Sounds_Mushrooms/coin.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sndOver">
+        <source src="https://ia800300.us.archive.org/2/items/Mario_Sounds_Mushrooms/die.mp3" type="audio/mpeg">
     </audio>
 
     <div class="main-wrapper">
@@ -176,26 +179,49 @@
     </div>
 
 <script>
-    // --- MÜZİK VE BAŞLANGIÇ SİSTEMİ ---
+    // --- SES YÖNETİMİ & DUCKING (SES KISMA) ---
     const bgMusic = document.getElementById('bgMusic');
-    bgMusic.volume = 0.4; 
+    const sndScore = document.getElementById('sndScore');
+    const sndOver = document.getElementById('sndOver');
+    
+    // Normal müzik ses seviyesi
+    const MUSIC_VOL_NORMAL = 0.4;
+    // Efekt çalarkenki müzik ses seviyesi
+    const MUSIC_VOL_LOW = 0.05;
+
+    bgMusic.volume = MUSIC_VOL_NORMAL;
     let isMusicPlaying = false;
-    let isGameRunning = false; // Oyun "Başla"ya basılınca başlayacak
+    let isGameRunning = false;
+
+    // Akıllı Ses Oynatma Fonksiyonu
+    function playSoundEffect(soundElement) {
+        // Efekti başa sar ve oynat
+        soundElement.currentTime = 0;
+        soundElement.play().catch(e => {});
+
+        // Eğer müzik açıksa, sesi kıs (Ducking)
+        if (isMusicPlaying && !bgMusic.paused) {
+            bgMusic.volume = MUSIC_VOL_LOW;
+            
+            // Efekt bitince sesi eski haline getir
+            soundElement.onended = () => {
+                bgMusic.volume = MUSIC_VOL_NORMAL;
+                // Olay dinleyicisini temizle ki birikmesin
+                soundElement.onended = null;
+            };
+        }
+    }
 
     function startGameWithMusic() {
-        // Başlangıç ekranını gizle
         document.getElementById('startOverlay').style.display = 'none';
         
-        // Müziği başlat (Kullanıcı etkileşimi olduğu için tarayıcı izin verir)
         bgMusic.play().then(() => {
             isMusicPlaying = true;
             updateMusicBtnText();
         }).catch(error => {
             console.log("Müzik hatası:", error);
-            alert("Müzik çalınamadı. Tarayıcı ayarlarınızı kontrol edin.");
         });
 
-        // Oyunu başlat
         isGameRunning = true;
         playerReset();
         updateScore();
@@ -205,6 +231,7 @@
     function toggleMusic() {
         if (bgMusic.paused) {
             bgMusic.play();
+            bgMusic.volume = MUSIC_VOL_NORMAL;
             isMusicPlaying = true;
         } else {
             bgMusic.pause();
@@ -229,7 +256,7 @@
         document.getElementById("historyTitle").innerText = t.history;
         document.getElementById("startBtn").innerText = t.start;
         updateMusicBtnText();
-        updateHistoryDisplay(); // Geçmiş listesindeki 'Oyun' kelimesi için
+        updateHistoryDisplay();
     }
 
     function updateMusicBtnText() {
@@ -264,7 +291,7 @@
         });
     }
 
-    // --- OYUN MOTORU ---
+    // --- TETRIS MOTORU ---
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
@@ -337,7 +364,8 @@
         player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
         
         if (collide(arena, player)) {
-            // OYUN BİTTİ
+            // --- OYUN BİTTİ ---
+            playSoundEffect(sndOver); // Kaybetme sesi çal
             saveGameToHistory(player.score);
             arena.forEach(row => row.fill(0));
             player.score = 0;
@@ -394,6 +422,8 @@
 
     function arenaSweep() {
         let rowCount = 1;
+        let clearedSomething = false;
+
         outer: for (let y = arena.length - 1; y > 0; --y) {
             for (let x = 0; x < arena[y].length; ++x) {
                 if (arena[y][x] === 0) continue outer;
@@ -403,6 +433,12 @@
             ++y;
             player.score += rowCount * 10;
             rowCount *= 2;
+            clearedSomething = true;
+        }
+
+        // Eğer satır silindiyse sesi çal
+        if (clearedSomething) {
+            playSoundEffect(sndScore);
         }
     }
 
@@ -444,7 +480,7 @@
         updateHistoryDisplay();
     };
 
-    update(); // Döngüyü başlat (Ama isGameRunning false olduğu için oyun akmaz)
+    update();
 </script>
 </body>
 </html>
