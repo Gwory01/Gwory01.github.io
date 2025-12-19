@@ -16,7 +16,6 @@
 
         body {
             background-color: var(--dark-bg);
-            /* Arka plan: Karanlık sisli bir atmosfer */
             background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover;
             background-position: center;
@@ -33,7 +32,6 @@
             user-select: none;
         }
 
-        /* Sis Efekti (Animasyon) */
         @keyframes mist {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -49,7 +47,6 @@
             pointer-events: none;
         }
 
-        /* UI Panelleri */
         .game-wrapper {
             width: 90%;
             max-width: 1000px;
@@ -64,7 +61,6 @@
             height: 600px;
         }
 
-        /* Başlangıç Ekranı */
         #start-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -90,7 +86,6 @@
         }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
-        /* Savaş Alanı */
         .battle-scene {
             flex-grow: 1;
             display: flex;
@@ -116,7 +111,6 @@
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         
-        /* Hasar Animasyonu */
         .shake { animation: shake 0.5s; }
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
@@ -132,7 +126,6 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
-        /* Bar Stilleri */
         .stat-bar {
             width: 100%;
             height: 15px;
@@ -146,7 +139,6 @@
         .mana-fill { background-color: var(--mana-blue); }
         .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
 
-        /* Kontrol Paneli */
         .controls {
             height: 150px;
             border-top: 1px solid #444;
@@ -194,7 +186,6 @@
             font-family: sans-serif;
         }
 
-        /* Overlay Mesajları */
         .overlay-msg {
             position: absolute;
             top: 50%; left: 50%;
@@ -209,7 +200,6 @@
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
         .overlay-msg p { font-style: italic; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
 
-        /* Level Göstergesi */
         .level-badge {
             position: absolute;
             top: -10px; right: -10px;
@@ -222,7 +212,6 @@
             border: 2px solid white;
         }
 
-        /* Müzik Butonu */
         .music-toggle {
             position: fixed;
             top: 20px; right: 20px;
@@ -233,17 +222,28 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 200;
+            color: var(--ruined-green);
+            text-decoration: none;
+            border: 1px solid var(--ruined-green);
+            padding: 5px 15px;
+            background: rgba(0,0,0,0.8);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
+    <a href="index.html" class="back-btn">← Menü</a>
     <div class="mist-overlay"></div>
     <button class="music-toggle" onclick="toggleMusic()">🎵 Müzik</button>
 
     <audio id="bgMusic" loop>
-        <audio id="bgMusic" loop>
-    <source src="https://archive.org/download/deus_ex_mankind_divided_ost_extended/09%20Dark%20Days%20-%20Michael%20McCann.mp3" type="audio/mpeg">
-</audio>
+        <source src="https://archive.org/download/deus_ex_mankind_divided_ost_extended/09%20Dark%20Days%20-%20Michael%20McCann.mp3" type="audio/mpeg">
     </audio>
 
     <div class="game-wrapper">
@@ -322,14 +322,14 @@
     </div>
 
 <script>
-    // --- OYUN AYARLARI ---
+    // --- OYUN VERİLERİ ---
     const player = {
         name: "Viego",
         level: 1,
         maxHp: 150,
         hp: 150,
         maxMana: 100,
-        mana: 50, // Başlangıç manası
+        mana: 50,
         ultUsed: false
     };
 
@@ -364,13 +364,12 @@
     ];
 
     let currentEnemyIndex = 0;
-    let turn = "player"; // player veya enemy
+    let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
 
-    // --- BAŞLATMA ---
     function startGame() {
         document.getElementById('start-screen').style.display = 'none';
-        bgMusic.volume = 0.4;
+        bgMusic.volume = 0.3; // Sesi ideal seviyede başlattık
         bgMusic.play().catch(e => console.log("Otomatik oynatma engellendi"));
         loadLevel(0);
     }
@@ -384,12 +383,10 @@
         currentEnemyIndex = index;
         const enemy = enemies[index];
         
-        // Düşman UI Güncelle
         document.getElementById('enemy-name').innerText = enemy.name.toUpperCase();
         document.getElementById('enemy-img').src = enemy.img;
         document.getElementById('enemy-lvl').innerText = enemy.level;
         
-        // Resetler
         player.ultUsed = false;
         document.getElementById('btn-ult').disabled = false;
         document.getElementById('btn-ult').style.opacity = "1";
@@ -399,9 +396,8 @@
         document.getElementById('overlay').style.display = 'none';
     }
 
-    // --- SAVAŞ MEKANİĞİ ---
     function useSkill(type) {
-        if (turn !== "player") return; // Sıra oyuncuda değilse dur
+        if (turn !== "player") return;
 
         const enemy = enemies[currentEnemyIndex];
         let damage = 0;
@@ -409,7 +405,6 @@
         let manaCost = 0;
         let manaGain = 0;
 
-        // Skill Mantığı
         if (type === 'basic') {
             damage = 15 + (player.level * 5);
             manaGain = 15;
@@ -431,10 +426,9 @@
             if (player.ultUsed) { log("Ulti bu savaşta zaten kullanıldı!"); return; }
             if (player.mana <= 0) { log("Ulti için hiç manan yok!"); return; }
             
-            // Ulti mekaniği: Manayı tüket, manaya göre hasar vur + base hasar
             let currentMana = player.mana;
-            manaCost = currentMana; // Hepsini tüket
-            damage = 80 + (player.level * 10) + (currentMana * 1.5); // Mana bonusu
+            manaCost = currentMana; 
+            damage = 80 + (player.level * 10) + (currentMana * 1.5);
             
             player.ultUsed = true;
             document.getElementById('btn-ult').disabled = true;
@@ -443,7 +437,6 @@
             logMsg = `VIEGO KALBİNİ KIRDI! TÜM GÜCÜYLE VURDU! ${damage} HASAR!`;
         }
 
-        // Oyuncu Saldırısı Uygulama
         player.mana -= manaCost;
         player.mana += manaGain;
         if (player.mana > player.maxMana) player.mana = player.maxMana;
@@ -451,25 +444,21 @@
         enemy.hp -= damage;
         if (enemy.hp < 0) enemy.hp = 0;
 
-        // Efekt
         shakeElement(document.getElementById('enemy-img'));
         updateUI();
         log(logMsg);
 
-        // Kazanma Kontrolü
         if (enemy.hp <= 0) {
             winBattle();
             return;
         }
 
-        // Sıra Düşmana Geçer
         turn = "enemy";
         setTimeout(enemyTurn, 1000);
     }
 
     function enemyTurn() {
         const enemy = enemies[currentEnemyIndex];
-        // Düşman basit yapay zeka: Rastgele hasar aralığı
         let dmg = enemy.damage + Math.floor(Math.random() * 10);
         
         player.hp -= dmg;
@@ -479,7 +468,6 @@
         updateUI();
         log(`${enemy.name} saldırdı! ${dmg} hasar aldın.`);
 
-        // Kaybetme Kontrolü
         if (player.hp <= 0) {
             log("Viego düştü... Isolde sonsuza dek kayboldu.");
             setTimeout(() => {
@@ -492,20 +480,16 @@
         turn = "player";
     }
 
-    // --- SİSTEM FONKSİYONLARI ---
     function winBattle() {
         const enemy = enemies[currentEnemyIndex];
-        
-        // Replik Göster
         document.getElementById('overlay-title').innerText = "DÜŞMAN KATLEDİLDİ";
         document.getElementById('overlay-quote').innerText = enemy.winQuote;
         
-        // Level Up
         player.level++;
         player.maxHp += 50;
-        player.hp = player.maxHp; // Canı fulle
+        player.hp = player.maxHp; 
         player.maxMana += 20;
-        player.mana = 50; // Manayı sıfırla/başlangıca çek
+        player.mana = 50;
         
         document.getElementById('level-up-text').innerText = `SEVİYE ATLADIN! (LVL ${player.level})`;
         document.getElementById('level-up-text').style.display = 'block';
@@ -524,7 +508,6 @@
     }
 
     function updateUI() {
-        // Player Barları
         const pHpPerc = (player.hp / player.maxHp) * 100;
         const pManaPerc = (player.mana / player.maxMana) * 100;
         document.getElementById('player-hp-bar').style.width = pHpPerc + '%';
@@ -533,7 +516,6 @@
         document.getElementById('player-mana-text').innerText = `${Math.floor(player.mana)}/${player.maxMana}`;
         document.getElementById('player-lvl').innerText = player.level;
 
-        // Enemy Barları
         const enemy = enemies[currentEnemyIndex];
         const eHpPerc = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = eHpPerc + '%';
