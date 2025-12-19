@@ -42,74 +42,36 @@
             box-shadow: inset 0 0 150px #0ac8b9;
         }
 
-        /* --- ENVANTER FRAME (SOL ÜST) --- */
-        #inventory-frame {
-            position: fixed;
-            top: 80px; left: 20px;
-            width: 70px;
-            background: rgba(10, 12, 15, 0.95);
-            border: 2px solid var(--ruined-green);
-            border-radius: 6px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 1000;
-            box-shadow: 0 0 15px rgba(10, 200, 185, 0.3);
-        }
-
-        .inv-slot {
-            width: 100%; height: 60px;
-            background: #222; border: 1px solid #444;
-            border-radius: 4px; position: relative;
-            cursor: pointer; transition: 0.2s;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 28px;
-        }
-        .inv-slot:hover { border-color: var(--ruined-green); background: #333; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
-        .inv-slot:active { transform: scale(0.95); }
-        .inv-slot.empty { opacity: 0.5; cursor: default; filter: grayscale(100%); }
-
-        .inv-count {
-            position: absolute; bottom: 2px; right: 2px;
-            font-size: 11px; font-weight: bold; color: white;
-            background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px;
-            font-family: sans-serif; border: 1px solid #555;
-        }
-
-        /* --- TOOLTIP (HOVER) --- */
-        #inv-tooltip {
-            position: absolute; left: 85px; top: 0; width: 180px;
-            background: rgba(10, 12, 15, 0.98);
-            border: 1px solid var(--ruined-green);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            color: #ccc; padding: 12px; font-size: 12px;
-            pointer-events: none; opacity: 0; transition: opacity 0.2s;
-            z-index: 1500; text-align: left; font-family: sans-serif;
-            border-radius: 4px;
-            display: none; /* JS ile block yapılacak */
-        }
-        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 3px; }
-        .tooltip-desc { color: #aaa; }
-        .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
-
-        /* --- MEVCUT STILLER --- */
+        /* --- INFO BUTTONS --- */
         .info-btn {
-            position: absolute; top: 5px; left: 5px; width: 25px; height: 25px;
-            background: rgba(0, 0, 0, 0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green);
-            border-radius: 50%; font-weight: bold; font-family: sans-serif; font-size: 14px;
-            cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center;
-            transition: 0.3s; box-shadow: 0 0 10px rgba(10, 200, 185, 0.5);
+            position: absolute;
+            top: 5px; left: 5px;
+            width: 25px; height: 25px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--ruined-green);
+            color: var(--ruined-green);
+            border-radius: 50%;
+            font-weight: bold; font-family: sans-serif; font-size: 14px;
+            cursor: pointer; z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(10, 200, 185, 0.5);
         }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
 
+        /* --- PENCERELER --- */
         .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal {
-            background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a;
-            outline: 2px solid var(--ruined-green); outline-offset: -2px;
+            background: rgba(10, 12, 15, 0.98);
+            border: 2px solid #1a1a1a;
+            outline: 2px solid var(--ruined-green);
+            outline-offset: -2px;
             box-shadow: 0 0 30px rgba(10, 200, 185, 0.3), inset 0 0 50px rgba(0,0,0,0.9);
-            border-radius: 4px; color: #ddd; text-align: center;
+            border-radius: 4px;
+            color: #ddd;
+            text-align: center;
         }
 
+        /* Info Modal */
         .info-modal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 320px; padding: 20px; z-index: 2000; display: none;
@@ -121,18 +83,30 @@
         .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
         .info-close:hover { background: var(--ruined-green); color: black; }
 
-        #shop-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; padding: 20px; z-index: 2100; display: none; text-align: left; }
+        /* --- SHOP MODAL --- */
+        #shop-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 600px; padding: 20px; z-index: 2100; display: none;
+            text-align: left;
+        }
         .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .shop-item { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .shop-item { 
+            background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 10px; 
+            display: flex; justify-content: space-between; align-items: center; transition: 0.2s; 
+        }
         .shop-item:hover { border-color: var(--ruined-green); background: rgba(10, 200, 185, 0.1); }
         .item-info { display: flex; flex-direction: column; }
         .item-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
         .item-desc { font-size: 0.75rem; color: #aaa; }
-        .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; }
+        .buy-btn { 
+            background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); 
+            padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; 
+        }
         .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: black; }
         .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
 
+        /* --- OYUN ALANI --- */
         .game-wrapper { 
             width: 95%; max-width: 800px; height: 650px;
             background: rgba(8, 10, 12, 0.95); 
@@ -141,10 +115,16 @@
             padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; 
         }
 
-        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 8px; }
+        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            border-radius: 8px;
+        }
+        
         #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
         #overlay { background: rgba(0,0,0,0.8); display: none; }
         #final-choice-overlay { background: rgba(0,0,0,0.95); display: none; }
+        
         .overlay-msg { padding: 40px; min-width: 300px; }
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 10px var(--ruined-green); }
 
@@ -156,7 +136,7 @@
 
         .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
-        
+
         .choice-btn { padding: 20px 40px; margin: 10px; font-size: 1.2rem; border: 2px solid; cursor: pointer; font-family: 'Cinzel', serif; width: 300px; transition: 0.3s; background: rgba(0,0,0,0.8); }
         .btn-attack { border-color: #c0392b; color: #c0392b; }
         .btn-attack:hover { background: #c0392b; color: white; }
@@ -178,7 +158,44 @@
         .shield-fill { background-color: #95a5a6; position: absolute; top: 0; left: 0; height: 100%; width: 0%; opacity: 0.7; }
         .bar-text { font-size: 13px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; z-index: 10; line-height: 18px; }
 
+        /* GOLD & INVENTORY UI */
         .gold-display { position: absolute; top: -30px; right: 0; color: var(--gold-color); font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 5px; }
+
+        #inventory-frame {
+            position: fixed; top: 80px; left: 20px; width: 70px;
+            background: rgba(10, 12, 15, 0.95); border: 2px solid var(--ruined-green);
+            border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 15px;
+            z-index: 1000; box-shadow: 0 0 15px rgba(10, 200, 185, 0.3);
+        }
+
+        .inv-slot {
+            width: 100%; height: 60px; background: #222; border: 1px solid #444;
+            border-radius: 4px; position: relative; cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: center; align-items: center; font-size: 28px;
+        }
+        .inv-slot:hover { border-color: var(--ruined-green); background: #333; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
+        .inv-slot:active { transform: scale(0.95); }
+        .inv-slot.empty { opacity: 0.5; cursor: default; filter: grayscale(100%); }
+
+        .inv-count {
+            position: absolute; bottom: 2px; right: 2px;
+            font-size: 11px; font-weight: bold; color: white;
+            background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px;
+            font-family: sans-serif; border: 1px solid #555;
+        }
+
+        #inv-tooltip {
+            position: absolute; left: 85px; top: 0; width: 180px;
+            background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8); color: #ccc; padding: 12px; font-size: 12px;
+            pointer-events: none; opacity: 1; transition: opacity 0.2s;
+            z-index: 1500; text-align: left; font-family: sans-serif; border-radius: 4px;
+            display: none;
+        }
+        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 3px; }
+        .tooltip-desc { color: #aaa; }
+        .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
+
 
         .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; position: relative; }
         .hidden-ui { opacity: 0; pointer-events: none; }
@@ -249,12 +266,12 @@
 
     <div id="shop-modal">
         <div class="shop-header">
-            <h3 style="margin:0; color:var(--gold-color);">RUINED SHOP</h3>
+            <h3 style="margin:0; color:var(--gold-color);" id="shop-title-text">RUINED SHOP</h3>
             <span id="shop-gold-display">0 Gold</span>
         </div>
         <div class="shop-grid" id="shop-container">
             </div>
-        <button class="info-close" onclick="closeShop()">CLOSE</button>
+        <button class="info-close" id="shop-close-btn" onclick="closeShop()">CLOSE</button>
     </div>
 
     <div class="game-wrapper">
@@ -278,7 +295,7 @@
             <p id="overlay-quote">"..."</p>
             <div id="level-up-text" style="color: yellow; margin-bottom: 15px; display:none;">LEVEL UP!</div>
             <div style="display:flex; justify-content:center; gap:10px;">
-                <button class="start-btn" onclick="openShop()">SHOP</button>
+                <button class="start-btn" id="btn-open-shop" onclick="openShop()">SHOP</button>
                 <button class="start-btn" id="next-btn" onclick="nextLevel()">CONTINUE</button>
             </div>
         </div>
@@ -359,16 +376,17 @@
     const player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
-        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0
+        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0
     };
     
-    // --- MAĞAZA EŞYALARI ---
+    // --- MAĞAZA EŞYALARI (Logic) ---
+    // Not: İsimler ve Açıklamalar artık translations nesnesinden çekilecek.
     const shopItems = [
-        { id: 'potion', name: "Mist Potion", price: 50, desc: "Restores HP", type: 'consumable', stat: "+60 HP" },
-        { id: 'elixir', name: "Wrath Elixir", price: 50, desc: "Restores Power", type: 'consumable', stat: "+40 PWR" },
-        { id: 'sword', name: "Ruined Shard", price: 200, desc: "Permanent Dmg", type: 'permanent', effect: () => { player.baseDmgBonus += 5; } },
-        { id: 'armor', name: "Spectral Armor", price: 200, desc: "Max HP Up", type: 'permanent', effect: () => { player.maxHp += 30; player.hp += 30; } },
-        { id: 'cloak', name: "Crit Cloak", price: 300, desc: "Crit Chance Up", type: 'permanent', effect: () => { player.critChance += 0.05; } }
+        { id: 'potion', price: 50, type: 'consumable' },
+        { id: 'elixir', price: 50, type: 'consumable' },
+        { id: 'sword', price: 200, type: 'permanent', effect: () => { player.baseDmgBonus += 30; } },
+        { id: 'armor', price: 200, type: 'permanent', effect: () => { player.armor += 15; } },
+        { id: 'cloak', price: 300, type: 'permanent', effect: () => { player.critChance += 0.25; } }
     ];
 
     let bossState = { isPlayerStunned: false, threshStacks: 0, threshVulnerable: false, belvethForm: 1, mordeRealmTriggered: false, mordeRealmActive: false, turnCount: 0 };
@@ -405,9 +423,18 @@
     let currentLang = 'en'; let t = {};
     const translations = {
         en: { title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY", victory: "VICTORY", levelUp: "LEVEL UP!", continue: "CONTINUE", defeat: "DEFEAT...", skillBasic: "Blade of the King", skillQ: "Blade of the Ruined King (Q)", skillQDesc: "7% Enemy HP Steal", skillW: "Spectral Maw (W)", skillR: "HEARTBREAKER (R)", finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN", choiceSurrender: "SURRENDER TO LOVE", menu: "← Menu",
-            logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+60 HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
+            logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
+            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP",
+                items: {
+                    potion: { name: "Mist Potion", desc: "Restores 10% Missing HP", stat: "Heal" },
+                    elixir: { name: "Wrath Elixir", desc: "Restores Power", stat: "+40 PWR" },
+                    sword: { name: "Ruined Shard", desc: "+30 Base Damage", stat: "Damage" },
+                    armor: { name: "Spectral Armor", desc: "+15% Damage Reduction", stat: "Armor" },
+                    cloak: { name: "Crit Cloak", desc: "+25% Crit Chance", stat: "Crit" }
+                }
+            },
             enemies: [
                 { id: "gangplank", name: "Gangplank", win: "Viego: \"A pirate cannot stop a King.\"", intro: ["Gangplank: \"Get off my ship, ghost! This city is mine!\"", "Viego: \"Everything the mist touches belongs to me.\"", "Gangplank: \"I'll carve your heart out!\"", "Viego: \"I have no heart left to break.\""], quotes: ["Barrel!", "Burn!"] },
                 { id: "yorick", name: "Yorick", win: "Viego: \"Return to your grave, Monk.\"", intro: ["Yorick: \"The Mist must be purged. You must be stopped.\"", "Viego: \"The Mist IS me. You fight the inevitable.\"", "Yorick: \"I fight for the living. You fight for a corpse.\""], quotes: ["Join the grave."] },
@@ -428,9 +455,18 @@
             ]
         },
         tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü",
-            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "İksir içildi (+60 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
+            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "İksir içildi (+Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Bırak beni...\""], endingAttack: ["Viego: \"Senin olamıyorsam...\"", "Sistem: Son."], endingSurrender: ["Viego: \"Seninim.\"", "*Son*"] },
+            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA",
+                items: {
+                    potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
+                    elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
+                    sword: { name: "Mahvolmuş Parça", desc: "+30 Taban Hasar", stat: "Hasar" },
+                    armor: { name: "Hayalet Zırh", desc: "%15 Hasar Azaltma", stat: "Zırh" },
+                    cloak: { name: "Kritik Pelerini", desc: "+%25 Kritik Şansı", stat: "Kritik" }
+                }
+            },
             enemies: [
                 { id: "gangplank", name: "Gangplank", win: "Viego: \"Şehrim.\"", intro: ["GP: \"Gemimden in!\"", "Viego: \"Hayır.\""], quotes: ["Fıçı!"] },
                 { id: "yorick", name: "Yorick", win: "Viego: \"Uyu.\"", intro: ["Yorick: \"Sis bitmeli.\"", "Viego: \"Asla.\""], quotes: ["Mezar."] },
@@ -467,8 +503,16 @@
         document.getElementById('overlay-title').innerText = t.victory; document.getElementById('level-up-text').innerText = t.levelUp; document.getElementById('next-btn').innerText = t.continue;
         document.getElementById('skill-basic-name').innerText = t.skillBasic; document.getElementById('skill-q-name').innerText = t.skillQ; document.getElementById('skill-q-desc').innerText = t.skillQDesc; document.getElementById('skill-w-name').innerText = t.skillW; document.getElementById('skill-r-name').innerText = t.skillR;
         document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
+        
+        // MAĞAZA VE ENVANTER DİL GÜNCELLEMESİ
+        document.getElementById('shop-title-text').innerText = t.shop.title;
+        document.getElementById('shop-close-btn').innerText = t.shop.close;
+        document.getElementById('btn-open-shop').innerText = t.shop.btnShop;
+        
         updateMusicBtnText();
-        if (!isIsoldeScene) document.getElementById('enemy-name').innerText = enemiesBase[currentEnemyIndex].id.toUpperCase();
+        if (!isIsoldeScene && document.getElementById('enemy-name').innerText !== "ENEMY" && document.getElementById('enemy-name').innerText !== "DÜŞMAN") {
+             document.getElementById('enemy-name').innerText = t.enemies[currentEnemyIndex].name.toUpperCase();
+        }
     }
 
     function updateMusicBtnText() { document.getElementById('btn-music').innerText = !bgMusic.paused ? "🎵 Music: ON" : "🎵 Music: OFF"; }
@@ -479,16 +523,17 @@
     function openShop() {
         const modal = document.getElementById('shop-modal');
         const container = document.getElementById('shop-container');
-        document.getElementById('shop-gold-display').innerText = `${player.gold} Gold`;
+        document.getElementById('shop-gold-display').innerText = `${player.gold} ${t.shop.gold}`;
         
         container.innerHTML = "";
         shopItems.forEach(item => {
+            const itemTrans = t.shop.items[item.id]; // Çeviriden çek
             const div = document.createElement('div');
             div.className = 'shop-item';
             div.innerHTML = `
                 <div class="item-info">
-                    <span class="item-name">${item.name}</span>
-                    <span class="item-desc">${item.desc}</span>
+                    <span class="item-name">${itemTrans.name}</span>
+                    <span class="item-desc">${itemTrans.desc}</span>
                 </div>
                 <button class="buy-btn" onclick="buyItem('${item.id}')" ${player.gold < item.price ? 'disabled' : ''}>${item.price} G</button>
             `;
@@ -516,11 +561,10 @@
         }
     }
 
-    // --- INVENTORY LOGIC ---
+    // --- INVENTORY LOGIC (GÜNCELLENDİ) ---
     function updateInventoryUI() {
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
-        
         document.querySelector('.inv-slot:nth-child(1)').classList.toggle('empty', player.potions === 0);
         document.querySelector('.inv-slot:nth-child(2)').classList.toggle('empty', player.elixirs === 0);
     }
@@ -531,8 +575,14 @@
         if (type === 'potion') {
             if (player.potions > 0) {
                 player.potions--;
-                player.hp += 60; if(player.hp > player.maxHp) player.hp = player.maxHp;
-                showFloatingText(document.getElementById('player-box'), "+60", "heal");
+                let missingHp = player.maxHp - player.hp;
+                let healAmount = Math.floor(missingHp * 0.10);
+                if (healAmount < 20) healAmount = 20; 
+
+                player.hp += healAmount; 
+                if(player.hp > player.maxHp) player.hp = player.maxHp;
+                
+                showFloatingText(document.getElementById('player-box'), `+${healAmount}`, "heal");
                 log(t.logPotion);
                 updateUI(); updateInventoryUI();
             } else { log(t.logPotionErr); }
@@ -541,7 +591,7 @@
             if (player.elixirs > 0) {
                 player.elixirs--;
                 player.power += 40; if(player.power > player.maxPower) player.power = player.maxPower;
-                showFloatingText(document.getElementById('player-box'), "+40 Power", "heal"); // Power için heal stili kullanabiliriz veya yeni stil
+                showFloatingText(document.getElementById('player-box'), "+40 Power", "heal");
                 log(t.logElixir);
                 updateUI(); updateInventoryUI();
             } else { log(t.logElixirErr); }
@@ -551,14 +601,14 @@
     function showTooltip(el, type) {
         const tooltip = document.getElementById('inv-tooltip');
         tooltip.style.display = 'block';
-        tooltip.style.top = el.offsetTop + 'px'; // Hizalama
-
-        const item = shopItems.find(i => i.id === type);
-        if (item) {
+        tooltip.style.top = el.offsetTop + 'px'; 
+        
+        const itemTrans = t.shop.items[type]; // Çeviriden çek
+        if (itemTrans) {
             tooltip.innerHTML = `
-                <span class="tooltip-title">${item.name}</span>
-                <span class="tooltip-desc">${item.desc}</span>
-                <span class="tooltip-stat">${item.stat}</span>
+                <span class="tooltip-title">${itemTrans.name}</span>
+                <span class="tooltip-desc">${itemTrans.desc}</span>
+                <span class="tooltip-stat">${itemTrans.stat}</span>
             `;
         }
     }
@@ -718,11 +768,17 @@
         if (enemyData.id === 'belveth') { dmg += 10 * bossState.belvethForm; }
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) { dmg = Math.floor(dmg * 1.3); let ls = Math.floor(dmg * 0.75); enemyData.hp += ls; if(enemyData.hp > enemyData.maxHp) enemyData.hp = enemyData.maxHp; showFloatingText(document.getElementById('enemy-box'), `+${ls}`, 'heal'); }
 
+        // --- ZIRH HESABI ---
+        if (player.armor > 0) {
+            let reduction = Math.floor(dmg * (player.armor / 100));
+            dmg -= reduction;
+        }
+
         player.hp -= dmg; if (player.hp < 0) player.hp = 0;
         if (player.wCooldown > 0) player.wCooldown--;
         triggerEffect('damage'); shakeElement(document.getElementById('player-img')); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
         log(`${enemyTrans.name} ${t.logEnemyAtk} ${dmg}.`);
-        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert("DEFEAT"); location.reload(); }, 1000); return; }
+        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert(t.defeat); location.reload(); }, 1000); return; }
         turn = "player";
     }
 
@@ -733,9 +789,9 @@
         document.getElementById('overlay-quote').innerText = enemyTrans.win; 
         
         player.level++; player.maxHp += 50; player.hp = player.maxHp; 
-        player.gold += 100; // Altın kazan
+        player.gold += 100; 
         
-        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 Gold)`;
+        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`;
         document.getElementById('level-up-text').style.display = 'block';
         document.getElementById('overlay').style.display = 'flex';
     }
