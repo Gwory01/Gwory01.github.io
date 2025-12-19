@@ -36,62 +36,29 @@
 
         /* --- BUTON STİLLERİ --- */
         .skill-btn {
-            background: #111;
-            border: 1px solid #444;
-            color: #aaa;
-            font-family: 'Cinzel', serif;
-            cursor: pointer;
-            position: relative;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
+            background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif;
+            cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 5px;
         }
-        .skill-btn:hover:not(:disabled) {
-            border-color: var(--ruined-green);
-            color: white;
-            background: #1a1a1a;
-            box-shadow: 0 0 10px rgba(10, 200, 185, 0.2);
-        }
-        .skill-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            border-color: #222;
-            color: #444;
-            background: #000;
-            filter: grayscale(100%);
-        }
+        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
+        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #222; color: #444; background: #000; filter: grayscale(100%); }
 
-        /* --- DİĞER STİLLER --- */
+        /* --- UI STİLLERİ --- */
         .speech-bubble {
-            position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: -90px; left: 50%; transform: translateX(-50%);
             background: #fff; color: #000; padding: 10px 15px; border-radius: 15px;
-            font-family: sans-serif; font-size: 12px; font-weight: bold; width: 200px;
+            font-family: sans-serif; font-size: 12px; font-weight: bold; width: 220px;
             text-align: center; z-index: 200; opacity: 0; pointer-events: none;
             transition: opacity 0.3s, transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             border: 2px solid var(--ruined-green);
         }
-        .speech-bubble::after {
-            content: ''; position: absolute; bottom: -10px; left: 50%; margin-left: -10px;
-            border-width: 10px 10px 0; border-style: solid; border-color: #fff transparent; display: block; width: 0;
-        }
+        .speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; margin-left: -10px; border-width: 10px 10px 0; border-style: solid; border-color: #fff transparent; display: block; width: 0; }
         .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
-        .float-text {
-            position: absolute; font-weight: bold; font-size: 24px; pointer-events: none;
-            animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            50% { transform: translateY(-40px) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-80px) scale(1); opacity: 0; }
-        }
-        .text-damage { color: #fff; }
-        .text-crit { color: var(--crit-color); font-size: 36px; text-shadow: 0 0 15px red; }
-        .text-heal { color: var(--heal-color); font-size: 28px; }
-        .text-enemy-dmg { color: #e74c3c; }
+        .float-text { position: absolute; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 50% { transform: translateY(-40px) scale(1.2); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
+        
+        .text-damage { color: #fff; } .text-crit { color: var(--crit-color); font-size: 36px; text-shadow: 0 0 15px red; } .text-heal { color: var(--heal-color); font-size: 28px; } .text-enemy-dmg { color: #e74c3c; }
 
         .damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear; }
         .ult-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear; }
@@ -100,24 +67,13 @@
         @keyframes mist { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .mist-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(10, 200, 185, 0.05), transparent); background-size: 400% 400%; animation: mist 15s ease infinite; z-index: -1; pointer-events: none; }
 
-        .game-wrapper {
-            width: 90%; max-width: 1000px; background: rgba(10, 12, 15, 0.95);
-            border: 2px solid #333; border-top: 4px solid var(--ruined-green);
-            box-shadow: 0 0 50px rgba(10, 200, 185, 0.1); padding: 20px;
-            position: relative; display: flex; flex-direction: column; height: 600px;
-        }
+        .game-wrapper { width: 90%; max-width: 1000px; background: rgba(10, 12, 15, 0.95); border: 2px solid #333; border-top: 4px solid var(--ruined-green); box-shadow: 0 0 50px rgba(10, 200, 185, 0.1); padding: 20px; position: relative; display: flex; flex-direction: column; height: 600px; }
 
         #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px; }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
-        /* SİNEMATİK DİYALOG KUTUSU */
-        #cinematic-dialogue {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%;
-            background: rgba(0, 0, 0, 0.95); border: 2px solid var(--ruined-green); padding: 20px;
-            z-index: 150; display: none; flex-direction: column; align-items: center;
-            box-shadow: 0 0 30px rgba(10, 200, 185, 0.2);
-        }
+        #cinematic-dialogue { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; background: rgba(0, 0, 0, 0.95); border: 2px solid var(--ruined-green); padding: 20px; z-index: 150; display: none; flex-direction: column; align-items: center; box-shadow: 0 0 30px rgba(10, 200, 185, 0.2); }
         #cinematic-text { font-size: 1.2rem; color: #fff; text-align: center; margin-bottom: 15px; font-style: italic; }
         #cinematic-btn { background: transparent; border: 1px solid var(--ruined-green); color: var(--ruined-green); padding: 5px 20px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; }
         #cinematic-btn:hover { background: var(--ruined-green); color: black; }
@@ -127,7 +83,6 @@
         .character-img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
-        
         .shake { animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
@@ -139,7 +94,6 @@
 
         .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; }
         .hidden-ui { opacity: 0; pointer-events: none; }
-
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         .skill-name { font-weight: bold; font-size: 0.7rem; text-align: center; }
         .skill-cost { font-size: 0.6rem; color: var(--power-yellow); margin-top: 3px; }
@@ -149,20 +103,14 @@
         .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
 
         .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; overflow-y: auto; color: #ccc; font-family: sans-serif; }
-        
-        /* ZAFER EKRANI */
-        .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 200; /* Z-index artırıldı ki en üstte dursun */ }
+        .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 200; }
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
-        
         .level-badge { position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
         
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
         .control-btn-ui { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; }
         .control-btn-ui:hover { background: var(--ruined-green); color: black; }
-        
-        select.control-btn-ui { outline: none; }
-        select.control-btn-ui option { background: #000; color: white; }
-
+        select.control-btn-ui { outline: none; } select.control-btn-ui option { background: #000; color: white; }
         .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
     </style>
 </head>
@@ -210,15 +158,8 @@
                 <div class="level-badge" id="player-lvl">1</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
-                
-                <div class="stat-bar hidden-ui" id="ui-hp-p">
-                    <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
-                    <span class="bar-text" id="player-hp-text">100/100</span>
-                </div>
-                <div class="stat-bar hidden-ui" style="border-color:#b7950b;" id="ui-mp-p">
-                    <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
-                    <span class="bar-text" id="player-power-text" style="color:black; font-weight:bold; text-shadow:none;">0/100</span>
-                </div>
+                <div class="stat-bar hidden-ui" id="ui-hp-p"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">100/100</span></div>
+                <div class="stat-bar hidden-ui" style="border-color:#b7950b;" id="ui-mp-p"><div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div><span class="bar-text" id="player-power-text" style="color:black; font-weight:bold; text-shadow:none;">0/100</span></div>
             </div>
 
             <h1 style="color: #555; font-size: 3rem;" id="vs-text">VS</h1>
@@ -228,11 +169,7 @@
                 <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
-                
-                <div class="stat-bar hidden-ui" id="ui-hp-e">
-                    <div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div>
-                    <span class="bar-text" id="enemy-hp-text">100/100</span>
-                </div>
+                <div class="stat-bar hidden-ui" id="ui-hp-e"><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
             </div>
         </div>
 
@@ -242,33 +179,27 @@
                     <span class="skill-name" id="skill-basic-name">Blade of the King</span>
                     <span class="skill-cost" style="color:#2ecc71;" id="skill-basic-cost">+Power</span>
                 </button>
-                
                 <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
                     <span class="skill-name" id="skill-q-name">Blade of the Ruined King (Q)</span>
                     <span class="skill-cost" id="skill-q-cost">15 Power</span>
                     <span class="skill-sub" id="skill-q-desc">7% Enemy HP Steal</span>
                 </button>
-
                 <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
                     <span class="skill-name" id="skill-w-name">Spectral Maw (W)</span>
                     <span class="skill-cost" id="skill-w-cost">25 Power</span>
                     <span class="cooldown-text" id="cd-w">Cooldown: 2</span>
                 </button>
-
                 <button class="skill-btn ult-btn" id="btn-ult" onclick="useSkill('r')">
                     <span class="skill-name" id="skill-r-name">HEARTBREAKER (R)</span>
                     <span class="skill-cost" id="skill-r-cost">SINGLE USE</span>
                 </button>
             </div>
-
-            <div class="log-box" id="combat-log">
-                Battle starting... Isolde awaits.
-            </div>
+            <div class="log-box" id="combat-log">Battle starting...</div>
         </div>
     </div>
 
 <script>
-    // --- ÇEVİRİ VERİLERİ (GÜNCELLENMİŞ) ---
+    // --- ÇEVİRİ VE DÜŞMAN VERİLERİ (17 SEVİYE) ---
     const translations = {
         en: {
             title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY",
@@ -282,24 +213,23 @@
             logCrit: " (CRIT!)", logDamage: "damage.", logEnemyAtk: "attacked! You took", logDefeat: "Viego fell...",
             logEnd: "CONGRATULATIONS! ALL ENEMIES DEFEATED.",
             enemies: [
-                { 
-                    name: "LeBlanc", 
-                    win: "Viego: \"Your lies end here, Deceiver.\"", 
-                    intro: ["Viego: \"Where is she? Where is Isolde?!\"", "LeBlanc: \"Lost in shadows, my King. Just like you.\"", "Viego: \"Speak! Or I will tear this place apart!\""],
-                    quotes: ["Smoke and mirrors.", "Are you truly a king?", "How naive.", "You will vanish."] 
-                },
-                { 
-                    name: "Vladimir", 
-                    win: "Viego: \"Even that blood belongs to me, uncle.\"", 
-                    intro: ["Vladimir: \"Ah, my favorite nephew. You look... terrible.\"", "Viego: \"Your blood magic... Can it bring her back?\"", "Vladimir: \"Death is not reversible, only delayable.\"", "Viego: \"Then you are useless to me.\""],
-                    quotes: ["The smell of blood...", "Delightful taste.", "Nephew, stop this.", "Making art."] 
-                },
-                { 
-                    name: "Sahn-Uzal", 
-                    win: "Viego: \"The realm of death has only one king, ME!\"", 
-                    intro: ["Sahn-Uzal: \"Iron stands eternal.\"", "Viego: \"I will rust your armor and break your will.\"", "Sahn-Uzal: \"You are but a child throwing a tantrum.\"", "Viego: \"I AM THE RUINED KING!\""],
-                    quotes: ["Iron stands eternal.", "You are weak.", "Your soul is mine.", "Crumble."] 
-                }
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Your lies end here.\"", intro: ["Viego: \"Where is she?!\"", "LeBlanc: \"Lost in shadows, my King.\""], quotes: ["Smoke and mirrors."] },
+                { id: "vladimir", name: "Vladimir", win: "Viego: \"Useless blood.\"", intro: ["Vladimir: \"My favorite nephew.\"", "Viego: \"Can your magic bring her back?\"", "Vladimir: \"No.\""], quotes: ["Delicious."] },
+                { id: "elise", name: "Elise", win: "Viego: \"Go back to your spider god.\"", intro: ["Elise: \"The Spider God is hungry.\"", "Viego: \"I am not food, I am death.\""], quotes: ["Closer..."] },
+                { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer.\"", intro: ["Kalista: \"Viego... stop this madness.\"", "Viego: \"You swore loyalty to me!\""], quotes: ["Vengeance!"] },
+                { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"This must end, my King.\"", "Viego: \"Not until I have her back.\""], quotes: ["I cannot fall."] },
+                { id: "maokai", name: "Maokai", win: "Viego: \"Burn with the Isles.\"", intro: ["Maokai: \"You poisoned these lands!\"", "Viego: \"I made them eternal.\""], quotes: ["Nature fights back."] },
+                { id: "yorick", name: "Yorick", win: "Viego: \"Dig your own grave.\"", intro: ["Yorick: \"The Mist must be purged.\"", "Viego: \"The Mist is ME.\""], quotes: ["Join the grave."] },
+                { id: "gangplank", name: "Gangplank", win: "Viego: \"A pirate is no king.\"", intro: ["Gangplank: \"This is MY city!\"", "Viego: \"Everything belongs to me.\""], quotes: ["Barrel!"] },
+                { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god is silent.\"", intro: ["Illaoi: \"You are stagnant.\"", "Viego: \"My love is eternal.\""], quotes: ["Motion is life."] },
+                { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern.\"", intro: ["Thresh: \"Such delightful agony.\"", "Viego: \"You are but a servant.\""], quotes: ["Scream for me."] },
+                { id: "hecarim", name: "Hecarim", win: "Viego: \"War is over.\"", intro: ["Hecarim: \"War! Eternal war!\"", "Viego: \"Serve your King!\""], quotes: ["Trample them!"] },
+                { id: "akshan", name: "Akshan", win: "Viego: \"No resurrection for you.\"", intro: ["Akshan: \"Pretty boy, ugly heart.\"", "Viego: \"You annoy me.\""], quotes: ["Boom!"] },
+                { id: "lucian", name: "Lucian", win: "Viego: \"Your light fades.\"", intro: ["Lucian: \"For Senna!\"", "Viego: \"You know nothing of loss.\""], quotes: ["Lights out."] },
+                { id: "senna", name: "Senna", win: "Viego: \"Give me Isolde!\"", intro: ["Senna: \"She doesn't want you.\"", "Viego: \"LIES!\""], quotes: ["Mist recedes."] },
+                { id: "gwen", name: "Gwen", win: "Viego: \"You are just a doll.\"", intro: ["Gwen: \"I won't let you hurt anyone else!\"", "Viego: \"Obey your creator!\""], quotes: ["Snip snip!"] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King.\"", intro: ["Mordekaiser: \"Iron stands eternal.\"", "Viego: \"I am the Ruined King!\""], quotes: ["Crumble."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Love transcends the Void.\"", intro: ["Bel'Veth: \"I will consume your world.\"", "Viego: \"My world is Isolde.\""], quotes: ["The end."] }
             ],
             playerQuotes: ["Isolde...", "Out of my way!", "Love ruins all.", "I will take your soul.", "The mist spreads."]
         },
@@ -314,24 +244,23 @@
             logViegoR: "VIEGO KALBİNİ KIRDI!", logCrit: " (KRİTİK!)", logDamage: "hasar.", logEnemyAtk: "saldırdı! Hasar aldın:",
             logDefeat: "Viego düştü...", logEnd: "TEBRİKLER! TÜM DÜŞMANLARI YENDİN.",
             enemies: [
-                { 
-                    name: "LeBlanc", 
-                    win: "Viego: \"Yalanların bitti, Hilekar.\"", 
-                    intro: ["Viego: \"O nerede? Isolde nerede?!\"", "LeBlanc: \"Gölgelerde kayboldu Kralım. Tıpkı senin gibi.\"", "Viego: \"Konuş! Yoksa burayı başına yıkarım!\""],
-                    quotes: ["Göz yanılması.", "Gerçekten kral mısın?", "Çok safsın.", "Kaybolacaksın."] 
-                },
-                { 
-                    name: "Vladimir", 
-                    win: "Viego: \"Kanın bana ait amca.\"", 
-                    intro: ["Vladimir: \"Ah, en sevdiğim yeğenim. Berbat görünüyorsun.\"", "Viego: \"Kan büyün... Onu geri getirebilir mi?\"", "Vladimir: \"Ölüm geri alınamaz, sadece ertelenir.\"", "Viego: \"O zaman benim için bir hiçsin.\""],
-                    quotes: ["Kanın kokusu...", "Harika bir tat.", "Yeğenim, dur artık.", "Sanat yapıyorum."] 
-                },
-                { 
-                    name: "Sahn-Uzal", 
-                    win: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\"", 
-                    intro: ["Sahn-Uzal: \"Demir ebedidir.\"", "Viego: \"Zırhını paslandırıp iradeni kıracağım.\"", "Sahn-Uzal: \"Sen sadece ağlayan bir çocuksun.\"", "Viego: \"BEN MAHVOLMUŞ KRALIM!\""],
-                    quotes: ["Demir ebedidir.", "Zayıfsın.", "Ruhun benim.", "Yıkıl."] 
-                }
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", intro: ["Viego: \"O nerede?!\"", "LeBlanc: \"Gölgelerde kayboldu Kralım.\""], quotes: ["Göz yanılması."] },
+                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"Yeğenim.\"", "Viego: \"Büyün onu getirebilir mi?\"", "Vladimir: \"Hayır.\""], quotes: ["Kanın kokusu..."] },
+                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım aç.\"", "Viego: \"Ben yemek değilim, ölümüm.\""], quotes: ["Yaklaş..."] },
+                { id: "kalista", name: "Kalista", win: "Viego: \"Hain.\"", intro: ["Kalista: \"Viego... dur artık.\"", "Viego: \"Bana sadakat yemini etmiştin!\""], quotes: ["İntikam!"] },
+                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Bu bitmeli Kralım.\"", "Viego: \"Onu almadan asla.\""], quotes: ["Düşemem."] },
+                { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Toprağı zehirledin!\"", "Viego: \"Onları sonsuz kıldım.\""], quotes: ["Doğa affetmez."] },
+                { id: "yorick", name: "Yorick", win: "Viego: \"Mezarını kaz.\"", intro: ["Yorick: \"Sis temizlenmeli.\"", "Viego: \"Sis BENİM.\""], quotes: ["Mezara gir."] },
+                { id: "gangplank", name: "Gangplank", win: "Viego: \"Korsandan kral olmaz.\"", intro: ["Gangplank: \"Burası BENİM şehrim!\"", "Viego: \"Her şey benim.\""], quotes: ["Fıçı!"] },
+                { id: "illaoi", name: "Illaoi", win: "Viego: \"Tanrın sessiz kaldı.\"", intro: ["Illaoi: \"Sen durgunsun.\"", "Viego: \"Aşkım sonsuz.\""], quotes: ["Hareket hayattır."] },
+                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Ne harika bir acı.\"", "Viego: \"Sen sadece hizmetkarsın.\""], quotes: ["Çığlık at."] },
+                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş!\"", "Viego: \"Kralına hizmet et!\""], quotes: ["Ezip geçin!"] },
+                { id: "akshan", name: "Akshan", win: "Viego: \"Diriliş yok.\"", intro: ["Akshan: \"Güzel yüz, çirkin kalp.\"", "Viego: \"Canımı sıkıyorsun.\""], quotes: ["Bum!"] },
+                { id: "lucian", name: "Lucian", win: "Viego: \"Işığın söndü.\"", intro: ["Lucian: \"Senna için!\"", "Viego: \"Kaybetmeyi bilmiyorsun.\""], quotes: ["Işıklar söndü."] },
+                { id: "senna", name: "Senna", win: "Viego: \"Isolde'yi ver!\"", intro: ["Senna: \"O seni istemiyor.\"", "Viego: \"YALAN!\""], quotes: ["Sis dağılıyor."] },
+                { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"Kimseyi incitmene izin vermem!\"", "Viego: \"Yaratıcına itaat et!\""], quotes: ["Kesip biçerim!"] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] }
             ],
             playerQuotes: ["Isolde...", "Yolumdan çekil!", "Aşk her şeyi mahveder.", "Ruhunu alacağım.", "Karanlık yayılıyor."]
         }
@@ -340,38 +269,37 @@
     let currentLang = 'en'; 
     let t = translations.en;
 
-    const sounds = {
-        basic1: new Audio('BasicAA_1.wav'),
-        basic2: new Audio('BasicAA_2.wav'),
-        w: new Audio('W_Skill.wav'),
-        q: new Audio(), r: new Audio() 
-    };
-
-    function playSkillSound(type) {
-        try {
-            if (type === 'basic') { if(Math.random() > 0.5) sounds.basic1.play(); else sounds.basic2.play(); }
-            if (type === 'w') sounds.w.play();
-        } catch (e) { console.log("Audio Error:", e); }
-    }
-
-    const player = {
-        name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0,
-        ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0
-    };
-
     const enemiesBase = [
-        { name: "LeBlanc", level: 3, maxHp: 180, hp: 180, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
-        { name: "Vladimir", level: 6, maxHp: 250, hp: 250, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg" },
-        { name: "Sahn-Uzal", level: 10, maxHp: 450, hp: 450, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
+        { id: "leblanc", level: 3, maxHp: 180, hp: 180, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
+        { id: "vladimir", level: 6, maxHp: 250, hp: 250, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg" },
+        { id: "elise", level: 8, maxHp: 280, hp: 280, damage: 22, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Elise_0.jpg" },
+        { id: "kalista", level: 10, maxHp: 320, hp: 320, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
+        { id: "ledros", level: 12, maxHp: 350, hp: 350, damage: 28, img: "https://static.wikia.nocookie.net/leagueoflegends/images/3/36/Ledros_LoR_Card.png" }, // Ledros Custom Link
+        { id: "maokai", level: 14, maxHp: 400, hp: 400, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Maokai_0.jpg" },
+        { id: "yorick", level: 16, maxHp: 420, hp: 420, damage: 30, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
+        { id: "gangplank", level: 18, maxHp: 450, hp: 450, damage: 35, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
+        { id: "illaoi", level: 20, maxHp: 500, hp: 500, damage: 32, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Illaoi_0.jpg" },
+        { id: "thresh", level: 22, maxHp: 550, hp: 550, damage: 35, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" },
+        { id: "hecarim", level: 24, maxHp: 580, hp: 580, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Hecarim_0.jpg" },
+        { id: "akshan", level: 25, maxHp: 500, hp: 500, damage: 45, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Akshan_0.jpg" },
+        { id: "lucian", level: 26, maxHp: 520, hp: 520, damage: 48, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
+        { id: "senna", level: 27, maxHp: 540, hp: 540, damage: 50, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Senna_0.jpg" },
+        { id: "gwen", level: 28, maxHp: 560, hp: 560, damage: 55, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gwen_0.jpg" },
+        { id: "mordekaiser", level: 30, maxHp: 800, hp: 800, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" },
+        { id: "belveth", level: 35, maxHp: 1000, hp: 1000, damage: 70, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" }
     ];
 
+    const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
+    function playSkillSound(type) { try { if(type==='basic'){if(Math.random()>0.5)sounds.basic1.play();else sounds.basic2.play();} if(type==='w')sounds.w.play(); } catch(e){} }
+
+    const player = { name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0 };
+    
     let currentEnemyIndex = 0;
     let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
-    
     let dialogueIndex = 0;
     let currentDialogues = [];
-    let enemyTimeout = null; // Zamanlayıcı kontrolü için
+    let enemyTimeout = null;
 
     // --- SİSTEM ---
     function changeLanguage(lang) {
@@ -413,13 +341,10 @@
         document.getElementById('start-screen').style.display = 'none';
         forcePlayMusic();
         loadLevel(0);
-        log(t.logStart);
     }
 
     function loadLevel(index) {
-        // Eski zamanlayıcıları temizle
         if (enemyTimeout) clearTimeout(enemyTimeout);
-        
         currentEnemyIndex = index;
         const enemyData = enemiesBase[index];
         const enemyTrans = t.enemies[index];
@@ -428,15 +353,9 @@
         document.getElementById('enemy-img').src = enemyData.img;
         document.getElementById('enemy-lvl').innerText = enemyData.level;
         
-        // Düşman canını fulle
         enemyData.hp = enemyData.maxHp; 
-
-        // Oyuncu durumlarını sıfırla
-        player.ultUsed = false; 
-        player.power = 0; 
-        player.wCooldown = 0; 
-        player.nextHitCrit = false;
-        turn = "player"; // Sıra oyuncuda başlar
+        player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
+        turn = "player";
         
         toggleBattleUI(false);
         startPreFightDialogue();
@@ -463,7 +382,7 @@
     function endDialogue() {
         document.getElementById('cinematic-dialogue').style.display = 'none';
         toggleBattleUI(true);
-        updateUI(); // Buton durumlarını güncelle
+        updateUI(); 
         log(t.logStart);
     }
 
@@ -559,7 +478,6 @@
         if (enemyData.hp <= 0) { winBattle(); return; }
         
         turn = "enemy"; 
-        // Zamanlayıcıyı değişkene ata ki iptal edilebilsin
         enemyTimeout = setTimeout(enemyTurn, 1500);
     }
 
@@ -587,7 +505,7 @@
     }
 
     function winBattle() {
-        if (enemyTimeout) clearTimeout(enemyTimeout); // Savaş bittiyse düşman hamlesini iptal et
+        if (enemyTimeout) clearTimeout(enemyTimeout);
         const enemyTrans = t.enemies[currentEnemyIndex];
         document.getElementById('overlay-title').innerText = t.victory;
         document.getElementById('overlay-quote').innerText = enemyTrans.win;
@@ -597,8 +515,7 @@
     }
 
     function nextLevel() {
-        // --- ÇAKIŞMAYI ÖNLEYEN DÜZELTME ---
-        document.getElementById('overlay').style.display = 'none'; // Zafer ekranını kapat
+        document.getElementById('overlay').style.display = 'none'; // Kapat
         
         currentEnemyIndex++;
         if (currentEnemyIndex >= enemiesBase.length) {
