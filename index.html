@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oyun Merkezi</title>
+    <title>Game Center</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap');
 
@@ -14,7 +14,7 @@
             --text-sub: #b0b0b0;
             --accent-tetris: #e74c3c;
             --accent-puzzle: #3498db;
-            --accent-rpg: #0ac8b9; /* Viego Yeşili */
+            --accent-rpg: #0ac8b9;
         }
 
         body {
@@ -29,18 +29,35 @@
             min-height: 100vh;
         }
 
+        /* DİL SEÇİCİ */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            outline: none;
+        }
+
         h1 {
             font-size: 3rem;
             margin-bottom: 10px;
             background: linear-gradient(90deg, #fff, #888);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
         p.subtitle {
             color: var(--text-sub);
             margin-bottom: 50px;
             font-size: 1.2rem;
+            text-align: center;
         }
 
         .game-grid {
@@ -68,15 +85,9 @@
             justify-content: center;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-        }
+        .card:hover { transform: translateY(-10px); }
 
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
+        .icon { font-size: 4rem; margin-bottom: 20px; }
         .card h2 { margin: 10px 0; font-size: 1.5rem; }
         .card span { color: var(--text-sub); font-size: 0.9rem; display: block; margin-bottom: 20px; }
 
@@ -90,34 +101,18 @@
             transition: 0.3s;
         }
 
-        /* TETRIS STİLİ */
+        /* KART STİLLERİ */
         .card-tetris:hover { box-shadow: 0 0 20px rgba(231, 76, 60, 0.4); border-color: var(--accent-tetris); }
         .btn-tetris { background: var(--accent-tetris); color: white; }
 
-        /* PUZZLE STİLİ */
         .card-puzzle:hover { box-shadow: 0 0 20px rgba(52, 152, 219, 0.4); border-color: var(--accent-puzzle); }
         .btn-puzzle { background: var(--accent-puzzle); color: white; }
 
-        /* RPG STİLİ (Viego) */
-        .card-rpg { 
-            border: 1px solid rgba(10, 200, 185, 0.3); 
-            background: linear-gradient(145deg, #1a2a2a, #1e1e1e);
-        }
-        .card-rpg:hover { 
-            box-shadow: 0 0 30px rgba(10, 200, 185, 0.6); 
-            border-color: var(--accent-rpg); 
-        }
-        .btn-rpg { 
-            background: transparent; 
-            border: 1px solid var(--accent-rpg); 
-            color: var(--accent-rpg); 
-        }
-        .card-rpg:hover .btn-rpg { 
-            background: var(--accent-rpg); 
-            color: black; 
-        }
+        .card-rpg { border: 1px solid rgba(10, 200, 185, 0.3); background: linear-gradient(145deg, #1a2a2a, #1e1e1e); }
+        .card-rpg:hover { box-shadow: 0 0 30px rgba(10, 200, 185, 0.6); border-color: var(--accent-rpg); }
+        .btn-rpg { background: transparent; border: 1px solid var(--accent-rpg); color: var(--accent-rpg); }
+        .card-rpg:hover .btn-rpg { background: var(--accent-rpg); color: black; }
 
-        /* Animasyonlu Sis Efekti (Sadece RPG Kartı İçin) */
         .mist-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(45deg, transparent, rgba(10, 200, 185, 0.1), transparent);
@@ -130,36 +125,92 @@
 </head>
 <body>
 
-    <h1>OYUN MERKEZİ</h1>
-    <p class="subtitle">Efsaneler, Bulmacalar ve Bloklar</p>
+    <select class="lang-switch" id="languageSelector" onchange="changeLanguage(this.value)">
+        <option value="tr">Türkçe</option>
+        <option value="en">English</option>
+    </select>
+
+    <h1 id="mainTitle">OYUN MERKEZİ</h1>
+    <p class="subtitle" id="subTitle">Efsaneler, Bulmacalar ve Bloklar</p>
 
     <div class="game-grid">
         
         <a href="tetris.html" class="card card-tetris">
             <div class="icon">🧱</div>
             <h2>TETRIS</h2>
-            <span>Klasik blok yerleştirme oyunu.</span>
-            <div class="btn btn-tetris">OYNA</div>
+            <span id="descTetris">Klasik blok yerleştirme oyunu.</span>
+            <div class="btn btn-tetris" id="btnPlay1">OYNA</div>
         </a>
 
         <a href="puzzle.html" class="card card-puzzle">
             <div class="icon">🧩</div>
             <h2>PUZZLE</h2>
-            <span>Zihin açıcı kedi bulmacası.</span>
-            <div class="btn btn-puzzle">OYNA</div>
+            <span id="descPuzzle">Zihin açıcı kedi bulmacası.</span>
+            <div class="btn btn-puzzle" id="btnPlay2">OYNA</div>
         </a>
 
         <a href="rpg.html" class="card card-rpg">
             <div class="mist-bg"></div>
             <div class="rpg-content">
                 <div class="icon">👑</div>
-                <h2 style="color: #0ac8b9;">RUINED KING</h2>
-                <span>Viego'nun intikam ve aşk yolculuğu.</span>
-                <div class="btn btn-rpg">HİKAYEYE GİR</div>
+                <h2 style="color: #0ac8b9;" id="titleRpg">RUINED KING</h2>
+                <span id="descRpg">Viego'nun intikam ve aşk yolculuğu.</span>
+                <div class="btn btn-rpg" id="btnRpg">HİKAYEYE GİR</div>
             </div>
         </a>
 
     </div>
+
+    <script>
+        const translations = {
+            tr: {
+                title: "OYUN MERKEZİ",
+                subtitle: "Efsaneler, Bulmacalar ve Bloklar",
+                descTetris: "Klasik blok yerleştirme oyunu.",
+                descPuzzle: "Zihin açıcı kedi bulmacası.",
+                titleRpg: "MAHVOLMUŞ KRAL",
+                descRpg: "Viego'nun intikam ve aşk yolculuğu.",
+                play: "OYNA",
+                enter: "HİKAYEYE GİR"
+            },
+            en: {
+                title: "GAME CENTER",
+                subtitle: "Legends, Puzzles and Blocks",
+                descTetris: "Classic block stacking game.",
+                descPuzzle: "Mind-bending cat puzzle.",
+                titleRpg: "THE RUINED KING",
+                descRpg: "Viego's journey of revenge and love.",
+                play: "PLAY",
+                enter: "ENTER STORY"
+            }
+        };
+
+        function changeLanguage(lang) {
+            // Dili hem genel hem de RPG oyunu için kaydet
+            localStorage.setItem('selectedLang', lang); // Tetris/Puzzle için
+            localStorage.setItem('rpgLang', lang);      // RPG oyunu için
+
+            const t = translations[lang];
+
+            document.getElementById('mainTitle').innerText = t.title;
+            document.getElementById('subTitle').innerText = t.subtitle;
+            document.getElementById('descTetris').innerText = t.descTetris;
+            document.getElementById('descPuzzle').innerText = t.descPuzzle;
+            document.getElementById('titleRpg').innerText = t.titleRpg;
+            document.getElementById('descRpg').innerText = t.descRpg;
+            
+            document.getElementById('btnPlay1').innerText = t.play;
+            document.getElementById('btnPlay2').innerText = t.play;
+            document.getElementById('btnRpg').innerText = t.enter;
+        }
+
+        // Sayfa yüklendiğinde dili hatırla
+        window.onload = function() {
+            const savedLang = localStorage.getItem('rpgLang') || 'tr';
+            document.getElementById('languageSelector').value = savedLang;
+            changeLanguage(savedLang);
+        };
+    </script>
 
 </body>
 </html>
