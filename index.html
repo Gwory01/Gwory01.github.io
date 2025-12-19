@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tetris Mobile</title>
+    <title>Tetris Mobile & Space Cats</title>
     <style>
         :root {
+            /* Arkaplan rengini artık body'de değil, canvas'ta kullanacağız */
             --bg-color: #1a1a24;
             --accent: #00ffcc;
             --btn-bg: #333;
             --text-color: #fff;
         }
         body {
-            background: var(--bg-color);
+            /* Arkaplanı şeffaf yapıyoruz ki arkadaki kediler görünsün */
+            background: transparent;
             color: var(--text-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Her şeyi dikeyde ortalar */
+            justify-content: center;
             height: 100vh;
             margin: 0;
             padding: 0;
@@ -26,18 +28,36 @@
             touch-action: none;
         }
 
-        /* Ana Taşıyıcı: Her şeyi bir arada tutar */
+        /* --- YENİ EKLENEN: ARKAPLAN KEDİ CANVAS'I --- */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Her şeyin arkasına gönder */
+            background-color: var(--bg-color); /* Ana renk burada */
+            pointer-events: none; /* Tıklamaları engelleme */
+        }
+
+        /* Ana Taşıyıcı */
         .main-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px; /* Elemanlar arası boşluk */
+            gap: 10px;
+            /* Oyunun arkasının biraz koyu olması için yarı saydam bir katman ekleyelim */
+            background: rgba(26, 26, 36, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px); /* Hafif bulanıklık efekti */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         /* Üst Panel */
         .header {
             width: 100%;
-            width: 240px; /* Oyun genişliğiyle aynı olsun */
+            width: 240px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -65,28 +85,29 @@
         .game-container {
             border: 2px solid #444;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            line-height: 0; /* Canvas altındaki boşluğu siler */
+            line-height: 0;
+            background: #000; /* Canvas arkası siyah kalsın */
         }
 
-        canvas {
+        canvas#tetris {
             display: block;
-            background-color: #000;
+            /* background-color: #000; -> Bunu kaldırdık, üstteki container rengi geçerli */
         }
 
         /* Mobil Kontroller */
         .controls-area {
-            width: 260px; /* Buton grubu genişliği */
+            width: 260px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
-            margin-top: 5px; /* Oyuna yakın olsun */
+            margin-top: 5px;
         }
 
         .control-btn {
             background: var(--btn-bg);
             color: white;
             border: none;
-            padding: 15px 0; /* Buton yüksekliğini biraz azalttım */
+            padding: 15px 0;
             border-radius: 8px;
             font-size: 20px;
             font-weight: bold;
@@ -109,17 +130,18 @@
             grid-column: 2;
             background-color: #d35400;
         }
-
         
         .desktop-hint {
             font-size: 10px;
-            color: #555;
+            color: #aaa;
             margin-top: 5px;
             text-align: center;
         }
     </style>
 </head>
 <body>
+
+    <canvas id="bgCanvas"></canvas>
 
     <div class="main-wrapper">
         <div class="header">
@@ -153,7 +175,6 @@
     </div>
 
 <script>
-    // --- DİL SİSTEMİ ---
     const translations = {
         tr: { score: "Skor", hint: "Klavye: Yön Tuşları" },
         ku: { score: "Puan", hint: "Klavyeyê: Bişkokên Arasteyê" },
@@ -167,7 +188,6 @@
         document.getElementById("desktopHint").innerText = t.hint;
     }
 
-    // --- OYUN MOTORU ---
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
@@ -335,5 +355,115 @@
     updateScore();
     update();
 </script>
+
+<script>
+    (function() {
+        const bgCanvas = document.getElementById('bgCanvas');
+        const ctx = bgCanvas.getContext('2d');
+        let width, height;
+
+        // Kedi Görselleri (SVG Data URI olarak gömülü - İnternet gerektirmez)
+        const catSVGs = [
+            // Kedi 1 (Oturan)
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23505060" d="M448 384H64c-35.3 0-64 28.7-64 64v16c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48v-16c0-35.3-28.7-64-64-64zM192 384h128c17.7 0 32-14.3 32-32v-32c0-53-43-96-96-96s-96 43-96 96v32c0 17.7 14.3 32 32 32zm-64-64h-32c-17.7 0-32-14.3-32-32v-32c0-53 43-96 96-96s96 43 96 96v32c0 17.7-14.3 32-32 32h-32V192c0-53-43-96-96-96s-96 43-96 96v128z"/></svg>',
+            // Kedi 2 (Yürüyen)
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="%23505060" d="M624 416h-16c-26.5 0-48 21.5-48 48v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-48c0-17.7-14.3-32-32-32h-48c-17.7 0-32 14.3-32 32v48c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-26.5-21.5-48-48-48h-64c-26.5 0-48 21.5-48 48v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-48c0-17.7-14.3-32-32-32H64c-17.7 0-32 14.3-32 32v48c0 8.8-7.2 16-16 16H16c-8.8 0-16-7.2-16-16v-32c0-26.5-21.5-48-48-48H16c-8.8 0-16-7.2-16-16V192c0-53 43-96 96-96s96 43 96 96v128h32V192c0-53 43-96 96-96s96 43 96 96v128h320c8.8 0 16 7.2 16 16v64c0 8.8 7.2 16 16 16z"/></svg>',
+            // Kedi 3 (Uzaylı/Uçan)
+             'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23606070" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192c51.4 0 98-20 132.3-52.6 7 30 33.7 52.6 65.7 52.6 37.3 0 67.6-30.3 67.6-67.6 0-32-22.6-58.7-52.6-65.7C504 286 512 271.4 512 256zM256 416c-88.4 0-160-71.6-160-160S167.6 96 256 96s160 71.6 160 160-71.6 160-160 160zm192-96c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z"/></svg>'
+        ];
+
+        const catImages = [];
+        let catsLoaded = 0;
+
+        // Görselleri yükle
+        catSVGs.forEach(svg => {
+            const img = new Image();
+            img.src = svg;
+            img.onload = () => {
+                catsLoaded++;
+                if (catsLoaded === catSVGs.length) initAnimation();
+            };
+            catImages.push(img);
+        });
+
+        // Kedi Nesnesi
+        class Cat {
+            constructor() {
+                this.reset();
+                // İlk başta ekranın rastgele yerlerinde başlasınlar
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                // Ekranın altından başlasın
+                this.y = height + Math.random() * 100; 
+                // Rastgele hız ve boyut
+                this.speed = 0.2 + Math.random() * 0.5;
+                this.size = 30 + Math.random() * 50;
+                this.opacity = 0.1 + Math.random() * 0.3;
+                this.image = catImages[Math.floor(Math.random() * catImages.length)];
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+                this.drift = (Math.random() - 0.5) * 0.3; // Hafif sağa sola kayma
+            }
+
+            update() {
+                this.y -= this.speed; // Yukarı hareket
+                this.x += this.drift;
+                this.rotation += this.rotationSpeed;
+
+                // Ekranın üstünden çıkarsa alta geri dönsün
+                if (this.y + this.size < 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.globalAlpha = this.opacity;
+                ctx.drawImage(this.image, -this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        const swarm = [];
+        function initAnimation() {
+            resize();
+            // 20 tane kedi oluşturalım
+            for (let i = 0; i < 20; i++) {
+                swarm.push(new Cat());
+            }
+            animate();
+        }
+
+        function animate() {
+            // Arkaplanı temizle (Hafif iz bırakarak hareket hissi verilebilir ama şimdilik tam temizleyelim)
+            // ctx.fillStyle = 'rgba(26, 26, 36, 0.1)'; 
+            // ctx.fillRect(0, 0, width, height);
+            ctx.clearRect(0,0,width,height);
+
+            swarm.forEach(cat => {
+                cat.update();
+                cat.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            bgCanvas.width = width;
+            bgCanvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+    })(); // Kendi kendini çağıran fonksiyon (Scope izolasyonu için)
+</script>
+
 </body>
 </html>
