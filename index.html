@@ -5,166 +5,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oyun Merkezi</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-sub: #b0b0b0;
+            --accent-tetris: #e74c3c;
+            --accent-puzzle: #3498db;
+            --accent-rpg: #0ac8b9; /* Viego Yeşili */
+        }
+
         body {
-            margin: 0;
-            padding: 0;
-            background: #1a1a24;
-            color: white;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             font-family: 'Segoe UI', sans-serif;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            text-align: center;
         }
 
-        /* Dil Seçici */
-        .lang-select {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 8px;
-            border-radius: 5px;
-            background: #2a2a35;
-            color: white;
-            border: 1px solid #444;
-            cursor: pointer;
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        h1 { font-size: 3rem; margin-bottom: 10px; color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
-        p { color: #aaa; margin-bottom: 40px; }
-        
+        p.subtitle {
+            color: var(--text-sub);
+            margin-bottom: 50px;
+            font-size: 1.2rem;
+        }
+
         .game-grid {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 80%;
+            max-width: 1000px;
         }
 
         .card {
-            background: #2a2a35;
+            background: var(--card-bg);
             border-radius: 15px;
-            width: 250px;
-            padding: 20px;
+            padding: 30px;
+            text-align: center;
             text-decoration: none;
-            color: white;
+            color: var(--text-main);
             transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #444;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         .card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
-            border-color: #00ffcc;
         }
 
-        .icon { font-size: 50px; margin-bottom: 20px; }
-        .card h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
-        .card span { font-size: 0.9rem; color: #888; }
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .card h2 { margin: 10px 0; font-size: 1.5rem; }
+        .card span { color: var(--text-sub); font-size: 0.9rem; display: block; margin-bottom: 20px; }
 
         .btn {
-            margin-top: 15px;
-            background: #00ffcc;
-            color: #000;
-            padding: 10px 20px;
+            padding: 10px 25px;
             border-radius: 20px;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            transition: 0.3s;
         }
+
+        /* TETRIS STİLİ */
+        .card-tetris:hover { box-shadow: 0 0 20px rgba(231, 76, 60, 0.4); border-color: var(--accent-tetris); }
+        .btn-tetris { background: var(--accent-tetris); color: white; }
+
+        /* PUZZLE STİLİ */
+        .card-puzzle:hover { box-shadow: 0 0 20px rgba(52, 152, 219, 0.4); border-color: var(--accent-puzzle); }
+        .btn-puzzle { background: var(--accent-puzzle); color: white; }
+
+        /* RPG STİLİ (Viego) */
+        .card-rpg { 
+            border: 1px solid rgba(10, 200, 185, 0.3); 
+            background: linear-gradient(145deg, #1a2a2a, #1e1e1e);
+        }
+        .card-rpg:hover { 
+            box-shadow: 0 0 30px rgba(10, 200, 185, 0.6); 
+            border-color: var(--accent-rpg); 
+        }
+        .btn-rpg { 
+            background: transparent; 
+            border: 1px solid var(--accent-rpg); 
+            color: var(--accent-rpg); 
+        }
+        .card-rpg:hover .btn-rpg { 
+            background: var(--accent-rpg); 
+            color: black; 
+        }
+
+        /* Animasyonlu Sis Efekti (Sadece RPG Kartı İçin) */
+        .mist-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(10, 200, 185, 0.1), transparent);
+            z-index: 0; opacity: 0; transition: 0.5s;
+        }
+        .card-rpg:hover .mist-bg { opacity: 1; }
+        .rpg-content { position: relative; z-index: 1; }
+
     </style>
 </head>
 <body>
 
-    <select class="lang-select" id="languageSelector" onchange="changeLanguage()">
-        <option value="tr">Türkçe</option>
-        <option value="ku">Kurdî</option>
-        <option value="en">English</option>
-    </select>
-
-    <h1 id="mainTitle">OYUN MERKEZİ</h1>
-    <p id="subTitle">Oynamak istediğiniz oyunu seçin</p>
+    <h1>OYUN MERKEZİ</h1>
+    <p class="subtitle">Efsaneler, Bulmacalar ve Bloklar</p>
 
     <div class="game-grid">
-        <a href="tetris.html" class="card">
+        
+        <a href="tetris.html" class="card card-tetris">
             <div class="icon">🧱</div>
-            <h2 id="tetrisTitle">Neon Tetris</h2>
-            <span id="tetrisDesc">Klasik blok yerleştirme oyunu.</span>
-            <div class="btn" id="btnPlay1">OYNA</div>
+            <h2>TETRIS</h2>
+            <span>Klasik blok yerleştirme oyunu.</span>
+            <div class="btn btn-tetris">OYNA</div>
         </a>
 
-        <a href="puzzle.html" class="card">
-            <div class="icon">🐱</div>
-            <h2 id="puzzleTitle">Kedi Puzzle</h2>
-            <span id="puzzleDesc">Resmi tamamlamak için kaydır.</span>
-            <div class="btn" id="btnPlay2">OYNA</div>
+        <a href="puzzle.html" class="card card-puzzle">
+            <div class="icon">🧩</div>
+            <h2>PUZZLE</h2>
+            <span>Zihin açıcı kedi bulmacası.</span>
+            <div class="btn btn-puzzle">OYNA</div>
         </a>
-        <a href="rpg.html" class="card" style="border-color: #c8aa6e;">
-    <div class="icon">⚔️</div>
-    <h2 id="rpgTitle">Ruined King RPG</h2>
-    <span id="rpgDesc">Viego, LeBlanc veya Vladimir ile efsaneye katıl.</span>
-    <div class="btn" style="background:#c8aa6e; color:black;">OYNA</div>
-</a>
+
+        <a href="rpg.html" class="card card-rpg">
+            <div class="mist-bg"></div>
+            <div class="rpg-content">
+                <div class="icon">👑</div>
+                <h2 style="color: #0ac8b9;">RUINED KING</h2>
+                <span>Viego'nun intikam ve aşk yolculuğu.</span>
+                <div class="btn btn-rpg">HİKAYEYE GİR</div>
+            </div>
+        </a>
+
     </div>
-
-<script>
-    const translations = {
-        tr: {
-            title: "OYUN MERKEZİ",
-            sub: "Oynamak istediğiniz oyunu seçin",
-            tetrisTitle: "Neon Tetris",
-            tetrisDesc: "Klasik blok yerleştirme oyunu.",
-            puzzleTitle: "Kedi Puzzle",
-            puzzleDesc: "Resmi tamamlamak için kaydır.",
-            play: "OYNA"
-        },
-        ku: {
-            title: "NAVENDA LÎSTIKAN",
-            sub: "Lîstika ku hûn dixwazin bilîzin hilbijêrin",
-            tetrisTitle: "Neon Tetris",
-            tetrisDesc: "Lîstika klasîk a danîna blokan.",
-            puzzleTitle: "Puzzleya Pisîkê",
-            puzzleDesc: "Ji bo temamkirina wêneyê bihejînin.",
-            play: "BILÎZE"
-        },
-        en: {
-            title: "GAME CENTER",
-            sub: "Choose the game you want to play",
-            tetrisTitle: "Neon Tetris",
-            tetrisDesc: "Classic block stacking game.",
-            puzzleTitle: "Cat Puzzle",
-            puzzleDesc: "Slide tiles to complete the picture.",
-            play: "PLAY"
-        }
-    };
-
-    function changeLanguage() {
-        const lang = document.getElementById("languageSelector").value;
-        localStorage.setItem('selectedLang', lang); // Dili hafızaya kaydet
-        const t = translations[lang];
-
-        document.getElementById("mainTitle").innerText = t.title;
-        document.getElementById("subTitle").innerText = t.sub;
-        
-        document.getElementById("tetrisTitle").innerText = t.tetrisTitle;
-        document.getElementById("tetrisDesc").innerText = t.tetrisDesc;
-        
-        document.getElementById("puzzleTitle").innerText = t.puzzleTitle;
-        document.getElementById("puzzleDesc").innerText = t.puzzleDesc;
-        
-        document.getElementById("btnPlay1").innerText = t.play;
-        document.getElementById("btnPlay2").innerText = t.play;
-    }
-
-    // Sayfa açıldığında kayıtlı dili yükle
-    window.onload = function() {
-        const savedLang = localStorage.getItem('selectedLang') || 'tr';
-        document.getElementById("languageSelector").value = savedLang;
-        changeLanguage();
-    };
-</script>
 
 </body>
 </html>
