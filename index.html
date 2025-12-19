@@ -18,35 +18,42 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center; /* Her şeyi dikeyde ortalar */
             height: 100vh;
             margin: 0;
-            padding: 10px;
-            overflow: hidden; /* Kaydırmayı engelle */
-            touch-action: none; /* Telefondaki yakınlaştırmayı engelle */
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
         }
 
-        /* Üst Panel (Dil ve Skor) */
+        /* Ana Taşıyıcı: Her şeyi bir arada tutar */
+        .main-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px; /* Elemanlar arası boşluk */
+        }
+
+        /* Üst Panel */
         .header {
             width: 100%;
-            max-width: 400px;
+            width: 240px; /* Oyun genişliğiyle aynı olsun */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
         }
 
         select {
-            padding: 5px;
-            border-radius: 5px;
+            padding: 4px;
+            border-radius: 4px;
             background: #444;
             color: white;
             border: 1px solid #666;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .score-board {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
         }
 
@@ -58,7 +65,7 @@
         .game-container {
             border: 2px solid #444;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
+            line-height: 0; /* Canvas altındaki boşluğu siler */
         }
 
         canvas {
@@ -68,26 +75,24 @@
 
         /* Mobil Kontroller */
         .controls-area {
-            width: 100%;
-            max-width: 300px;
+            width: 260px; /* Buton grubu genişliği */
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: auto; /* En alta it */
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-top: 5px; /* Oyuna yakın olsun */
         }
 
         .control-btn {
             background: var(--btn-bg);
             color: white;
             border: none;
-            padding: 20px 0;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 15px 0; /* Buton yüksekliğini biraz azalttım */
+            border-radius: 8px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 0 #111;
-            user-select: none; /* Yazı seçilmesin */
+            box-shadow: 0 3px 0 #111;
+            user-select: none;
             touch-action: manipulation;
             display: flex;
             justify-content: center;
@@ -95,94 +100,71 @@
         }
 
         .control-btn:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: none;
             background: #555;
         }
 
         .btn-rotate {
-            grid-column: 2; /* Ortada */
+            grid-column: 2;
             background-color: #d35400;
         }
 
-        .btn-down {
-            grid-column: 2;
-        }
         
         .desktop-hint {
-            font-size: 12px;
-            color: #666;
-            margin-top: 10px;
+            font-size: 10px;
+            color: #555;
+            margin-top: 5px;
             text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <select id="languageSelector" onchange="changeLanguage()">
-            <option value="tr">Türkçe</option>
-            <option value="ku">Kurdî</option>
-            <option value="en">English</option>
-        </select>
-        <div class="score-board">
-            <span id="scoreLabel">Skor</span>: <span id="score">0</span>
+    <div class="main-wrapper">
+        <div class="header">
+            <select id="languageSelector" onchange="changeLanguage()">
+                <option value="tr">Türkçe</option>
+                <option value="ku">Kurdî</option>
+                <option value="en">English</option>
+            </select>
+            <div class="score-board">
+                <span id="scoreLabel">Skor</span>: <span id="score">0</span>
+            </div>
+        </div>
+
+        <div class="game-container">
+            <canvas id="tetris" width="240" height="400"></canvas>
+        </div>
+
+        <div class="controls-area">
+            <div style="grid-column: 1;"></div>
+            <button class="control-btn btn-rotate" id="btnRotate" onclick="playerRotate(1)">↻</button>
+            <div style="grid-column: 3;"></div>
+
+            <button class="control-btn" onclick="playerMove(-1)">←</button>
+            <button class="control-btn" onclick="playerDrop()">↓</button>
+            <button class="control-btn" onclick="playerMove(1)">→</button>
+        </div>
+
+        <div class="desktop-hint" id="desktopHint">
+            Klavye: Yön Tuşları
         </div>
     </div>
 
-    <div class="game-container">
-        <canvas id="tetris" width="240" height="400"></canvas>
-    </div>
-
-    <div class="controls-area">
-        <div style="grid-column: 1;"></div> <button class="control-btn btn-rotate" id="btnRotate" onclick="playerRotate(1)">↻</button>
-        <div style="grid-column: 3;"></div> <button class="control-btn" id="btnLeft" onclick="playerMove(-1)">←</button>
-        <button class="control-btn" id="btnDown" onclick="playerDrop()">↓</button>
-        <button class="control-btn" id="btnRight" onclick="playerMove(1)">→</button>
-    </div>
-
-    <div class="desktop-hint" id="desktopHint">
-        Klavye: Yön Tuşları
-    </div>
-
 <script>
-    // --- DİL SİSTEMİ (LOCALIZATION) ---
+    // --- DİL SİSTEMİ ---
     const translations = {
-        tr: {
-            score: "Skor",
-            rotate: "Çevir",
-            left: "Sol",
-            right: "Sağ",
-            down: "İn",
-            hint: "Klavye: Yön Tuşları"
-        },
-        ku: {
-            score: "Puan",
-            rotate: "Zivir",
-            left: "Çep",
-            right: "Rast",
-            down: "Jêr",
-            hint: "Klavyeyê: Bişkokên Arasteyê"
-        },
-        en: {
-            score: "Score",
-            rotate: "Rotate",
-            left: "Left",
-            right: "Right",
-            down: "Down",
-            hint: "Keyboard: Arrow Keys"
-        }
+        tr: { score: "Skor", hint: "Klavye: Yön Tuşları" },
+        ku: { score: "Puan", hint: "Klavyeyê: Bişkokên Arasteyê" },
+        en: { score: "Score", hint: "Keyboard: Arrow Keys" }
     };
 
     function changeLanguage() {
         const lang = document.getElementById("languageSelector").value;
         const t = translations[lang];
-
         document.getElementById("scoreLabel").innerText = t.score;
         document.getElementById("desktopHint").innerText = t.hint;
-        
-        // Butonların içindeki yazıları değiştirmek istersen (Şu an ok işareti var, gerek yok ama ekliyorum)
-        // document.getElementById("btnRotate").innerText = t.rotate; 
     }
 
     // --- OYUN MOTORU ---
@@ -190,7 +172,6 @@
     const context = canvas.getContext('2d');
     context.scale(20, 20);
 
-    // Parça Tanımları
     function createPiece(type) {
         if (type === 'I') return [[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0]];
         if (type === 'L') return [[0, 2, 0],[0, 2, 0],[0, 2, 2]];
@@ -202,12 +183,7 @@
     }
 
     const arena = createMatrix(12, 20);
-    const player = {
-        pos: {x: 0, y: 0},
-        matrix: null,
-        score: 0,
-    };
-
+    const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
     const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
 
     function createMatrix(w, h) {
@@ -347,7 +323,6 @@
         document.getElementById('score').innerText = player.score;
     }
 
-    // Klavye Kontrolleri (Bilgisayar İçin)
     document.addEventListener('keydown', event => {
         if (event.keyCode === 37) playerMove(-1);
         else if (event.keyCode === 39) playerMove(1);
@@ -356,7 +331,6 @@
         else if (event.keyCode === 87 || event.keyCode === 38) playerRotate(1);
     });
 
-    // Başlangıç
     playerReset();
     updateScore();
     update();
