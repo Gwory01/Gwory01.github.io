@@ -1,385 +1,932 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong — Personal Website</title>
-    <style>
-        :root{
-            --bg: #f4f4f9;
-            --card: #fff;
-            --accent: #3498db;
-            --muted: #7f8c8d;
-            --text: #2c3e50;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 900px;
-            max-width: 95vw;
-            margin: 40px auto;
-            padding: 20px;
-            background: var(--card);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            border-radius: 12px;
-            text-align: center;
-        }
-        h1 { margin: 0 0 6px 0; color: var(--text); }
-        p.lead { color: var(--muted); margin-top: 6px; margin-bottom: 16px; }
-        .game-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-direction: column;
-        }
-        canvas {
-            background: linear-gradient(180deg, #0b1321, #071124);
-            border-radius: 6px;
-            box-shadow: 0 8px 24px rgba(10,10,20,0.35) inset;
-            cursor: crosshair;
-            max-width: 100%;
-            height: auto;
-        }
-        .scoreboard {
-            display:flex;
-            justify-content: center;
-            gap: 40px;
-            font-weight: 700;
-            color: #ecf0f1;
-            margin-bottom: 8px;
-        }
-        .scoreboard .player {
-            background: rgba(0,0,0,0.35);
-            padding: 8px 14px;
-            border-radius: 999px;
-            min-width: 120px;
-        }
-        .controls {
-            margin-top: 14px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 14px;
-            background-color: var(--accent);
-            color: white;
-            text-decoration: none;
-            border-radius: 20px;
-            transition: background 0.2s;
-            cursor: pointer;
-            user-select: none;
-        }
-        .btn:hover { background: #2980b9; }
-        .footer-links{
-            margin-top: 18px;
-            color: var(--muted);
-        }
-        @media (max-width: 520px){
-            .scoreboard{ gap: 12px; flex-direction: column; }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tetris — Realistic Multiplayer with Leaderboard</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{
+    --bg1: #0f1724;
+    --bg2: #0b1220;
+    --card: rgba(255,255,255,0.04);
+    --muted: #9aa6b2;
+    --accent: #6ae3ff;
+    --glass: rgba(255,255,255,0.03);
+    --panel: rgba(255,255,255,0.02);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+  body{
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(106,227,255,0.06), transparent),
+                radial-gradient(800px 400px at 90% 90%, rgba(102,126,234,0.04), transparent),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#dbe7ee;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:32px;
+  }
+
+  .wrap{
+    width:1100px;
+    max-width:96vw;
+    display:grid;
+    grid-template-columns: 420px 1fr 320px;
+    gap:18px;
+    align-items:start;
+  }
+
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:14px;
+    padding:16px;
+    box-shadow: 0 6px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    backdrop-filter: blur(6px) saturate(1.2);
+  }
+
+  header h1{margin:0;font-size:20px}
+  .meta{color:var(--muted);font-size:13px;margin-top:8px}
+
+  /* Game canvas */
+  .board-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+  #gameCanvas{
+    width:420px;
+    height:720px;
+    border-radius:10px;
+    box-shadow: 0 18px 60px rgba(2,6,23,0.8), 0 6px 18px rgba(0,0,0,0.55), inset 0 -40px 120px rgba(0,0,0,0.25);
+    background: linear-gradient(180deg,#081029 0%, #04101b 100%);
+    cursor:grab;
+    outline:none;
+    display:block;
+  }
+
+  /* Opponent preview */
+  .opponent{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  #opponentCanvas{ width:210px; height:360px; border-radius:8px; background:linear-gradient(180deg,#07111b,#050a12); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+
+  /* Controls and scoreboard */
+  .scoreboard{ display:flex; gap:12px; align-items:center; justify-content:center; margin-top:6px }
+  .score{
+    background:var(--panel);
+    padding:8px 14px;
+    border-radius:12px;
+    min-width:96px;
+    text-align:center;
+  }
+  .score h2{margin:0;font-size:18px}
+  .score p{margin:2px 0 0;color:var(--muted);font-size:12px}
+
+  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .btn{
+    background:linear-gradient(180deg,var(--accent),#3abfec);
+    color:#012;
+    padding:8px 12px;border-radius:10px;font-weight:700;border:none;cursor:pointer;
+    box-shadow: 0 6px 18px rgba(58,191,236,0.14);
+  }
+  .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);box-shadow:none}
+
+  /* Right column: leaderboard & multiplayer setup */
+  .leaderboard-list{ max-height:360px; overflow:auto;margin-top:8px; padding-right:8px }
+  .score-item{ display:flex; justify-content:space-between; padding:8px 10px; border-radius:8px; margin-bottom:8px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); }
+  .small{font-size:13px;color:var(--muted)}
+  label{display:block;font-size:13px;margin-top:10px;color:var(--muted)}
+  textarea,input[type=text]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+
+  .muted{color:var(--muted);font-size:13px}
+
+  footer{grid-column:1/-1;margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
+  @media (max-width:960px){
+    .wrap{grid-template-columns: 1fr; width:96vw}
+    #gameCanvas{width:100%;height:62vw;max-height:72vh}
+    #opponentCanvas{display:none}
+  }
+</style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="panel">
+      <header>
+        <h1>Realistic Tetris</h1>
+        <div class="meta">Smooth rendering, shadows, soft lighting. Multiplayer (peer-to-peer) and leaderboards.</div>
+      </header>
 
-    <div class="container">
-        <h1>Pong</h1>
-        <p class="lead">Left paddle: mouse or ↑ / ↓ keys. Right paddle: computer. Space = pause, R = reset scores.</p>
+      <div style="height:12px"></div>
 
-        <div class="game-wrap">
-            <div class="scoreboard" aria-hidden="true">
-                <div class="player" id="leftScore">Player: 0</div>
-                <div class="player" id="rightScore">Computer: 0</div>
-            </div>
+      <div class="board-wrap">
+        <canvas id="gameCanvas" width="420" height="720" tabindex="0" aria-label="Tetris game"></canvas>
 
-            <canvas id="pong" width="800" height="500" tabindex="0" aria-label="Pong game"></canvas>
-
-            <div>
-                <button class="btn" id="pauseBtn">Pause</button>
-                <button class="btn" id="resetBtn">Reset</button>
-            </div>
-            <div class="controls">Tip: Click inside the game area to focus for keyboard controls.</div>
+        <div class="scoreboard">
+          <div class="score">
+            <h2 id="score">0</h2>
+            <p>Score</p>
+          </div>
+          <div class="score">
+            <h2 id="lines">0</h2>
+            <p>Lines</p>
+          </div>
+          <div class="score">
+            <h2 id="level">1</h2>
+            <p>Level</p>
+          </div>
         </div>
 
-        <div class="footer-links">
-            <a href="mailto:emailadresiniz@gmail.com" class="btn" style="background:#27ae60;">Bana Ulaşın</a>
+        <div class="controls">
+          <button class="btn" id="startBtn">Start</button>
+          <button class="btn secondary" id="pauseBtn">Pause</button>
+          <button class="btn secondary" id="saveScoreBtn">Save Score</button>
+          <button class="btn secondary" id="resetBtn">Reset</button>
         </div>
+
+        <div class="muted" style="margin-top:6px">Controls: ← → to move, ↑ or Z to rotate, ↓ soft drop, Space hard drop, P pause.</div>
+      </div>
     </div>
 
-    <script>
-        // Pong game script
-        const canvas = document.getElementById('pong');
-        const ctx = canvas.getContext('2d');
+    <div class="panel">
+      <h3 style="margin:0">Opponent Preview</h3>
+      <div class="muted" style="margin-top:6px">When connected, see opponent board and live score. Garbage attacks are applied when opponent clears multiple lines.</div>
 
-        // Sizes
-        const W = canvas.width;
-        const H = canvas.height;
+      <div class="opponent" style="margin-top:12px">
+        <canvas id="opponentCanvas" width="210" height="360" aria-hidden="true"></canvas>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="small">Opponent</div>
+              <div id="opponentName" style="font-weight:700">-</div>
+            </div>
+            <div style="text-align:right">
+              <div class="small">Score</div>
+              <div id="opponentScore" style="font-weight:700">0</div>
+            </div>
+          </div>
 
-        // Paddle object factory
-        function makePaddle(x) {
-            return {
-                x: x,
-                y: (H - 100) / 2,
-                w: 12,
-                h: 100,
-                speed: 6,
-            };
-        }
+          <div style="margin-top:12px">
+            <div class="small">Connection</div>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <button class="btn" id="createOfferBtn">Create Match</button>
+              <button class="btn secondary" id="joinBtn">Join</button>
+            </div>
 
-        const left = makePaddle(10);
-        const right = makePaddle(W - 22);
+            <label>Signaling (manual copy/paste)</label>
+            <textarea id="sigOut" rows="4" placeholder="Offer/Answer appears here"></textarea>
+            <label>Paste remote SDP / Answer here</label>
+            <textarea id="sigIn" rows="4" placeholder="Paste remote SDP/Answer then press 'Apply'"></textarea>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="btn" id="applySigBtn">Apply</button>
+              <button class="btn secondary" id="disconnectBtn">Disconnect</button>
+            </div>
+            <div class="muted" style="margin-top:8px" id="connStatus">Status: disconnected</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        let ball = resetBall( (Math.random() > 0.5) ? 1 : -1 );
+    <div class="panel">
+      <h3 style="margin:0">Leaderboard</h3>
+      <div class="muted small">Top local scores (stored in your browser). To share scores online, see instructions below.</div>
 
-        // Scores
-        let scoreLeft = 0;
-        let scoreRight = 0;
+      <label>Your name</label>
+      <input type="text" id="playerName" placeholder="Player" maxlength="20" />
 
-        // Input
-        const keys = { ArrowUp:false, ArrowDown:false };
-        let mouseControl = true;
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn" id="showLocalBtn">Show Local</button>
+        <button class="btn secondary" id="clearLocalBtn">Clear Local</button>
+      </div>
 
-        let running = true;
-        let lastTime = null;
+      <div class="leaderboard-list" id="leaderList" aria-live="polite"></div>
 
-        // Elements
-        const leftScoreEl = document.getElementById('leftScore');
-        const rightScoreEl = document.getElementById('rightScore');
-        const pauseBtn = document.getElementById('pauseBtn');
-        const resetBtn = document.getElementById('resetBtn');
+      <label style="margin-top:8px">Online (optional)</label>
+      <div class="small">There is an optional Firebase-backed leaderboard. To enable it add your Firebase config at the top of the script (instructions in comments).</div>
+      <div style="margin-top:10px;display:flex;gap:6px">
+        <button class="btn secondary" id="uploadBtn">Upload to Online (if configured)</button>
+        <button class="btn secondary" id="fetchOnlineBtn">Fetch Online</button>
+      </div>
 
-        // Event listeners
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseY = e.clientY - rect.top;
-            left.y = clamp(mouseY - left.h / 2, 0, H - left.h);
-        });
+      <div style="margin-top:12px" class="small muted">Note: Multiplayer is peer-to-peer using WebRTC DataChannel. Since there's no central server in this demo, exchange SDP by copy/paste to connect.</div>
+    </div>
 
-        // Keyboard controls for paddle
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'Up') keys.ArrowUp = true;
-            if (e.key === 'ArrowDown' || e.key === 'Down') keys.ArrowDown = true;
-            if (e.key === ' '){ // space to pause
-                e.preventDefault();
-                togglePause();
-            }
-            if (e.key.toLowerCase() === 'r'){
-                resetScores();
-            }
-        });
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'Up') keys.ArrowUp = false;
-            if (e.key === 'ArrowDown' || e.key === 'Down') keys.ArrowDown = false;
-        });
+    <footer>Created by Gwory01 — Enjoy! High score saved locally. Multiplayer uses peer-to-peer DataChannel with simple garbage attacks.</footer>
+  </div>
 
-        // Buttons
-        pauseBtn.addEventListener('click', togglePause);
-        resetBtn.addEventListener('click', resetScores);
+<script>
+/*
+  TETRIS WITH P2P MULTIPLAYER (manual signaling) AND LOCAL LEADERBOARD
 
-        // Focus canvas on click so keyboard works
-        canvas.addEventListener('click', () => canvas.focus());
+  - Realistic visuals: soft shadows, gradients, beveled blocks.
+  - Local leaderboard stored in localStorage (top 10).
+  - Multiplayer: WebRTC DataChannel with manual offer/answer copy/paste.
+      Messages: {type:'state',score,lines,boardPreview}, {type:'garbage',rows}
+  - Garbage attack: clearing 2+ lines sends garbage rows to opponent.
+  - Optional: Add Firebase config to enable online leaderboard upload/fetch.
+*/
 
-        // Game functions
-        function resetBall(direction = 1){
-            // direction: 1 = right, -1 = left
-            const speed = 5;
-            const angle = (Math.random() * Math.PI / 6) - (Math.PI/12); // small vertical angle
-            return {
-                x: W / 2,
-                y: H / 2,
-                r: 8,
-                vx: speed * direction * Math.cos(angle),
-                vy: speed * Math.sin(angle)
-            };
-        }
+/* ========== CONFIG ========== */
+/* Optional: configure Firebase here to enable online leaderboard.
+   const firebaseConfig = { apiKey: "...", authDomain:"...", projectId:"...", databaseURL:"..." };
+   Then uncomment the firebase initialization code below.
+*/
+const firebaseConfig = null; // set to object to enable online features
 
-        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+/* ========== TETRIS CORE ========== */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: true });
+const OCAN = document.getElementById('opponentCanvas');
+const octx = OCAN.getContext('2d');
 
-        function update(dt) {
-            // dt in seconds
-            // Move left paddle with keys if mouse not moving (both allowed; keys supplement)
-            if (keys.ArrowUp) left.y -= left.speed;
-            if (keys.ArrowDown) left.y += left.speed;
-            left.y = clamp(left.y, 0, H - left.h);
+const COLS = 10, ROWS = 20;
+const BLOCK = Math.floor(canvas.width / 12); // block size
+const GRID_X = Math.floor((canvas.width - BLOCK * COLS) / 2);
+const GRID_Y = Math.floor((canvas.height - BLOCK * ROWS) / 2);
 
-            // Simple AI for right paddle
-            const centerBall = ball.y;
-            const target = centerBall - right.h / 2;
-            const diff = target - right.y;
-            // limit AI speed so player can win
-            const aiSpeed = 5;
-            right.y += clamp(diff, -aiSpeed, aiSpeed);
-            right.y = clamp(right.y, 0, H - right.h);
+const nextPieces = []; // not showing next piece in this layout (could be added)
 
-            // Move ball
-            ball.x += ball.vx;
-            ball.y += ball.vy;
+let arena = createMatrix(COLS, ROWS);
+let player = createPlayer();
 
-            // Top/bottom collision
-            if (ball.y - ball.r < 0) {
-                ball.y = ball.r;
-                ball.vy *= -1;
-            }
-            if (ball.y + ball.r > H) {
-                ball.y = H - ball.r;
-                ball.vy *= -1;
-            }
+let dropCounter = 0;
+let dropInterval = 800;
+let lastTime = 0;
+let gameOver = false;
+let running = false;
 
-            // Paddle collisions
-            // Left paddle
-            if (ball.x - ball.r < left.x + left.w) {
-                if (ball.y > left.y && ball.y < left.y + left.h) {
-                    ball.x = left.x + left.w + ball.r; // prevent sticking
-                    ball.vx *= -1.05; // reflect and slightly speed up
-                    // change vy depending on where it hit the paddle
-                    const deltaY = ball.y - (left.y + left.h / 2);
-                    ball.vy = deltaY * 0.25;
-                }
-            }
+let scoreEl = document.getElementById('score');
+let linesEl = document.getElementById('lines');
+let levelEl = document.getElementById('level');
 
-            // Right paddle
-            if (ball.x + ball.r > right.x) {
-                if (ball.y > right.y && ball.y < right.y + right.h) {
-                    ball.x = right.x - ball.r;
-                    ball.vx *= -1.05;
-                    const deltaY = ball.y - (right.y + right.h / 2);
-                    ball.vy = deltaY * 0.25;
-                }
-            }
+function createMatrix(w,h){
+  const m = [];
+  for(let y=0;y<h;y++) m.push(new Array(w).fill(0));
+  return m;
+}
 
-            // Scoring
-            if (ball.x < 0) {
-                scoreRight++;
-                updateScoreboard();
-                ball = resetBall(1);
-            }
-            if (ball.x > W) {
-                scoreLeft++;
-                updateScoreboard();
-                ball = resetBall(-1);
-            }
-        }
+const PIECES = {
+  I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+  J: [[2,0,0],[2,2,2],[0,0,0]],
+  L: [[0,0,3],[3,3,3],[0,0,0]],
+  O: [[4,4],[4,4]],
+  S: [[0,5,5],[5,5,0],[0,0,0]],
+  T: [[0,6,0],[6,6,6],[0,0,0]],
+  Z: [[7,7,0],[0,7,7],[0,0,0]]
+};
 
-        function drawNet(){
-            ctx.save();
-            ctx.fillStyle = 'rgba(255,255,255,0.12)';
-            const step = 18;
-            const w = 4;
-            for (let y = 0; y < H; y += step) {
-                ctx.fillRect(W/2 - w/2, y + 6, w, step/2);
-            }
-            ctx.restore();
-        }
+const COLORS = {
+  0: 'rgba(0,0,0,0)',
+  1: '#32d6ff',
+  2: '#3b7bff',
+  3: '#ff9f40',
+  4: '#ffd166',
+  5: '#33cc66',
+  6: '#b84dff',
+  7: '#ff5d7a'
+};
 
-        function draw() {
-            // Clear
-            ctx.clearRect(0,0,W,H);
+function randPiece(){
+  const keys = Object.keys(PIECES);
+  return JSON.parse(JSON.stringify(PIECES[keys[Math.floor(Math.random()*keys.length)]]));
+}
 
-            // Background gradient (already via CSS but draw subtle overlay for effect)
-            const g = ctx.createLinearGradient(0,0,0,H);
-            g.addColorStop(0, 'rgba(255,255,255,0.02)');
-            g.addColorStop(1, 'rgba(0,0,0,0.12)');
-            ctx.fillStyle = g;
-            ctx.fillRect(0,0,W,H);
+function createPlayer(){
+  return {
+    pos: {x: Math.floor(COLS/2)-1, y: 0},
+    matrix: randPiece(),
+    score: 0,
+    level: 1,
+    lines: 0,
+    name: (localStorage.getItem('tName') || 'Player')
+  };
+}
 
-            // Net
-            drawNet();
+/* collision */
+function collide(arena, player){
+  const m = player.matrix;
+  for(let y=0;y<m.length;y++){
+    for(let x=0;x<m[y].length;x++){
+      if(m[y][x] !== 0 && (arena[y + player.pos.y] && arena[y + player.pos.y][x + player.pos.x]) !== 0){
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
-            // Paddles
-            ctx.fillStyle = '#ecf0f1';
-            roundRect(ctx, left.x, left.y, left.w, left.h, 6, true, false);
-            roundRect(ctx, right.x, right.y, right.w, right.h, 6, true, false);
+/* merge into arena */
+function merge(arena, player){
+  player.matrix.forEach((row,y) => {
+    row.forEach((val,x) => {
+      if(val) arena[y + player.pos.y][x + player.pos.x] = val;
+    });
+  });
+}
 
-            // Ball
-            ctx.beginPath();
-            ctx.fillStyle = '#f39c12';
-            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
-            ctx.fill();
+/* clear lines */
+function sweep(){
+  let rowCount = 0;
+  outer: for(let y = arena.length -1; y>=0; y--){
+    for(let x=0;x<arena[y].length;x++){
+      if(arena[y][x] === 0) continue outer;
+    }
+    const row = arena.splice(y,1)[0].fill(0);
+    arena.unshift(row);
+    y++;
+    rowCount++;
+  }
+  if(rowCount > 0){
+    const points = [0, 100, 300, 500, 800];
+    player.score += points[rowCount] * player.level;
+    player.lines += rowCount;
+    player.level = 1 + Math.floor(player.lines / 10);
+    updateHUD();
+    if(rowCount >= 2) {
+      // send garbage to opponent via network
+      sendGarbage(rowCount - 1);
+    }
+  }
+}
 
-            // Subtle glow
-            ctx.beginPath();
-            const rad = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 80);
-            rad.addColorStop(0, 'rgba(243,156,18,0.25)');
-            rad.addColorStop(1, 'rgba(243,156,18,0)');
-            ctx.fillStyle = rad;
-            ctx.fillRect(ball.x - 80, ball.y - 80, 160, 160);
-        }
+/* rotate matrix */
+function rotate(matrix, dir){
+  for(let y=0;y<matrix.length;y++){
+    for(let x=0;x<y;x++){
+      [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+    }
+  }
+  if(dir > 0) matrix.forEach(row => row.reverse());
+  else matrix.reverse();
+}
 
-        function roundRect(ctx, x, y, w, h, r, fill, stroke) {
-            if (typeof stroke === 'undefined') stroke = true;
-            if (typeof r === 'undefined') r = 5;
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.arcTo(x + w, y, x + w, y + h, r);
-            ctx.arcTo(x + w, y + h, x, y + h, r);
-            ctx.arcTo(x, y + h, x, y, r);
-            ctx.arcTo(x, y, x + w, y, r);
-            ctx.closePath();
-            if (fill) ctx.fill();
-            if (stroke) ctx.stroke();
-        }
+/* player actions */
+function playerDrop(){
+  player.pos.y++;
+  if(collide(arena,player)){
+    player.pos.y--;
+    merge(arena,player);
+    resetPiece();
+    sweep();
+    if(collide(arena, player)){
+      gameOver = true;
+      running = false;
+      showGameOver();
+    }
+  }
+  dropCounter = 0;
+}
 
-        function updateScoreboard(){
-            leftScoreEl.textContent = `Player: ${scoreLeft}`;
-            rightScoreEl.textContent = `Computer: ${scoreRight}`;
-        }
+function playerMove(dir){
+  player.pos.x += dir;
+  if(collide(arena,player)){
+    player.pos.x -= dir;
+  }
+}
 
-        function togglePause(){
-            running = !running;
-            pauseBtn.textContent = running ? 'Pause' : 'Resume';
-            if (running) {
-                // resume
-                lastTime = null;
-                requestAnimationFrame(loop);
-            }
-        }
+function playerRotate(dir){
+  const pos = player.pos.x;
+  rotate(player.matrix, dir);
+  let offset = 1;
+  while(collide(arena, player)){
+    player.pos.x += offset;
+    offset = -(offset + (offset > 0 ? 1 : -1));
+    if(offset > player.matrix[0].length){
+      rotate(player.matrix, -dir);
+      player.pos.x = pos;
+      return;
+    }
+  }
+}
 
-        function resetScores(){
-            scoreLeft = 0;
-            scoreRight = 0;
-            updateScoreboard();
-            ball = resetBall((Math.random() > 0.5) ? 1 : -1);
-        }
+function hardDrop(){
+  while(!collide(arena,player)){
+    player.pos.y++;
+  }
+  player.pos.y--;
+  merge(arena,player);
+  resetPiece();
+  sweep();
+  updateHUD();
+  if(collide(arena, player)){
+    gameOver = true;
+    running = false;
+    showGameOver();
+  }
+}
 
-        // Main loop
-        function loop(ts) {
-            if (!lastTime) lastTime = ts;
-            const dt = (ts - lastTime) / 1000;
-            lastTime = ts;
+/* new piece */
+function resetPiece(){
+  player.matrix = randPiece();
+  player.pos.y = 0;
+  player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
+  if(collide(arena,player)){
+    // game over
+    gameOver = true;
+    running = false;
+  }
+}
 
-            if (running) {
-                update(dt);
-                draw();
-                requestAnimationFrame(loop);
-            }
-        }
+/* rendering - realistic blocks */
+function draw(){
+  // background
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // soft ambient gradient
+  const g = ctx.createLinearGradient(0,0,0,canvas.height);
+  g.addColorStop(0, 'rgba(255,255,255,0.02)');
+  g.addColorStop(1, 'rgba(0,0,0,0.12)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        // Start
-        updateScoreboard();
-        requestAnimationFrame(loop);
+  // draw subtle spotlight
+  const lg = ctx.createRadialGradient(canvas.width*0.5, canvas.height*0.2, 10, canvas.width*0.5, canvas.height*0.2, 420);
+  lg.addColorStop(0,'rgba(106,227,255,0.06)');
+  lg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        // Helper: keep canvas crisp on high DPI
-        (function fixDPI(){
-            const dpr = window.devicePixelRatio || 1;
-            const styleW = canvas.getAttribute('width');
-            const styleH = canvas.getAttribute('height');
-            canvas.width = styleW * dpr;
-            canvas.height = styleH * dpr;
-            canvas.style.width = styleW + 'px';
-            canvas.style.height = styleH + 'px';
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        })();
-    </script>
+  // draw board background (glass panel)
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  roundRect(ctx, GRID_X-8, GRID_Y-8, BLOCK*COLS+16, BLOCK*ROWS+16, 14, true);
+  ctx.restore();
+
+  // draw each block with bevel/shadow
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      const v = arena[y][x];
+      drawBlock(GRID_X + x*BLOCK, GRID_Y + y*BLOCK, BLOCK-2, v);
+    }
+  }
+
+  // draw active piece
+  player.matrix.forEach((row,y)=>{
+    row.forEach((val,x)=>{
+      if(val){
+        drawBlock(GRID_X + (player.pos.x + x)*BLOCK, GRID_Y + (player.pos.y + y)*BLOCK, BLOCK-2, val, true);
+      }
+    });
+  });
+
+  // grid lines subtle
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+  ctx.lineWidth = 1;
+  for(let x=0;x<=COLS;x++){
+    ctx.beginPath();
+    ctx.moveTo(GRID_X + x*BLOCK, GRID_Y);
+    ctx.lineTo(GRID_X + x*BLOCK, GRID_Y + ROWS*BLOCK);
+    ctx.stroke();
+  }
+  for(let y=0;y<=ROWS;y++){
+    ctx.beginPath();
+    ctx.moveTo(GRID_X, GRID_Y + y*BLOCK);
+    ctx.lineTo(GRID_X + COLS*BLOCK, GRID_Y + y*BLOCK);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* smooth rounded rect */
+function roundRect(ctx,x,y,w,h,r,fill){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+  if(fill) ctx.fill();
+}
+
+/* draw single block with lighting */
+function drawBlock(x,y,size,val,lit){
+  // base
+  const color = COLORS[val] || '#ffffff';
+  const grad = ctx.createLinearGradient(x,y,x+size,y+size);
+  grad.addColorStop(0, shadeColor(color, 0.22));
+  grad.addColorStop(1, shadeColor(color, -0.12));
+  ctx.fillStyle = grad;
+  roundRect(ctx, x, y, size, size, 6, true);
+
+  // inner highlight
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  roundRect(ctx, x+2, y+2, size-4, (size/2)-2, 5, true);
+  ctx.restore();
+
+  // top-left shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  roundRect(ctx, x, y+size-6, size, 6, 4, true);
+
+  // outer stroke
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, x, y, size, size, 6, false);
+}
+
+/* color helper */
+function shadeColor(col, percent){
+  // col like #rrggbb
+  const f = col.slice(1), t = percent<0?0:255, p = Math.abs(percent);
+  const R = parseInt(f.substring(0,2),16), G = parseInt(f.substring(2,4),16), B = parseInt(f.substring(4,6),16);
+  const newR = Math.round((t - R) * p) + R;
+  const newG = Math.round((t - G) * p) + G;
+  const newB = Math.round((t - B) * p) + B;
+  return '#' + (0x1000000 + (newR<<16) + (newG<<8) + newB).toString(16).slice(1);
+}
+
+/* HUD */
+function updateHUD(){
+  scoreEl.textContent = player.score;
+  linesEl.textContent = player.lines;
+  levelEl.textContent = player.level;
+  // broadcast small state to opponent
+  broadcastState();
+}
+
+/* main loop */
+function update(time=0){
+  const dt = time - lastTime;
+  lastTime = time;
+  dropCounter += dt;
+  if(running && dropCounter > dropInterval / (1 + (player.level-1)*0.08)){
+    playerDrop();
+  }
+  draw();
+  if(running) requestAnimationFrame(update);
+}
+
+/* keyboard */
+document.addEventListener('keydown', e=>{
+  if(!running && e.key.toLowerCase() === 'p'){ togglePause(); return; }
+  if(!running) return;
+  switch(e.key){
+    case 'ArrowLeft': playerMove(-1); break;
+    case 'ArrowRight': playerMove(1); break;
+    case 'ArrowDown': playerDrop(); break;
+    case ' ': e.preventDefault(); hardDrop(); break;
+    case 'ArrowUp':
+    case 'z':
+    case 'Z': playerRotate(-1); break;
+    case 'x': playerRotate(1); break;
+    default: break;
+  }
+  updateHUD();
+});
+
+/* controls */
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  startGame();
+});
+document.getElementById('pauseBtn').addEventListener('click', togglePause);
+document.getElementById('resetBtn').addEventListener('click', resetGame);
+document.getElementById('saveScoreBtn').addEventListener('click', saveScore);
+
+function startGame(){
+  arena = createMatrix(COLS, ROWS);
+  player = createPlayer();
+  player.name = document.getElementById('playerName').value || player.name;
+  localStorage.setItem('tName', player.name);
+  dropCounter = 0;
+  lastTime = 0;
+  running = true;
+  gameOver = false;
+  player.score = 0; player.lines = 0; player.level = 1;
+  resetPiece();
+  updateHUD();
+  requestAnimationFrame(update);
+}
+
+function togglePause(){
+  running = !running;
+  document.getElementById('pauseBtn').textContent = running ? 'Pause' : 'Resume';
+  if(running) { lastTime = 0; requestAnimationFrame(update); }
+}
+
+function resetGame(){
+  running = false;
+  arena = createMatrix(COLS, ROWS);
+  player = createPlayer();
+  updateHUD();
+  draw();
+}
+
+/* game over UI */
+function showGameOver(){
+  updateHUD();
+  // prompt save
+  setTimeout(()=>{
+    if(confirm('Game over! Save your score to leaderboard?')){
+      saveScore();
+    }
+  }, 50);
+}
+
+/* save score (local storage leaderboard) */
+function loadLeaderboard(){
+  try{
+    const raw = localStorage.getItem('tetrisLeaderboard') || '[]';
+    return JSON.parse(raw);
+  }catch(e){ return []; }
+}
+function saveLeaderboard(list){
+  localStorage.setItem('tetrisLeaderboard', JSON.stringify(list));
+}
+function saveScore(){
+  const name = (document.getElementById('playerName').value || player.name || 'Player').trim();
+  const list = loadLeaderboard();
+  list.push({name, score: player.score, lines: player.lines, date: new Date().toISOString()});
+  list.sort((a,b)=>b.score - a.score);
+  const top = list.slice(0, 50);
+  saveLeaderboard(top);
+  renderLeaderboard();
+  alert('Score saved locally.');
+}
+function renderLeaderboard(){
+  const list = loadLeaderboard();
+  const container = document.getElementById('leaderList');
+  container.innerHTML = '';
+  if(list.length === 0){ container.innerHTML = '<div class="muted small">No scores yet. Play and save your score!</div>'; return; }
+  list.slice(0,10).forEach((item,i)=>{
+    const el = document.createElement('div');
+    el.className = 'score-item';
+    el.innerHTML = '<div><strong>' + (i+1) + '. ' + escapeHtml(item.name) + '</strong><div class="small muted">' + formatDate(item.date) + '</div></div>' +
+                   '<div style="text-align:right"><div style="font-weight:700">' + item.score + '</div><div class="small muted">' + item.lines + ' lines</div></div>';
+    container.appendChild(el);
+  });
+}
+
+document.getElementById('showLocalBtn').addEventListener('click', renderLeaderboard);
+document.getElementById('clearLocalBtn').addEventListener('click', ()=>{
+  if(confirm('Clear local leaderboard?')){ saveLeaderboard([]); renderLeaderboard(); }
+});
+
+renderLeaderboard();
+
+/* helpers */
+function escapeHtml(s){ return (''+s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function formatDate(d){ try{ return new Date(d).toLocaleString(); }catch(e){ return d; } }
+
+/* ========== OPPONENT PREVIEW RENDER ========== */
+function drawOpponentPreview(board){
+  octx.clearRect(0,0,OCAN.width,OCAN.height);
+  // background
+  const bg = octx.createLinearGradient(0,0,0,OCAN.height);
+  bg.addColorStop(0,'rgba(255,255,255,0.02)');
+  bg.addColorStop(1,'rgba(0,0,0,0.12)');
+  octx.fillStyle = bg;
+  octx.fillRect(0,0,OCAN.width,OCAN.height);
+
+  const cellW = Math.floor(OCAN.width / COLS);
+  const cellH = Math.floor(OCAN.height / ROWS);
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      const v = (board && board[y] && board[y][x]) || 0;
+      if(v){
+        const color = COLORS[v];
+        octx.fillStyle = color;
+        roundRect(octx, x*cellW + 2, y*cellH + 2, cellW-4, cellH-4, 4, true);
+      }
+    }
+  }
+}
+
+/* ========== NETWORK (WebRTC DataChannel manual signaling) ========== */
+let pc = null;
+let dc = null;
+const configuration = { iceServers: [{urls: 'stun:stun.l.google.com:19302'}] }; // public STUN
+
+const connStatus = document.getElementById('connStatus');
+const sigOut = document.getElementById('sigOut');
+const sigIn = document.getElementById('sigIn');
+const createOfferBtn = document.getElementById('createOfferBtn');
+const joinBtn = document.getElementById('joinBtn');
+const applySigBtn = document.getElementById('applySigBtn');
+const disconnectBtn = document.getElementById('disconnectBtn');
+const opponentScoreEl = document.getElementById('opponentScore');
+const opponentNameEl = document.getElementById('opponentName');
+
+createOfferBtn.addEventListener('click', async ()=>{
+  await initPeer(true);
+});
+
+joinBtn.addEventListener('click', async ()=>{
+  await initPeer(false);
+});
+
+applySigBtn.addEventListener('click', async ()=>{
+  const txt = sigIn.value.trim();
+  if(!txt) return alert('Paste remote SDP/answer into the field first.');
+  try{
+    const obj = JSON.parse(txt);
+    if(obj.sdp){
+      // if this peer created offer, apply answer; if this is peer who created answer, apply offer and create answer
+      if(pc && pc.signalingState === 'have-local-offer'){
+        await pc.setRemoteDescription(obj);
+        connStatus.textContent = 'Status: connected (applied answer)';
+      } else if(pc && pc.signalingState === 'stable'){
+        await pc.setRemoteDescription(obj);
+        // if we were in "join" mode we should create answer
+        // createAnswer handled by ondatachannel listener; but if not present, create answer now
+      } else {
+        // For case where user pasted an offer and this peer hasn't setLocalDescription yet:
+        await pc.setRemoteDescription(obj);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        sigOut.value = JSON.stringify(pc.localDescription);
+      }
+    } else {
+      alert('Invalid SDP JSON');
+    }
+  }catch(e){
+    alert('Failed to apply signaling: ' + e.message);
+  }
+});
+
+disconnectBtn.addEventListener('click', ()=>{
+  closeConnection();
+});
+
+async function initPeer(initiator){
+  closeConnection();
+  pc = new RTCPeerConnection(configuration);
+  pc.onicecandidate = (e)=> {
+    if(e.candidate === null) {
+      // finished gathering
+      sigOut.value = JSON.stringify(pc.localDescription);
+    }
+  };
+
+  pc.onconnectionstatechange = ()=> {
+    connStatus.textContent = 'Status: ' + (pc ? pc.connectionState : 'disconnected');
+  };
+
+  if(initiator){
+    dc = pc.createDataChannel('tetris');
+    setupDataChannel(dc);
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    // Wait for ICE gathering complete; onicecandidate handler will populate sigOut with SDP when candidate null
+    connStatus.textContent = 'Status: created offer — copy the Offer and send to peer';
+  } else {
+    pc.ondatachannel = (e)=> {
+      dc = e.channel;
+      setupDataChannel(dc);
+    };
+    // If joining, we expect the user to paste remote offer then press Apply which will setRemoteDescription and create answer in apply handler.
+    connStatus.textContent = 'Status: ready to accept offer — paste Offer in "Paste remote SDP" and Apply';
+  }
+
+  pc.oniceconnectionstatechange = ()=> {
+    connStatus.textContent = 'Status: ' + pc.iceConnectionState;
+  };
+
+  pc.ontrack = ()=>{};
+}
+
+function setupDataChannel(channel){
+  channel.onopen = ()=> {
+    connStatus.textContent = 'Status: connected';
+    // send initial state
+    broadcastState(true);
+  };
+  channel.onmessage = (e)=> {
+    try {
+      const msg = JSON.parse(e.data);
+      handleMessage(msg);
+    } catch(err){}
+  };
+  channel.onclose = ()=> {
+    connStatus.textContent = 'Status: disconnected';
+  };
+  channel.onerror = ()=> {
+    connStatus.textContent = 'Status: error';
+  };
+}
+
+/* send messages */
+function sendMessage(obj){
+  if(dc && dc.readyState === 'open'){
+    dc.send(JSON.stringify(obj));
+  }
+}
+
+function broadcastState(force){
+  // send minimal preview of arena top part for opponent (for privacy/perf)
+  const preview = arena.slice(); // could reduce
+  sendMessage({type:'state', score: player.score, lines: player.lines, name: player.name, preview});
+  // also update own opponent preview UI if connected? (we show remote)
+}
+
+/* handle incoming */
+function handleMessage(msg){
+  if(msg.type === 'state'){
+    opponentScoreEl.textContent = msg.score || 0;
+    opponentNameEl.textContent = msg.name || 'Opponent';
+    drawOpponentPreview(msg.preview || null);
+  } else if(msg.type === 'garbage'){
+    // apply garbage rows
+    const rows = msg.rows || 0;
+    applyGarbage(rows);
+  } else if(msg.type === 'chat'){
+    // future
+  }
+}
+
+/* garbage attack: send when player clears multi lines */
+function sendGarbage(n){
+  if(!dc || dc.readyState !== 'open') return;
+  // n = number of junk rows to send
+  sendMessage({type:'garbage', rows: n});
+}
+
+/* apply garbage to bottom of arena: push up and add random holes */
+function applyGarbage(n){
+  if(n <= 0) return;
+  for(let k=0;k<n;k++){
+    arena.shift();
+    // create garbage row with one random empty column
+    const hole = Math.floor(Math.random()*COLS);
+    const row = new Array(COLS).fill(8); // value 8 used for garbage; will render white
+    row[hole] = 0;
+    arena.push(row);
+  }
+  // if top-overflow -> game over
+  if(arena[0].some(cell => cell !== 0)){
+    gameOver = true;
+    running = false;
+    showGameOver();
+  }
+}
+
+/* close connection */
+function closeConnection(){
+  try{ if(dc) dc.close(); }catch(e){}
+  try{ if(pc) pc.close(); }catch(e){}
+  dc = null; pc = null;
+  connStatus.textContent = 'Status: disconnected';
+  sigOut.value = '';
+  sigIn.value = '';
+  opponentScoreEl.textContent = '0';
+  opponentNameEl.textContent = '-';
+  drawOpponentPreview(null);
+}
+
+/* ========== OPTIONAL: Firebase online leaderboard ========== */
+if(firebaseConfig){
+  // (User to add their firebase config in top of file)
+  // Example usage (uncomment to enable after adding config):
+  /*
+  importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js');
+  importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js');
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  document.getElementById('uploadBtn').addEventListener('click', ()=>{
+    const list = loadLeaderboard();
+    if(list.length === 0) return alert('No local scores to upload.');
+    const top = list[0];
+    const name = top.name;
+    db.ref('scores').push(top).then(()=> alert('Uploaded.'));
+  });
+  document.getElementById('fetchOnlineBtn').addEventListener('click', ()=>{
+    db.ref('scores').orderByChild('score').limitToLast(50).once('value').then(snap=>{
+      const arr=[];
+      snap.forEach(child=> arr.push(child.val()));
+      arr.sort((a,b)=>b.score-a.score);
+      // show in leaderboard panel (replace)
+      // ...
+    })
+  });
+  */
+}
+
+/* ========== Misc UI wiring ========== */
+document.getElementById('playerName').value = localStorage.getItem('tName') || 'Player';
+document.getElementById('uploadBtn').addEventListener('click', ()=>{
+  alert('Online upload is disabled in this demo. Add Firebase config to enable.');
+});
+document.getElementById('fetchOnlineBtn').addEventListener('click', ()=>{
+  alert('Online fetch is disabled in this demo. Add Firebase config to enable.');
+});
+
+/* persist periodic broadcast for live updates */
+setInterval(()=>{
+  if(dc && dc.readyState === 'open') broadcastState();
+}, 1500);
+
+/* init draw for empty board */
+draw();
+drawOpponentPreview(null);
+
+/* ========== UTILITIES ========== */
+/* Keep space-responsive block size if canvas resized in CSS */
+(function fixSize(){
+  // nothing to do — using fixed canvas width/height for crisp rendering; could adapt for DPR
+})();
+
+/* End of script */
+</script>
 </body>
 </html>
