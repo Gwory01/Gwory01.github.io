@@ -41,7 +41,7 @@
             box-shadow: inset 0 0 150px #0ac8b9;
         }
 
-        /* --- INFO MODAL & BUTTONS --- */
+        /* --- INFO BUTTONS --- */
         .info-btn {
             position: absolute;
             top: 5px; left: 5px;
@@ -58,38 +58,39 @@
         }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
 
+        /* --- PENCERELER (MODAL, DIALOG, VICTORY) --- */
+        /* Ortak Çerçeve Stili */
+        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay {
+            background: rgba(10, 12, 15, 0.98);
+            border: 2px solid #1a1a1a; /* İç Koyu Çerçeve */
+            outline: 2px solid var(--ruined-green); /* Dış Yeşil Çerçeve */
+            outline-offset: -4px; /* Çerçeve Arası Mesafe */
+            box-shadow: 0 0 30px rgba(10, 200, 185, 0.3), inset 0 0 50px rgba(0,0,0,0.9);
+            border-radius: 4px;
+            color: #ddd;
+            text-align: center;
+        }
+
+        /* Info Modal Özel Konum */
         .info-modal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 320px;
-            background: rgba(15, 20, 25, 0.98);
-            border: 2px solid var(--ruined-green);
-            padding: 20px;
-            z-index: 2000;
-            display: none;
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
-            text-align: left;
-            font-family: sans-serif; font-size: 13px; line-height: 1.5; color: #ddd;
+            width: 320px; padding: 20px; z-index: 2000; display: none;
+            text-align: left; font-family: sans-serif; font-size: 13px; line-height: 1.6;
         }
         .info-modal h3 { color: var(--ruined-green); margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-family: 'Cinzel', serif; }
-        .info-strong { color: #e74c3c; font-weight: bold; }
-        .info-weak { color: #2ecc71; font-weight: bold; }
-        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s;}
+        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; }
+        .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
+        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
         .info-close:hover { background: var(--ruined-green); color: black; }
 
-        /* --- OYUN ALANI VE ÇERÇEVE (GÜNCELLENDİ) --- */
+        /* --- OYUN ALANI --- */
         .game-wrapper { 
             width: 90%; max-width: 1000px; 
             background: rgba(8, 10, 12, 0.9); 
-            
-            /* GÖRSELDEKİ GİBİ ÇERÇEVE EFEKTİ */
-            border: 3px solid #1a1a1a; /* İç koyu çerçeve */
-            outline: 2px solid var(--ruined-green); /* Dış parlak çizgi */
+            border: 3px solid #1a1a1a;
+            outline: 2px solid var(--ruined-green);
             outline-offset: -1px;
-            
-            box-shadow: 
-                0 0 20px var(--ruined-green), /* Dış Yeşil Parlama */
-                inset 0 0 50px rgba(0,0,0, 0.9); /* İç Derinlik */
-                
+            box-shadow: 0 0 20px var(--ruined-green), inset 0 0 50px rgba(0,0,0, 0.9);
             padding: 20px; 
             position: relative; 
             display: flex; flex-direction: column; 
@@ -97,36 +98,35 @@
             border-radius: 4px; 
         }
 
-        /* Köşelere Süs Ekleme (İsteğe Bağlı Estetik) */
-        .game-wrapper::before, .game-wrapper::after {
-            content: ""; position: absolute; width: 30px; height: 30px;
-            border: 2px solid var(--ruined-green); transition: 0.5s;
-        }
-        .game-wrapper::before { top: -5px; left: -5px; border-right: none; border-bottom: none; }
-        .game-wrapper::after { bottom: -5px; right: -5px; border-left: none; border-top: none; }
-
         #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
         }
         
         #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
-        #overlay, #final-choice-overlay { background: rgba(0,0,0,0.95); display: none; }
+        #overlay { background: rgba(0,0,0,0.8); display: none; } /* Victory Ekranı */
+        #final-choice-overlay { background: rgba(0,0,0,0.95); display: none; }
         
+        /* Zafer Ekranı Kutusu */
+        .overlay-msg {
+            padding: 40px; min-width: 300px;
+        }
+        .overlay-msg h2 { color: var(--ruined-green); font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 10px var(--ruined-green); }
+
         #cinematic-dialogue { 
             display: none; justify-content: flex-end; padding-bottom: 50px;
             background: rgba(0,0,0,0.4); pointer-events: none; 
         }
         
+        /* Diyalog Kutusu */
         .dialogue-box {
-            background: rgba(0, 0, 0, 0.9); border: 2px solid var(--ruined-green);
-            padding: 20px; width: 80%; pointer-events: auto;
-            box-shadow: 0 0 30px rgba(10, 200, 185, 0.2);
+            padding: 25px; width: 70%; pointer-events: auto;
+            min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
 
-        #cinematic-text { font-size: 1.2rem; color: #fff; margin-bottom: 15px; font-style: italic; }
-        #cinematic-btn { background: transparent; border: 1px solid var(--ruined-green); color: var(--ruined-green); padding: 5px 20px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; }
-        #cinematic-btn:hover { background: var(--ruined-green); color: black; }
+        #cinematic-text { font-size: 1.3rem; color: #fff; margin-bottom: 20px; font-style: italic; text-shadow: 1px 1px 2px black; }
+        #cinematic-btn { background: transparent; border: 1px solid var(--ruined-green); color: var(--ruined-green); padding: 5px 25px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; font-size: 1rem; }
+        #cinematic-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 15px var(--ruined-green); }
 
         .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px; }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
@@ -352,15 +352,15 @@
     const mechanicsInfo = {
         player: `<span class='info-weak'>Q - Kralın Kılıcı:</span> Rakibin canından çalar (%7).<br><br><span class='info-weak'>W - Hortlağın Pençesi:</span> Sonraki saldırı KRİTİK olur. Thresh gardını kırar!<br><br><span class='info-strong'>R - ULTİ:</span> Eksik cana göre vurur. W+R kombosu kritik vurur!`,
         thresh: `<span class='info-strong'>GÜÇ:</span> Her tur zırh ve hasar kazanır. 12 Ruh'ta bir STUN atar. Blokladığı hasarın %30'u ile iyileşir.<br><br><span class='info-weak'>ZAYIFLIK:</span> Viego'nun <b>W (Hortlağın Pençesi)</b> yeteneği gardını kırar ve sonraki hasarı 2 katına çıkarır.`,
-        leblanc: `<span class='info-strong'>GÜÇ:</span> Hilekar! %40 ihtimalle büyülerini taklit ederek (Mimic) aynı turda iki kez vurur.<br><br><span class='info-weak'>ZAYIFLIK:</span> Canı ve savunması düşüktür. Hızlı bitirilmelidir.`,
-        belveth: `<span class='info-strong'>GÜÇ:</span> Asla tek seferde ölmez. Canı bittiğinde GERÇEK FORMUNA dönüşür ve canını yeniler.<br><br><span class='info-weak'>ZAYIFLIK:</span> İlk formu daha zayıftır. Ultini ikinci forma saklaman önerilir.`,
-        mordekaiser: `<span class='info-strong'>GÜÇ:</span> Canı %35'in altına düştüğünde seni ÖLÜLER ALEMİNE çeker. Orada canını yeniler, hasarı ve zırhı artar.<br><br><span class='info-weak'>ZAYIFLIK:</span> Ölüler Alemi maçta sadece bir kez tetiklenir.`,
-        default: `<span class='info-strong'>DURUM:</span> Standart bir rakip.<br><br><span class='info-weak'>İPUCU:</span> Q ile canını yüksek tut, W+R kombosu ile bitirici vuruş yap.`
+        leblanc: `<span class='info-strong'>GÜÇ:</span> Hilekar! %40 şansla büyüyü taklit eder (Çift vuruş).<br><br><span class='info-weak'>ZAYIFLIK:</span> Canı azdır.`,
+        belveth: `<span class='info-strong'>GÜÇ:</span> Öldüğünde GERÇEK FORMUNA dönüşür ve canı dolar.<br><br><span class='info-weak'>ZAYIFLIK:</span> İlk formu zayıftır.`,
+        mordekaiser: `<span class='info-strong'>GÜÇ:</span> Canı %35 altına inince ÖLÜLER ALEMİNE çeker (Statları artar).<br><br><span class='info-weak'>ZAYIFLIK:</span> Sadece bir kez olur.`,
+        default: `<span class='info-strong'>DURUM:</span> Standart rakip.<br><br><span class='info-weak'>İPUCU:</span> Q ile canını yüksek tut, W+R ile bitir.`
     };
 
     let currentLang = 'en'; let t = {};
     const translations = {
-        en: { title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY", victory: "VICTORY", levelUp: "LEVEL UP!", continue: "CONTINUE", defeat: "DEFEAT...", skillBasic: "Blade of the King", skillQ: "Blade of the Ruined King (Q)", skillQDesc: "7% Enemy HP Steal", skillW: "Spectral Maw (W)", skillR: "HEARTBREAKER (R)", finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN", choiceSurrender: "SURRENDER TO LOVE",
+        en: { title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY", victory: "VICTORY", levelUp: "LEVEL UP!", continue: "CONTINUE", defeat: "DEFEAT...", skillBasic: "Blade of the King", skillQ: "Blade of the Ruined King (Q)", skillQDesc: "7% Enemy HP Steal", skillW: "Spectral Maw (W)", skillR: "HEARTBREAKER (R)", finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN", choiceSurrender: "SURRENDER TO LOVE", menu: "← Menu",
             logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
@@ -383,7 +383,7 @@
                 { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
             ]
         },
-        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL",
+        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü",
             logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Bırak beni...\""], endingAttack: ["Viego: \"Senin olamıyorsam...\"", "Sistem: Son."], endingSurrender: ["Viego: \"Seninim.\"", "*Son*"] },
@@ -419,22 +419,10 @@
 
     function changeLanguage(lang) {
         currentLang = lang; t = translations[lang]; localStorage.setItem('rpgLang', lang);
-        document.getElementById('start-title-1').innerText = t.title1;
-        document.getElementById('start-title-2').innerText = t.title2;
-        document.getElementById('start-sub').innerText = t.sub;
-        document.getElementById('start-btn').innerText = t.startBtn;
-        document.getElementById('btn-menu').innerText = t.menu;
-        document.getElementById('overlay-title').innerText = t.victory;
-        document.getElementById('level-up-text').innerText = t.levelUp;
-        document.getElementById('next-btn').innerText = t.continue;
-        document.getElementById('skill-basic-name').innerText = t.skillBasic;
-        document.getElementById('skill-q-name').innerText = t.skillQ;
-        document.getElementById('skill-q-desc').innerText = t.skillQDesc;
-        document.getElementById('skill-w-name').innerText = t.skillW;
-        document.getElementById('skill-r-name').innerText = t.skillR;
-        document.getElementById('choice-title').innerText = t.finalChoiceTitle;
-        document.getElementById('btn-choice-attack').innerText = t.choiceAttack;
-        document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
+        document.getElementById('start-title-1').innerText = t.title1; document.getElementById('start-title-2').innerText = t.title2; document.getElementById('start-sub').innerText = t.sub; document.getElementById('start-btn').innerText = t.startBtn; document.getElementById('btn-menu').innerText = t.menu;
+        document.getElementById('overlay-title').innerText = t.victory; document.getElementById('level-up-text').innerText = t.levelUp; document.getElementById('next-btn').innerText = t.continue;
+        document.getElementById('skill-basic-name').innerText = t.skillBasic; document.getElementById('skill-q-name').innerText = t.skillQ; document.getElementById('skill-q-desc').innerText = t.skillQDesc; document.getElementById('skill-w-name').innerText = t.skillW; document.getElementById('skill-r-name').innerText = t.skillR;
+        document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
         updateMusicBtnText();
         if (!isIsoldeScene && document.getElementById('enemy-name').innerText !== "ENEMY" && document.getElementById('enemy-name').innerText !== "DÜŞMAN") {
              document.getElementById('enemy-name').innerText = t.enemies[currentEnemyIndex].name.toUpperCase();
@@ -459,12 +447,13 @@
         if (enemyTimeout) clearTimeout(enemyTimeout);
         if (index >= enemiesBase.length) { startIsoldeScene(); return; }
         
+        // Overlayleri temizle
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('final-choice-overlay').style.display = 'none';
         
         currentEnemyIndex = index;
         const enemyData = enemiesBase[index];
-        const enemyTrans = t.enemies[index];
+        const enemyTrans = t.enemies[index]; // Çeviriden veriyi al
         
         if (enemyData.id === 'mordekaiser') changeMusic('morde'); else if (enemyData.id === 'thresh') changeMusic('thresh'); else if (index < 5) changeMusic('tier1'); else if (index < 12) changeMusic('tier2'); else changeMusic('tier3');
 
@@ -481,6 +470,7 @@
         player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
         turn = "player"; toggleBattleUI(false); 
         
+        // DİYALOGLARI BURADA ÇAĞIRIYORUZ (Geri geldi!)
         startPreFightDialogue(enemyTrans);
     }
 
@@ -495,6 +485,7 @@
     }
 
     function startPreFightDialogue(enemyTrans) {
+        // Artık çeviri dosyasındaki uzun metinleri kullanıyor
         currentDialogues = enemyTrans.intro;
         dialogueIndex = 0; 
         document.getElementById('cinematic-dialogue').style.display = 'flex'; 
@@ -538,7 +529,6 @@
         if (turn !== "player") return;
         if (bossState.isPlayerStunned) { log(t.bossLogs.stunned); bossState.isPlayerStunned = false; turn = "enemy"; setTimeout(enemyTurn, 1000); return; }
 
-        clearBubbles(); triggerBanter(true);
         const enemyData = enemiesBase[currentEnemyIndex];
         let damage = 0; let logMsg = ""; let isCrit = false;
         if (player.nextHitCrit) { isCrit = true; player.nextHitCrit = false; } else { if (Math.random() < player.critChance) isCrit = true; }
