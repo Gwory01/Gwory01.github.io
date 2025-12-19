@@ -3,16 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruined King's Tale</title>
+    <title>Viego: The Ruined King RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
 
+        :root {
+            --ruined-green: #0ac8b9;
+            --dark-bg: #05080a;
+            --mana-blue: #0070dd;
+            --hp-red: #c0392b;
+        }
+
         body {
-            background-color: #050505;
-            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-color: var(--dark-bg);
+            /* Arka plan: Karanlık sisli bir atmosfer */
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover;
             background-position: center;
-            color: #c8aa6e; /* LoL Gold rengi */
+            background-attachment: fixed;
+            color: #e0e0e0;
             font-family: 'Cinzel', serif;
             display: flex;
             flex-direction: column;
@@ -24,374 +33,175 @@
             user-select: none;
         }
 
-        /* Geri Dön Butonu */
-        .back-btn {
+        /* Sis Efekti (Animasyon) */
+        @keyframes mist {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .mist-overlay {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #c8aa6e;
-            text-decoration: none;
-            border: 1px solid #c8aa6e;
-            padding: 10px 20px;
-            background: rgba(0,0,0,0.8);
-            font-weight: bold;
-            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, rgba(10, 200, 185, 0.05), transparent);
+            background-size: 400% 400%;
+            animation: mist 15s ease infinite;
+            z-index: -1;
+            pointer-events: none;
         }
 
-        /* Konteynerlar */
-        .screen {
-            width: 80%;
-            max-width: 900px;
-            height: 500px;
-            background: rgba(10, 10, 12, 0.9);
-            border: 2px solid #463714;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            display: none; /* JS ile açacağız */
-            flex-direction: column;
-            align-items: center;
+        /* UI Panelleri */
+        .game-wrapper {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(10, 12, 15, 0.95);
+            border: 2px solid #333;
+            border-top: 4px solid var(--ruined-green);
+            box-shadow: 0 0 50px rgba(10, 200, 185, 0.1);
             padding: 20px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
         }
 
-        .active { display: flex; }
-
-        /* Karakter Seçimi */
-        h1 { margin-bottom: 30px; text-shadow: 0 0 10px #c8aa6e; font-size: 2.5rem; }
-        .char-grid { display: flex; gap: 20px; }
-        .char-card {
-            width: 150px;
-            height: 250px;
-            border: 1px solid #555;
+        /* Başlangıç Ekranı */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #start-screen h1 { font-size: 3rem; color: var(--ruined-green); text-shadow: 0 0 20px var(--ruined-green); margin-bottom: 10px; }
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            background: transparent;
+            color: var(--ruined-green);
+            border: 2px solid var(--ruined-green);
+            font-family: 'Cinzel', serif;
             cursor: pointer;
             transition: 0.3s;
-            background-size: cover;
-            background-position: top;
-            position: relative;
-            filter: grayscale(0.8);
+            margin-top: 30px;
         }
-        .char-card:hover { transform: scale(1.05); filter: grayscale(0); border-color: #c8aa6e; }
-        .char-name {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            background: rgba(0,0,0,0.8);
-            text-align: center;
-            padding: 10px 0;
-            color: white;
-            font-weight: bold;
-        }
+        .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
-        /* Diyalog Ekranı */
-        .dialogue-box {
-            position: absolute;
-            bottom: 20px;
-            width: 90%;
-            height: 120px;
-            background: rgba(0,0,0,0.95);
-            border: 2px solid #c8aa6e;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .portrait {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: #333;
-            border: 2px solid #c8aa6e;
-            background-size: cover;
-        }
-        .text-content h3 { margin: 0 0 5px 0; color: #00ffcc; /* Shadow Isles yeşili */ }
-        .text-content p { margin: 0; font-size: 1.1rem; color: #ddd; }
-        .next-btn {
-            margin-left: auto;
-            background: transparent;
-            border: 1px solid #c8aa6e;
-            color: #c8aa6e;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        /* Savaş Ekranı */
-        .battle-area {
+        /* Savaş Alanı */
+        .battle-scene {
+            flex-grow: 1;
             display: flex;
             justify-content: space-between;
-            width: 100%;
-            height: 60%;
             align-items: center;
-            padding: 0 50px;
-            box-sizing: border-box;
+            padding: 0 40px;
         }
-        .fighter {
+
+        .character-box {
+            width: 250px;
             text-align: center;
             position: relative;
         }
-        .fighter img {
-            width: 150px;
-            height: 150px;
+        .character-img {
+            width: 200px;
+            height: 200px;
             object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,255,204,0.2);
+            border-radius: 50%;
+            border: 4px solid #444;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
         }
-        .hp-bar {
-            width: 150px;
-            height: 20px;
-            background: #333;
-            margin-top: 10px;
-            border: 1px solid #000;
+        .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
+        .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
+        
+        /* Hasar Animasyonu */
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        /* Bar Stilleri */
+        .stat-bar {
+            width: 100%;
+            height: 15px;
+            background: #222;
+            margin-top: 8px;
+            border: 1px solid #444;
             position: relative;
         }
-        .hp-fill {
-            width: 100%;
-            height: 100%;
-            background: #d13639; /* Noxus kırmızısı */
-            transition: width 0.5s;
+        .fill { height: 100%; transition: width 0.5s ease-out; }
+        .hp-fill { background-color: var(--hp-red); }
+        .mana-fill { background-color: var(--mana-blue); }
+        .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
+
+        /* Kontrol Paneli */
+        .controls {
+            height: 150px;
+            border-top: 1px solid #444;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding-top: 20px;
         }
-        .action-menu {
-            position: absolute;
-            bottom: 20px;
-            display: flex;
-            gap: 15px;
+
+        .skills {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
         }
-        .action-btn {
-            padding: 15px 30px;
-            background: #1e2328;
-            color: #cdbe91;
-            border: 2px solid #3c3c41;
+
+        .skill-btn {
+            background: #111;
+            border: 1px solid #444;
+            color: #aaa;
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
             cursor: pointer;
+            position: relative;
             transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
         }
-        .action-btn:hover { border-color: #c8aa6e; background: #2a2a30; }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
+        .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .skill-name { font-weight: bold; font-size: 0.9rem; }
+        .skill-cost { font-size: 0.7rem; color: var(--mana-blue); margin-top: 3px; }
+        
+        .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
 
-        .combat-log {
-            position: absolute;
-            top: 20px;
-            background: rgba(0,0,0,0.6);
+        .log-box {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #333;
             padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-
-    <a href="index.html" class="back-btn">← Ana Menü</a>
-
-    <div id="screen-select" class="screen active">
-        <h1>KADERİNİ SEÇ</h1>
-        <p style="margin-bottom: 30px; color:#888;">Camavor'un yıkıntıları seni çağırıyor...</p>
-        <div class="char-grid">
-            <div class="char-card" onclick="startGame('viego')" style="background-image: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg')">
-                <div class="char-name">VIEGO</div>
-            </div>
-            <div class="char-card" onclick="startGame('leblanc')" style="background-image: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg')">
-                <div class="char-name">LEBLANC</div>
-            </div>
-            <div class="char-card" onclick="startGame('vladimir')" style="background-image: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg')">
-                <div class="char-name">VLADIMIR</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="screen-dialogue" class="screen">
-        <div class="battle-area" style="justify-content: center;">
-            <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" style="width: 200px; border-radius: 20px; box-shadow: 0 0 30px #00ffcc;">
-        </div>
-        <div class="dialogue-box">
-            <div class="portrait" id="dialogue-portrait"></div>
-            <div class="text-content">
-                <h3 id="dialogue-name">???</h3>
-                <p id="dialogue-text">...</p>
-            </div>
-            <button class="next-btn" onclick="nextDialogue()">DEVAM ET</button>
-        </div>
-    </div>
-
-    <div id="screen-combat" class="screen">
-        <div class="combat-log" id="combatLog">Savaş Başladı!</div>
-
-        <div class="battle-area">
-            <div class="fighter">
-                <h3 id="player-name">Hero</h3>
-                <img id="player-img" src="">
-                <div class="hp-bar"><div class="hp-fill" id="player-hp"></div></div>
-                <p id="player-hp-text">100/100</p>
-            </div>
-
-            <h2 style="font-size: 3rem; color: #c8aa6e;">VS</h2>
-
-            <div class="fighter">
-                <h3>SAHN-UZAL</h3>
-                <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg">
-                <div class="hp-bar"><div class="hp-fill" id="enemy-hp"></div></div>
-                <p id="enemy-hp-text">150/150</p>
-            </div>
-        </div>
-
-        <div class="action-menu">
-            <button class="action-btn" onclick="combatAction('attack')">SALDIR</button>
-            <button class="action-btn" onclick="combatAction('heal')">İYİLEŞ</button>
-            <button class="action-btn" onclick="combatAction('ult')" style="color: #00ffcc; border-color: #00ffcc;">ULTIMATE</button>
-        </div>
-    </div>
-
-<script>
-    // --- OYUN VERİLERİ ---
-    const characters = {
-        viego: {
-            name: "Viego",
-            title: "Mahvolmuş Kral",
-            hp: 120,
-            img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg",
-            dialogues: [
-                "Isolde... Neredesin?",
-                "Bu demir zırhlı aptal (Sahn-Uzal) yolumda duruyor.",
-                "Onu ezip geçeceğim ve kraliçemi bulacağım!"
-            ]
-        },
-        leblanc: {
-            name: "LeBlanc",
-            title: "Hilekar",
-            hp: 100,
-            img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg",
-            dialogues: [
-                "Kara Gül her zaman açar.",
-                "Sahn-Uzal... Ölüler diyarının eski efendisi.",
-                "Onu manipüle etmek zor olacak, yok etmem gerekecek."
-            ]
-        },
-        vladimir: {
-            name: "Vladimir",
-            title: "Kızıl Ölüm",
-            hp: 110,
-            img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg",
-            dialogues: [
-                "Kan... Ne kadar da tatlı bir koku.",
-                "Yeğenim Viego ortalığı karıştırmış yine.",
-                "Bu demir yığını benim kanımı dondurabileceğini mi sanıyor?"
-            ]
-        }
-    };
-
-    let player = null;
-    let enemy = { name: "Sahn-Uzal", hp: 150, maxHp: 150, damage: 15 };
-    let currentDialogueIndex = 0;
-    let playerCurrentHp = 0;
-
-    // --- EKRAN GEÇİŞLERİ ---
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    // --- OYUNU BAŞLAT ---
-    function startGame(charKey) {
-        player = characters[charKey];
-        playerCurrentHp = player.hp;
-        
-        // Diyalog Hazırlığı
-        document.getElementById('dialogue-portrait').style.backgroundImage = `url('${player.img}')`;
-        currentDialogueIndex = 0;
-        updateDialogue();
-        
-        showScreen('screen-dialogue');
-    }
-
-    // --- DİYALOG SİSTEMİ ---
-    function updateDialogue() {
-        if (currentDialogueIndex < player.dialogues.length) {
-            document.getElementById('dialogue-name').innerText = player.name;
-            document.getElementById('dialogue-text').innerText = player.dialogues[currentDialogueIndex];
-        } else {
-            startCombat();
-        }
-    }
-
-    function nextDialogue() {
-        currentDialogueIndex++;
-        updateDialogue();
-    }
-
-    // --- SAVAŞ SİSTEMİ ---
-    function startCombat() {
-        document.getElementById('player-name').innerText = player.name;
-        document.getElementById('player-img').src = player.img;
-        updateHpBars();
-        showScreen('screen-combat');
-    }
-
-    function updateHpBars() {
-        // Player
-        const pPercent = (playerCurrentHp / player.hp) * 100;
-        document.getElementById('player-hp').style.width = pPercent + "%";
-        document.getElementById('player-hp-text').innerText = `${playerCurrentHp}/${player.hp}`;
-
-        // Enemy
-        const ePercent = (enemy.hp / enemy.maxHp) * 100;
-        document.getElementById('enemy-hp').style.width = ePercent + "%";
-        document.getElementById('enemy-hp-text').innerText = `${enemy.hp}/${enemy.maxHp}`;
-    }
-
-    function log(msg) {
-        document.getElementById('combatLog').innerText = msg;
-    }
-
-    function combatAction(type) {
-        if (playerCurrentHp <= 0 || enemy.hp <= 0) return;
-
-        let playerDmg = 0;
-        let logMsg = "";
-
-        // 1. OYUNCU HAMLESİ
-        if (type === 'attack') {
-            playerDmg = Math.floor(Math.random() * 20) + 10;
-            enemy.hp -= playerDmg;
-            logMsg = `${player.name} Kılıcını savurdu! ${playerDmg} hasar!`;
-        } 
-        else if (type === 'heal') {
-            const healAmount = 25;
-            playerCurrentHp += healAmount;
-            if (playerCurrentHp > player.hp) playerCurrentHp = player.hp;
-            logMsg = `${player.name} kendini iyileştirdi. +${healAmount} HP`;
-        }
-        else if (type === 'ult') {
-            playerDmg = 50;
-            enemy.hp -= playerDmg;
-            logMsg = `${player.name} ULTIMATE KULLANDI! ${playerDmg} hasar!`;
-            // Ulti sadece bir kere kullanılabilir yapabiliriz ama şimdilik serbest
+            font-size: 0.9rem;
+            overflow-y: auto;
+            color: #ccc;
+            font-family: sans-serif;
         }
 
-        if (enemy.hp < 0) enemy.hp = 0;
-        updateHpBars();
-        log(logMsg);
-
-        // KAZANMA KONTROLÜ
-        if (enemy.hp <= 0) {
-            setTimeout(() => alert("ZAFER! Sahn-Uzal düştü! Isolde seni bekliyor..."), 500);
-            return;
-        }
-
-        // 2. DÜŞMAN HAMLESİ (Gecikmeli)
-        setTimeout(() => {
-            const enemyDmg = Math.floor(Math.random() * 15) + 5;
-            playerCurrentHp -= enemyDmg;
-            if (playerCurrentHp < 0) playerCurrentHp = 0;
-            
-            updateHpBars();
-            log(`Sahn-Uzal Gürzünü vurdu! ${enemyDmg} hasar aldın!`);
-
-            if (playerCurrentHp <= 0) {
-                setTimeout(() => alert("KAYBETTİN... Ruhun artık ona ait."), 500);
-                location.reload(); // Oyunu resetle
-            }
-        }, 1000);
-    }
-</script>
-
-</body>
-</html>
+        /* Overlay Mesajları */
+        .overlay-msg {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border: 2px solid var(--ruined-green);
+            text-align: center;
+            display: none;
+            z-index: 50;
