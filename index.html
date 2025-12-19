@@ -18,6 +18,20 @@
             min-height: 100vh;
             text-align: center;
         }
+
+        /* Dil Seçici */
+        .lang-select {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px;
+            border-radius: 5px;
+            background: #2a2a35;
+            color: white;
+            border: 1px solid #444;
+            cursor: pointer;
+        }
+
         h1 { font-size: 3rem; margin-bottom: 10px; color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
         p { color: #aaa; margin-bottom: 40px; }
         
@@ -48,11 +62,7 @@
             border-color: #00ffcc;
         }
 
-        .icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-        }
-
+        .icon { font-size: 50px; margin-bottom: 20px; }
         .card h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
         .card span { font-size: 0.9rem; color: #888; }
 
@@ -68,24 +78,87 @@
 </head>
 <body>
 
-    <h1>OYUN MERKEZİ</h1>
-    <p>Oynamak istediğiniz oyunu seçin</p>
+    <select class="lang-select" id="languageSelector" onchange="changeLanguage()">
+        <option value="tr">Türkçe</option>
+        <option value="ku">Kurdî</option>
+        <option value="en">English</option>
+    </select>
+
+    <h1 id="mainTitle">OYUN MERKEZİ</h1>
+    <p id="subTitle">Oynamak istediğiniz oyunu seçin</p>
 
     <div class="game-grid">
         <a href="tetris.html" class="card">
             <div class="icon">🧱</div>
-            <h2>Neon Tetris</h2>
-            <span>Klasik blok yerleştirme oyunu.</span>
-            <div class="btn">OYNA</div>
+            <h2 id="tetrisTitle">Neon Tetris</h2>
+            <span id="tetrisDesc">Klasik blok yerleştirme oyunu.</span>
+            <div class="btn" id="btnPlay1">OYNA</div>
         </a>
 
         <a href="puzzle.html" class="card">
             <div class="icon">🐱</div>
-            <h2>Kedi Puzzle</h2>
-            <span>Resmi tamamlamak için kaydır.</span>
-            <div class="btn">OYNA</div>
+            <h2 id="puzzleTitle">Kedi Puzzle</h2>
+            <span id="puzzleDesc">Resmi tamamlamak için kaydır.</span>
+            <div class="btn" id="btnPlay2">OYNA</div>
         </a>
     </div>
+
+<script>
+    const translations = {
+        tr: {
+            title: "OYUN MERKEZİ",
+            sub: "Oynamak istediğiniz oyunu seçin",
+            tetrisTitle: "Neon Tetris",
+            tetrisDesc: "Klasik blok yerleştirme oyunu.",
+            puzzleTitle: "Kedi Puzzle",
+            puzzleDesc: "Resmi tamamlamak için kaydır.",
+            play: "OYNA"
+        },
+        ku: {
+            title: "NAVENDA LÎSTIKAN",
+            sub: "Lîstika ku hûn dixwazin bilîzin hilbijêrin",
+            tetrisTitle: "Neon Tetris",
+            tetrisDesc: "Lîstika klasîk a danîna blokan.",
+            puzzleTitle: "Puzzleya Pisîkê",
+            puzzleDesc: "Ji bo temamkirina wêneyê bihejînin.",
+            play: "BILÎZE"
+        },
+        en: {
+            title: "GAME CENTER",
+            sub: "Choose the game you want to play",
+            tetrisTitle: "Neon Tetris",
+            tetrisDesc: "Classic block stacking game.",
+            puzzleTitle: "Cat Puzzle",
+            puzzleDesc: "Slide tiles to complete the picture.",
+            play: "PLAY"
+        }
+    };
+
+    function changeLanguage() {
+        const lang = document.getElementById("languageSelector").value;
+        localStorage.setItem('selectedLang', lang); // Dili hafızaya kaydet
+        const t = translations[lang];
+
+        document.getElementById("mainTitle").innerText = t.title;
+        document.getElementById("subTitle").innerText = t.sub;
+        
+        document.getElementById("tetrisTitle").innerText = t.tetrisTitle;
+        document.getElementById("tetrisDesc").innerText = t.tetrisDesc;
+        
+        document.getElementById("puzzleTitle").innerText = t.puzzleTitle;
+        document.getElementById("puzzleDesc").innerText = t.puzzleDesc;
+        
+        document.getElementById("btnPlay1").innerText = t.play;
+        document.getElementById("btnPlay2").innerText = t.play;
+    }
+
+    // Sayfa açıldığında kayıtlı dili yükle
+    window.onload = function() {
+        const savedLang = localStorage.getItem('selectedLang') || 'tr';
+        document.getElementById("languageSelector").value = savedLang;
+        changeLanguage();
+    };
+</script>
 
 </body>
 </html>
