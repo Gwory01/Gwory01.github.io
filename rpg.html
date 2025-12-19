@@ -34,7 +34,7 @@
             user-select: none;
         }
 
-        /* --- BUTON STİLLERİ --- */
+        /* --- BUTONLAR --- */
         .skill-btn {
             background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif;
             cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column;
@@ -43,30 +43,26 @@
         .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
         .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #222; color: #444; background: #000; filter: grayscale(100%); }
 
-        /* --- UI STİLLERİ --- */
+        /* --- UI --- */
         .speech-bubble {
-            position: absolute; top: -90px; left: 50%; transform: translateX(-50%);
-            background: #fff; color: #000; padding: 10px 15px; border-radius: 15px;
-            font-family: sans-serif; font-size: 12px; font-weight: bold; width: 220px;
+            position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+            background: #fff; color: #000; padding: 15px 20px; border-radius: 15px;
+            font-family: sans-serif; font-size: 13px; font-weight: bold; width: 260px;
             text-align: center; z-index: 200; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s, transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border: 2px solid var(--ruined-green);
+            transition: opacity 0.5s, transform 0.5s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 2px solid var(--ruined-green); line-height: 1.4;
         }
         .speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; margin-left: -10px; border-width: 10px 10px 0; border-style: solid; border-color: #fff transparent; display: block; width: 0; }
         .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
         .float-text { position: absolute; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 50% { transform: translateY(-40px) scale(1.2); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
-        
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
         .text-damage { color: #fff; } .text-crit { color: var(--crit-color); font-size: 36px; text-shadow: 0 0 15px red; } .text-heal { color: var(--heal-color); font-size: 28px; } .text-enemy-dmg { color: #e74c3c; }
 
         .damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear; }
         .ult-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear; }
         @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
         
-        @keyframes mist { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .mist-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(10, 200, 185, 0.05), transparent); background-size: 400% 400%; animation: mist 15s ease infinite; z-index: -1; pointer-events: none; }
-
         .game-wrapper { width: 90%; max-width: 1000px; background: rgba(10, 12, 15, 0.95); border: 2px solid #333; border-top: 4px solid var(--ruined-green); box-shadow: 0 0 50px rgba(10, 200, 185, 0.1); padding: 20px; position: relative; display: flex; flex-direction: column; height: 600px; }
 
         #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
@@ -74,11 +70,10 @@
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
         #cinematic-dialogue { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; background: rgba(0, 0, 0, 0.95); border: 2px solid var(--ruined-green); padding: 20px; z-index: 150; display: none; flex-direction: column; align-items: center; box-shadow: 0 0 30px rgba(10, 200, 185, 0.2); }
-        #cinematic-text { font-size: 1.2rem; color: #fff; text-align: center; margin-bottom: 15px; font-style: italic; }
+        #cinematic-text { font-size: 1.2rem; color: #fff; text-align: center; margin-bottom: 15px; font-style: italic; min-height: 50px; display: flex; align-items: center; justify-content: center; }
         #cinematic-btn { background: transparent; border: 1px solid var(--ruined-green); color: var(--ruined-green); padding: 5px 20px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; }
         #cinematic-btn:hover { background: var(--ruined-green); color: black; }
 
-        /* FİNAL SEÇİM EKRANI */
         #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .choice-btn { padding: 20px 40px; margin: 10px; font-size: 1.2rem; border: 2px solid; cursor: pointer; font-family: 'Cinzel', serif; width: 300px; transition: 0.3s; background: rgba(0,0,0,0.8); }
         .btn-attack { border-color: #c0392b; color: #c0392b; }
@@ -92,7 +87,7 @@
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         .shake { animation: shake 0.5s; }
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
         .stat-bar { width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative; transition: opacity 0.5s; }
         .fill { height: 100%; transition: width 0.5s ease-out; }
@@ -114,11 +109,8 @@
         .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 200; }
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
         .level-badge { position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
-        
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
         .control-btn-ui { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; }
-        .control-btn-ui:hover { background: var(--ruined-green); color: black; }
-        select.control-btn-ui { outline: none; } select.control-btn-ui option { background: #000; color: white; }
         .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
     </style>
 </head>
@@ -135,7 +127,7 @@
         </select>
     </div>
 
-    <audio id="bgMusic" loop>
+    <audio id="bgMusic" loop preload="auto">
         <source src="https://ia800504.us.archive.org/11/items/Kevin_MacLeod_-_Royalty_Free_Music_Collection/Kevin_MacLeod_-_Volatile_Reaction.mp3" type="audio/mpeg">
     </audio>
 
@@ -145,7 +137,7 @@
             <h1 id="start-title-2">REVENGE</h1>
             <p style="color: #aaa; margin-top: 10px;" id="start-sub">"It is all... for her."</p>
             <button class="start-btn" onclick="startGame()" id="start-btn">START STORY</button>
-            <p style="font-size: 12px; color: #666; margin-top: 20px;" id="start-note">(Audio is recommended)</p>
+            <p style="font-size: 12px; color: #666; margin-top: 20px;" id="start-note">(Click Start to enable Audio)</p>
         </div>
 
         <div id="cinematic-dialogue">
@@ -213,7 +205,7 @@
     </div>
 
 <script>
-    // --- SES YÖNETİMİ (%50 SFX) ---
+    // --- SES YÖNETİMİ (%50 SFX, %40 Music) ---
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
     
     // Ses Seviyelerini Ayarla (Yüzde 50)
@@ -291,16 +283,16 @@
                 { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"O'nun gülüşünü hatırlıyorum... Bunu istemezdi!\"", "Viego: \"Kes sesini! Sen sadece onun gölgesisin!\"", "Gwen: \"Seni durduracağım ve herkesi kurtaracağım!\""], quotes: ["Kesip biçerim!"] },
                 { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Aşkınız zayıf.\"", intro: ["Lucian: \"Burada bitiyor Viego! İncittiğin herkes için!\"", "Viego: \"Sen karını kurtardın Lucian. Ben neden kurtaramayayım?!\"", "Senna: \"Çünkü o gitti Viego! Bir hayali kovalıyorsun!\""], quotes: ["Işık adına!", "Birlikte!"] },
                 { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Yaşam sularını zehirledin!\"", "Viego: \"Onları sonsuz kıldım. Bana teşekkür etmelisin.\"", "Maokai: \"Seni toprağa gömeceğim!\""], quotes: ["Doğa affetmez."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım bir kralın ruhuna aç.\"", "Viego: \"Ben yemek değilim. Ben ölümün kendisiyim.\"", "Elise: \"Göreceğiz.\""], quotes: ["Yaklaş..."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"Ah, Viego. Hala masalların peşinde misin?\"", "Viego: \"Sözlerine dikkat et amca. Yoksa dilini koparırım.\"", "Vladimir: \"Çok dramatiksin. Hadi yeri kırmızıya boyayalım.\""], quotes: ["Kanın kokusu..."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti süvari.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş! Bize liderlik et Kralım!\"", "Viego: \"Sen sadece kör bir silahsın Hecarim. İtaat et.\"", "Hecarim: \"Ben sadece katliama itaat ederim!\""], quotes: ["Ezip geçin!"] },
+                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım aç.\"", "Viego: \"Ben yemek değilim.\""], quotes: ["Yaklaş..."] },
+                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"En sevdiğim yeğenim.\"", "Viego: \"Büyün onu getirebilir mi?\"", "Vladimir: \"Hayır.\""], quotes: ["Kanın kokusu..."] },
+                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş! Bize liderlik et Kralım!\"", "Viego: \"Sen sadece kör bir silahsın Hecarim. İtaat et.\"", "Hecarim: \"Ben sadece katliama itaat ederim!\""], quotes: ["Ezip geçin!"] },
                 { id: "illaoi", name: "Illaoi", win: "Viego: \"Tanrın sessiz kaldı.\"", intro: ["Illaoi: \"Sen durgunsun. Geçmişe saplanmışsın.\"", "Viego: \"Aşkım zamansızdır!\"", "Illaoi: \"Hareket hayattır. Sen içten ölüsün.\""], quotes: ["Hareket hayattır."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Hain! Onu ölüme terk ettin!\"", intro: ["Kalista: \"Viego... yalvarırım. Bu deliliğe son ver.\"", "Viego: \"Beni korumaya yemin etmiştin! Onu kurtaramadın!\"", "Kalista: \"Ben gerçeğe yemin ettim. Sen kayboldun.\""], quotes: ["İntikam!"] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Yüzyıllardır seni kurtarmaya çalıştım Kralım.\"", "Viego: \"Öyleyse neden yolumdasın Ledros?\"", "Ledros: \"Çünkü hizmet ettiğim adam öldü. Geriye sadece canavar kaldı.\""], quotes: ["Düşemem."] },
+                { id: "kalista", name: "Kalista", win: "Viego: \"Hain.\"", intro: ["Kalista: \"Viego... dur artık.\"", "Viego: \"Yemin etmiştin!\""], quotes: ["İntikam!"] },
+                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Bu bitmeli Kralım.\"", "Viego: \"Onu almadan asla.\""], quotes: ["Düşemem."] },
                 { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", intro: ["Viego: \"O nerede?! Bir şeyler bildiğini biliyorum!\"", "LeBlanc: \"Çok şey biliyorum. Ama gerçeği kaldırabilir misin?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön, sefil.\"", intro: ["Thresh: \"Yaydıgın bu acı... Ne kadar lezzetli.\"", "Viego: \"Benimle alay etme Thresh. Sen sadece bir hizmetkarsın.\"", "Thresh: \"Hizmetkarlar sonunda efendi olur, değil mi?\""], quotes: ["Çığlık at."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim, Kral.\"", "Viego: \"Benim dünyam Isolde. Ona dokunamazsın.\"", "Bel'Veth: \"Ben her şeyi yeniden yaratacağım. Senin kederin dahil.\""], quotes: ["Sonunuz geldi."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir. Senin sisin zayıf.\"", "Viego: \"Zırhını paslandırıp iradeni kıracağım!\"", "Mordekaiser: \"Sen ruhlarla oynayan bir çocuksun. BEN ÖLÜMÜM.\""], quotes: ["Yıkıl."] }
+                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Ne harika bir acı.\"", "Viego: \"Sen sadece hizmetkarsın.\""], quotes: ["Çığlık at."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
             ],
             playerQuotes: ["Isolde...", "Yolumdan çekil!", "Aşk her şeyi mahveder.", "Ruhunu alacağım.", "Karanlık yayılıyor."]
         }
@@ -371,13 +363,24 @@
     }
 
     function forcePlayMusic() {
-        bgMusic.volume = 0.1;
-        bgMusic.play().then(() => updateMusicBtnText()).catch(error => console.log(error));
+        bgMusic.volume = 0.4; // Ses seviyesi %40
+        // Kullanıcı etkileşimi olmadan çalmayı denemek (tarayıcı izin verirse)
+        var promise = bgMusic.play();
+        if (promise !== undefined) {
+            promise.then(_ => {
+                updateMusicBtnText();
+            }).catch(error => {
+                console.log("Otomatik oynatma engellendi, kullanıcı etkileşimi bekleniyor.");
+                document.getElementById('start-note').innerText = "AUDIO BLOCKED: CLICK START TO ENABLE";
+                document.getElementById('start-note').style.color = "red";
+            });
+        }
     }
 
     function startGame() {
         document.getElementById('start-screen').style.display = 'none';
-        forcePlayMusic();
+        // Butona tıklandığında müzik kesinlikle başlar
+        bgMusic.play().then(() => updateMusicBtnText());
         loadLevel(0);
     }
 
