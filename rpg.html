@@ -34,42 +34,37 @@
             user-select: none;
         }
 
-        /* --- SİNEMATİK DİYALOG KUTUSU --- */
-        #cinematic-dialogue {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid var(--ruined-green);
-            padding: 20px;
-            z-index: 150;
-            display: none; /* JS ile açılacak */
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 0 30px rgba(10, 200, 185, 0.2);
-        }
-        #cinematic-text {
-            font-size: 1.2rem;
-            color: #fff;
-            text-align: center;
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-        #cinematic-btn {
-            background: transparent;
-            border: 1px solid var(--ruined-green);
-            color: var(--ruined-green);
-            padding: 5px 20px;
-            cursor: pointer;
+        /* --- BUTON STİLLERİ --- */
+        .skill-btn {
+            background: #111;
+            border: 1px solid #444;
+            color: #aaa;
             font-family: 'Cinzel', serif;
-            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
         }
-        #cinematic-btn:hover { background: var(--ruined-green); color: black; }
+        .skill-btn:hover:not(:disabled) {
+            border-color: var(--ruined-green);
+            color: white;
+            background: #1a1a1a;
+            box-shadow: 0 0 10px rgba(10, 200, 185, 0.2);
+        }
+        .skill-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: #222;
+            color: #444;
+            background: #000;
+            filter: grayscale(100%);
+        }
 
-
-        /* DİĞER STİLLER (Aynı kaldı) */
+        /* --- DİĞER STİLLER --- */
         .speech-bubble {
             position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
             background: #fff; color: #000; padding: 10px 15px; border-radius: 15px;
@@ -116,6 +111,17 @@
         .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px; }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
+        /* SİNEMATİK DİYALOG KUTUSU */
+        #cinematic-dialogue {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%;
+            background: rgba(0, 0, 0, 0.95); border: 2px solid var(--ruined-green); padding: 20px;
+            z-index: 150; display: none; flex-direction: column; align-items: center;
+            box-shadow: 0 0 30px rgba(10, 200, 185, 0.2);
+        }
+        #cinematic-text { font-size: 1.2rem; color: #fff; text-align: center; margin-bottom: 15px; font-style: italic; }
+        #cinematic-btn { background: transparent; border: 1px solid var(--ruined-green); color: var(--ruined-green); padding: 5px 20px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; }
+        #cinematic-btn:hover { background: var(--ruined-green); color: black; }
+
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
         .character-box { width: 250px; text-align: center; position: relative; }
         .character-img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
@@ -125,7 +131,6 @@
         .shake { animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-        /* Barlar ve Kontroller Başlangıçta Gizlenecek */
         .stat-bar { width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative; transition: opacity 0.5s; }
         .fill { height: 100%; transition: width 0.5s ease-out; }
         .hp-fill { background-color: var(--hp-red); }
@@ -133,14 +138,9 @@
         .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
 
         .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; }
-        
-        /* GİZLEME SINIFI */
         .hidden-ui { opacity: 0; pointer-events: none; }
 
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-        .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; }
-        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
-        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
         .skill-name { font-weight: bold; font-size: 0.7rem; text-align: center; }
         .skill-cost { font-size: 0.6rem; color: var(--power-yellow); margin-top: 3px; }
         .skill-sub { font-size: 0.55rem; color: #aaa; margin-top: 2px; }
@@ -149,8 +149,11 @@
         .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
 
         .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; overflow-y: auto; color: #ccc; font-family: sans-serif; }
-        .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 50; }
+        
+        /* ZAFER EKRANI */
+        .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 200; /* Z-index artırıldı ki en üstte dursun */ }
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
+        
         .level-badge { position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
         
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
@@ -337,26 +340,20 @@
     let currentLang = 'en'; 
     let t = translations.en;
 
-    // --- SES YÖNETİCİSİ (WAV DOSYALARI) ---
     const sounds = {
         basic1: new Audio('BasicAA_1.wav'),
         basic2: new Audio('BasicAA_2.wav'),
         w: new Audio('W_Skill.wav'),
-        q: new Audio(), 
-        r: new Audio() 
+        q: new Audio(), r: new Audio() 
     };
 
     function playSkillSound(type) {
         try {
-            if (type === 'basic') {
-                if(Math.random() > 0.5) sounds.basic1.play();
-                else sounds.basic2.play();
-            }
+            if (type === 'basic') { if(Math.random() > 0.5) sounds.basic1.play(); else sounds.basic2.play(); }
             if (type === 'w') sounds.w.play();
-        } catch (e) { console.log("Ses hatası:", e); }
+        } catch (e) { console.log("Audio Error:", e); }
     }
 
-    // --- OYUN VERİLERİ ---
     const player = {
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0,
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0
@@ -372,16 +369,13 @@
     let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
     
-    // Diyalog Değişkenleri
     let dialogueIndex = 0;
     let currentDialogues = [];
+    let enemyTimeout = null; // Zamanlayıcı kontrolü için
 
-    // --- DİL DEĞİŞTİRME ---
+    // --- SİSTEM ---
     function changeLanguage(lang) {
-        currentLang = lang;
-        t = translations[lang];
-        localStorage.setItem('rpgLang', lang);
-
+        currentLang = lang; t = translations[lang]; localStorage.setItem('rpgLang', lang);
         document.getElementById('start-title-1').innerText = t.title1;
         document.getElementById('start-title-2').innerText = t.title2;
         document.getElementById('start-sub').innerText = t.sub;
@@ -390,7 +384,6 @@
         document.getElementById('overlay-title').innerText = t.victory;
         document.getElementById('level-up-text').innerText = t.levelUp;
         document.getElementById('next-btn').innerText = t.continue;
-        
         document.getElementById('skill-basic-name').innerText = t.skillBasic;
         document.getElementById('skill-basic-cost').innerText = t.skillBasicCost;
         document.getElementById('skill-q-name').innerText = t.skillQ;
@@ -400,7 +393,6 @@
         document.getElementById('skill-w-cost').innerText = t.skillWCost;
         document.getElementById('skill-r-name').innerText = t.skillR;
         document.getElementById('skill-r-cost').innerText = t.skillRCost;
-
         updateMusicBtnText();
         if (document.getElementById('enemy-name').innerText !== "ENEMY" && document.getElementById('enemy-name').innerText !== "DÜŞMAN") {
              document.getElementById('enemy-name').innerText = t.enemies[currentEnemyIndex].name.toUpperCase();
@@ -412,7 +404,6 @@
         btn.innerText = !bgMusic.paused ? t.musicOn : t.musicOff;
     }
 
-    // --- MÜZİK ---
     function forcePlayMusic() {
         bgMusic.volume = 0.1;
         bgMusic.play().then(() => updateMusicBtnText()).catch(error => console.log(error));
@@ -422,9 +413,13 @@
         document.getElementById('start-screen').style.display = 'none';
         forcePlayMusic();
         loadLevel(0);
+        log(t.logStart);
     }
 
     function loadLevel(index) {
+        // Eski zamanlayıcıları temizle
+        if (enemyTimeout) clearTimeout(enemyTimeout);
+        
         currentEnemyIndex = index;
         const enemyData = enemiesBase[index];
         const enemyTrans = t.enemies[index];
@@ -433,22 +428,24 @@
         document.getElementById('enemy-img').src = enemyData.img;
         document.getElementById('enemy-lvl').innerText = enemyData.level;
         
+        // Düşman canını fulle
         enemyData.hp = enemyData.maxHp; 
-        player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
+
+        // Oyuncu durumlarını sıfırla
+        player.ultUsed = false; 
+        player.power = 0; 
+        player.wCooldown = 0; 
+        player.nextHitCrit = false;
+        turn = "player"; // Sıra oyuncuda başlar
         
-        // Savaş UI'ını Gizle
         toggleBattleUI(false);
-        
-        // Diyalogu Başlat
         startPreFightDialogue();
     }
 
-    // --- YENİ DİYALOG SİSTEMİ ---
     function startPreFightDialogue() {
         const enemyTrans = t.enemies[currentEnemyIndex];
         currentDialogues = enemyTrans.intro;
         dialogueIndex = 0;
-        
         document.getElementById('cinematic-dialogue').style.display = 'flex';
         updateDialogueText();
     }
@@ -461,35 +458,28 @@
         }
     }
 
-    function nextDialogue() {
-        dialogueIndex++;
-        updateDialogueText();
-    }
+    function nextDialogue() { dialogueIndex++; updateDialogueText(); }
 
     function endDialogue() {
         document.getElementById('cinematic-dialogue').style.display = 'none';
-        toggleBattleUI(true); // Savaş UI'ını Göster
+        toggleBattleUI(true);
+        updateUI(); // Buton durumlarını güncelle
         log(t.logStart);
     }
 
     function toggleBattleUI(show) {
         const elements = [
             document.getElementById('combat-controls'),
-            document.getElementById('ui-hp-p'),
-            document.getElementById('ui-mp-p'),
-            document.getElementById('ui-hp-e')
+            document.getElementById('ui-hp-p'), document.getElementById('ui-mp-p'), document.getElementById('ui-hp-e')
         ];
-        
         elements.forEach(el => {
             if(show) el.classList.remove('hidden-ui');
             else el.classList.add('hidden-ui');
         });
     }
 
-    // --- BANTER (Savaş İçi Konuşma) ---
     function triggerBanter(isPlayerTurn) {
         if (Math.random() > 0.3) return;
-        
         if (isPlayerTurn) {
             const quotes = t.playerQuotes;
             showSpeech('player', quotes[Math.floor(Math.random() * quotes.length)]);
@@ -501,16 +491,14 @@
 
     function showSpeech(who, text) {
         const bubble = document.getElementById(who + '-bubble');
-        bubble.innerText = text;
-        bubble.classList.add('speech-visible');
+        bubble.innerText = text; bubble.classList.add('speech-visible');
     }
-
     function clearBubbles() {
         document.getElementById('player-bubble').classList.remove('speech-visible');
         document.getElementById('enemy-bubble').classList.remove('speech-visible');
     }
 
-    // --- YETENEKLER ---
+    // --- SAVAŞ ---
     function useSkill(type) {
         if (turn !== "player") return;
         clearBubbles(); triggerBanter(true);
@@ -522,7 +510,7 @@
         else { if (Math.random() < player.critChance) isCrit = true; }
 
         if (type === 'basic') {
-            playSkillSound('basic'); 
+            playSkillSound('basic');
             damage = 15 + (player.level * 5);
             powerGain = isCrit ? 15 : Math.floor(Math.random() * 11) + 5;
             logMsg = t.logViegoBasic;
@@ -541,7 +529,7 @@
         else if (type === 'w') {
             if (player.wCooldown > 0) { log(t.logCooldown); return; }
             if (player.power < 25) { log(t.logNoPower); return; }
-            playSkillSound('w'); 
+            playSkillSound('w');
             player.power -= 25;
             damage = 40 + (player.level * 6);
             player.nextHitCrit = true;
@@ -569,7 +557,10 @@
         updateUI();
 
         if (enemyData.hp <= 0) { winBattle(); return; }
-        turn = "enemy"; setTimeout(enemyTurn, 1500);
+        
+        turn = "enemy"; 
+        // Zamanlayıcıyı değişkene ata ki iptal edilebilsin
+        enemyTimeout = setTimeout(enemyTurn, 1500);
     }
 
     function enemyTurn() {
@@ -596,6 +587,7 @@
     }
 
     function winBattle() {
+        if (enemyTimeout) clearTimeout(enemyTimeout); // Savaş bittiyse düşman hamlesini iptal et
         const enemyTrans = t.enemies[currentEnemyIndex];
         document.getElementById('overlay-title').innerText = t.victory;
         document.getElementById('overlay-quote').innerText = enemyTrans.win;
@@ -605,6 +597,9 @@
     }
 
     function nextLevel() {
+        // --- ÇAKIŞMAYI ÖNLEYEN DÜZELTME ---
+        document.getElementById('overlay').style.display = 'none'; // Zafer ekranını kapat
+        
         currentEnemyIndex++;
         if (currentEnemyIndex >= enemiesBase.length) {
             alert(t.logEnd); location.reload();
