@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kedi Puzzle</title>
+    <style>
+        body {
+            background: #202028;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        /* Geri Dön Butonu */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            background: #444;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        h1 { color: #ff9900; margin-bottom: 10px; }
+
+        #board {
+            width: 300px;
+            height: 300px;
+            border: 5px solid #ff9900;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            background: #000;
+        }
+
+        .tile {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #333;
+            box-sizing: border-box;
+            background-image: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&w=300&q=80'); /* Puzzle Resmi */
+            background-size: 300px 300px; /* Toplam Board Boyutu */
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        /* Boş kutu stili */
+        .tile.empty {
+            background: #111;
+            cursor: default;
+        }
+        
+        .win-msg {
+            margin-top: 20px;
+            color: #00ffcc;
+            font-size: 24px;
+            display: none;
+        }
+
+        button.shuffle-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #ff9900;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">← Ana Menü</a>
+
+    <h1>Kedi Puzzle</h1>
+    <div id="board"></div>
+    <div class="win-msg" id="winMsg">Tebrikler! Kediyi Kurtardın! 🐱</div>
+    <button class="shuffle-btn" onclick="shuffleTiles()">Yeniden Karıştır</button>
+
+<script>
+    const board = document.getElementById("board");
+    const size = 3; // 3x3 bir oyun
+    let tiles = []; // Parçaların mevcut durumu
+
+    // Oyunu Başlat
+    function init() {
+        // Doğru sıralamayı oluştur: [0, 1, 2, 3, 4, 5, 6, 7, 8] (8 boşluktur)
+        tiles = Array.from({length: size * size}, (_, i) => i);
+        render();
+        // Sayfa açılınca biraz bekleyip karıştıralım
+        setTimeout(shuffleTiles, 1000);
+    }
+
+    function render() {
+        board.innerHTML = "";
+        tiles.forEach((tileIndex, positionIndex) => {
+            const tile = document.createElement("div");
+            tile.classList.add("tile");
+            
+            // Eğer bu son parça ise (8 numara), boşluk yap
+            if (tileIndex === size * size - 1) {
+                tile.classList.add("empty");
+            } else {
+                // Resmi doğru konumlandır
+                const row = Math.floor(tileIndex / size);
+                const col = tileIndex % size;
+                tile.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+            }
+
+            // Tıklama olayı
+            tile.onclick = () => moveTile(positionIndex);
+            board.appendChild(tile);
+        });
+        checkWin();
+    }
+
+    function moveTile(index) {
+        const emptyIndex = tiles.indexOf(size * size - 1);
+        
+        // Sadece yanındakiler hareket edebilir (Yukarı, Aşağı, Sağ, Sol)
+        const diff = Math.abs(index - emptyIndex);
+        const isAdjacent = (diff === 1 && Math.floor(index/size) === Math.floor(emptyIndex/size)) || diff === size;
+
+        if (isAdjacent) {
+            // Yer değiştir
+            [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+            render();
+        }
+    }
+
+    function shuffleTiles() {
+        document.getElementById("winMsg").style.display = "none";
+        // Rastgele karıştırmak yerine, geçerli hamleler yaparak karıştırıyoruz (Böylece çözülebilir olur)
+        let moves = 100;
+        const interval = setInterval(() => {
+            const emptyIndex = tiles.indexOf(size * size - 1);
+            const neighbors = [];
+
+            // Komşuları bul
+            if (emptyIndex % size !== 0) neighbors.push(emptyIndex - 1); // Sol
+            if (emptyIndex % size !== size - 1) neighbors.push(emptyIndex + 1); // Sağ
+            if (emptyIndex >= size) neighbors.push(emptyIndex - size); // Yukarı
+            if (emptyIndex < size * (size - 1)) neighbors.push(emptyIndex + size); // Aşağı
+
+            // Rastgele bir komşu seç ve değiştir
+            const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+            [tiles[randomNeighbor], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[randomNeighbor]];
+            
+            moves--;
+            if (moves <= 0) {
+                clearInterval(interval);
+                render();
+            }
+        }, 5); // Çok hızlı karıştır
+    }
+
+    function checkWin() {
+        const isSolved = tiles.every((val, index) => val === index);
+        if (isSolved && document.querySelector(".tile.empty")) {
+            document.getElementById("winMsg").style.display = "block";
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
