@@ -17,17 +17,34 @@
             margin: 0;
         }
         
-        /* Geri Dön Butonu */
+        .top-bar {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
         .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
             text-decoration: none;
             color: #fff;
             background: #444;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 5px;
             font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Dil Seçici */
+        .lang-select {
+            padding: 5px;
+            border-radius: 5px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
         }
 
         h1 { color: #ff9900; margin-bottom: 10px; }
@@ -47,23 +64,20 @@
             height: 100px;
             border: 1px solid #333;
             box-sizing: border-box;
-            background-image: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&w=300&q=80'); /* Puzzle Resmi */
-            background-size: 300px 300px; /* Toplam Board Boyutu */
+            background-image: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&w=300&q=80');
+            background-size: 300px 300px;
             cursor: pointer;
             transition: transform 0.1s;
         }
 
-        /* Boş kutu stili */
-        .tile.empty {
-            background: #111;
-            cursor: default;
-        }
+        .tile.empty { background: #111; cursor: default; }
         
         .win-msg {
             margin-top: 20px;
             color: #00ffcc;
-            font-size: 24px;
+            font-size: 20px;
             display: none;
+            text-align: center;
         }
 
         button.shuffle-btn {
@@ -80,24 +94,67 @@
 </head>
 <body>
 
-    <a href="index.html" class="back-btn">← Ana Menü</a>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn" id="backBtn">← Menü</a>
+        <select class="lang-select" id="languageSelector" onchange="changeLanguage()">
+            <option value="tr">Türkçe</option>
+            <option value="ku">Kurdî</option>
+            <option value="en">English</option>
+        </select>
+    </div>
 
-    <h1>Kedi Puzzle</h1>
+    <h1 id="gameTitle">Kedi Puzzle</h1>
     <div id="board"></div>
     <div class="win-msg" id="winMsg">Tebrikler! Kediyi Kurtardın! 🐱</div>
-    <button class="shuffle-btn" onclick="shuffleTiles()">Yeniden Karıştır</button>
+    <button class="shuffle-btn" id="shuffleBtn" onclick="shuffleTiles()">Yeniden Karıştır</button>
 
 <script>
-    const board = document.getElementById("board");
-    const size = 3; // 3x3 bir oyun
-    let tiles = []; // Parçaların mevcut durumu
+    // --- DİL SİSTEMİ ---
+    const translations = {
+        tr: {
+            back: "← Menü",
+            title: "Kedi Puzzle",
+            win: "Tebrikler! Kediyi Kurtardın! 🐱",
+            shuffle: "Yeniden Karıştır"
+        },
+        ku: {
+            back: "← Pêşek",
+            title: "Puzzleya Pisîkê",
+            win: "Pîroz be! Te Pisîk Rizgar Kir! 🐱",
+            shuffle: "Dîsa Têkel Bike"
+        },
+        en: {
+            back: "← Menu",
+            title: "Cat Puzzle",
+            win: "Congratulations! Cat Saved! 🐱",
+            shuffle: "Shuffle Again"
+        }
+    };
 
-    // Oyunu Başlat
+    function changeLanguage() {
+        const lang = document.getElementById("languageSelector").value;
+        localStorage.setItem('selectedLang', lang); // Kaydet
+        const t = translations[lang];
+
+        document.getElementById("backBtn").innerText = t.back;
+        document.getElementById("gameTitle").innerText = t.title;
+        document.getElementById("winMsg").innerText = t.win;
+        document.getElementById("shuffleBtn").innerText = t.shuffle;
+    }
+
+    // --- PUZZLE MOTORU ---
+    const board = document.getElementById("board");
+    const size = 3;
+    let tiles = [];
+
     function init() {
-        // Doğru sıralamayı oluştur: [0, 1, 2, 3, 4, 5, 6, 7, 8] (8 boşluktur)
         tiles = Array.from({length: size * size}, (_, i) => i);
         render();
-        // Sayfa açılınca biraz bekleyip karıştıralım
+        // Dili Yükle
+        const savedLang = localStorage.getItem('selectedLang') || 'tr';
+        document.getElementById("languageSelector").value = savedLang;
+        changeLanguage();
+        
         setTimeout(shuffleTiles, 1000);
     }
 
@@ -106,18 +163,13 @@
         tiles.forEach((tileIndex, positionIndex) => {
             const tile = document.createElement("div");
             tile.classList.add("tile");
-            
-            // Eğer bu son parça ise (8 numara), boşluk yap
             if (tileIndex === size * size - 1) {
                 tile.classList.add("empty");
             } else {
-                // Resmi doğru konumlandır
                 const row = Math.floor(tileIndex / size);
                 const col = tileIndex % size;
                 tile.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
             }
-
-            // Tıklama olayı
             tile.onclick = () => moveTile(positionIndex);
             board.appendChild(tile);
         });
@@ -126,13 +178,10 @@
 
     function moveTile(index) {
         const emptyIndex = tiles.indexOf(size * size - 1);
-        
-        // Sadece yanındakiler hareket edebilir (Yukarı, Aşağı, Sağ, Sol)
         const diff = Math.abs(index - emptyIndex);
         const isAdjacent = (diff === 1 && Math.floor(index/size) === Math.floor(emptyIndex/size)) || diff === size;
 
         if (isAdjacent) {
-            // Yer değiştir
             [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
             render();
         }
@@ -140,28 +189,22 @@
 
     function shuffleTiles() {
         document.getElementById("winMsg").style.display = "none";
-        // Rastgele karıştırmak yerine, geçerli hamleler yaparak karıştırıyoruz (Böylece çözülebilir olur)
         let moves = 100;
         const interval = setInterval(() => {
             const emptyIndex = tiles.indexOf(size * size - 1);
             const neighbors = [];
-
-            // Komşuları bul
-            if (emptyIndex % size !== 0) neighbors.push(emptyIndex - 1); // Sol
-            if (emptyIndex % size !== size - 1) neighbors.push(emptyIndex + 1); // Sağ
-            if (emptyIndex >= size) neighbors.push(emptyIndex - size); // Yukarı
-            if (emptyIndex < size * (size - 1)) neighbors.push(emptyIndex + size); // Aşağı
-
-            // Rastgele bir komşu seç ve değiştir
+            if (emptyIndex % size !== 0) neighbors.push(emptyIndex - 1);
+            if (emptyIndex % size !== size - 1) neighbors.push(emptyIndex + 1);
+            if (emptyIndex >= size) neighbors.push(emptyIndex - size);
+            if (emptyIndex < size * (size - 1)) neighbors.push(emptyIndex + size);
             const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
             [tiles[randomNeighbor], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[randomNeighbor]];
-            
             moves--;
             if (moves <= 0) {
                 clearInterval(interval);
                 render();
             }
-        }, 5); // Çok hızlı karıştır
+        }, 5);
     }
 
     function checkWin() {
