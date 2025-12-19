@@ -125,8 +125,7 @@
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
         .control-btn-ui { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; }
         .control-btn-ui:hover { background: var(--ruined-green); color: black; }
-        .music-error-btn { background: #c0392b; animation: pulse 1s infinite; display: none; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
         select.control-btn-ui { outline: none; } select.control-btn-ui option { background: #000; color: white; }
         .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
     </style>
@@ -137,7 +136,6 @@
     <div id="flash-effect"></div>
     
     <div class="top-bar-controls">
-        <button class="control-btn-ui music-error-btn" id="btn-force-music" onclick="forcePlayMusic()">⚠️ MÜZİĞİ BAŞLAT</button>
         <button class="control-btn-ui" onclick="toggleMusic()" id="btn-music">🎵 Music: OFF</button>
         <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
             <option value="en">English</option>
@@ -244,7 +242,7 @@
         turnCount: 0            
     };
 
-    // BURAYI GÜNCELLEDİM: GÖNDERDİĞİN RESİMDEKİ GİBİ 'Tier1.mp3' OLARAK AYARLANDI
+    // MÜZİK DOSYA İSİMLERİ (Senin Dosyalarınla Uyumlu)
     const musicTracks = { tier1: "Tier1.mp3", tier2: "Tier2.mp3", tier3: "tier3.mp3", morde: "morde.mp3", isolde: "isolde.mp3" };
     
     const enemiesBase = [
@@ -282,7 +280,7 @@
             finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN (End the Pain)", choiceSurrender: "SURRENDER TO LOVE (Drop Sword)",
             bossLogs: {
                 stunned: "YOU ARE STUNNED! CANNOT ACT.",
-                threshStack: "Thresh collected a soul! Armor UP.",
+                threshStack: "Thresh collected 3 souls! Armor/Damage UP.",
                 leblancMimic: "LeBlanc MIMICS her spell! (Double Damage)",
                 belvethTransform: "BEL'VETH REVEALS HER TRUE FORM!",
                 mordeRealm: "MORDEKAISER TOOK YOU TO THE DEATH REALM!"
@@ -309,11 +307,14 @@
                 ]
             },
             enemies: [
+                // TIER 1
                 { id: "gangplank", name: "Gangplank", win: "Viego: \"A pirate cannot stop a King.\"", intro: ["Gangplank: \"Get off my ship, ghost! This city is mine!\"", "Viego: \"Everything the mist touches belongs to me.\"", "Gangplank: \"I'll carve your heart out!\"", "Viego: \"I have no heart left to break.\""], quotes: ["Barrel!", "Burn!"] },
                 { id: "yorick", name: "Yorick", win: "Viego: \"Return to your grave, Monk.\"", intro: ["Yorick: \"The Mist must be purged. You must be stopped.\"", "Viego: \"The Mist IS me. You fight the inevitable.\"", "Yorick: \"I fight for the living. You fight for a corpse.\""], quotes: ["Join the grave."] },
                 { id: "akshan", name: "Akshan", win: "Viego: \"No absolver can save you.\"", intro: ["Akshan: \"Pretty face, ugly soul. Let's fix that.\"", "Viego: \"You are an annoying insect.\"", "Akshan: \"And you're a king with a temper tantrum.\""], quotes: ["Boom!"] },
                 { id: "gwen", name: "Gwen", win: "Viego: \"You are nothing but a doll.\"", intro: ["Gwen: \"I remember her smile... She wouldn't want this!\"", "Viego: \"Silence! You are a mockery of her memory!\"", "Gwen: \"I will cut the mist away from you!\""], quotes: ["Snip snip!"] },
                 { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Your love is weak compared to mine.\"", intro: ["Lucian: \"It ends here, Viego! For everyone you've hurt!\"", "Viego: \"You saved your wife, Lucian. Why can't I have mine?!\"", "Senna: \"Because she is gone! You are chasing a ghost!\""], quotes: ["For the Light!", "Together!"] },
+                
+                // TIER 2
                 { id: "maokai", name: "Maokai", win: "Viego: \"Burn with the Isles.\"", intro: ["Maokai: \"You poisoned the waters of life!\"", "Viego: \"I made them eternal. You should thank me.\"", "Maokai: \"I will crush you into the dirt!\""], quotes: ["Nature wrath."] },
                 { id: "elise", name: "Elise", win: "Viego: \"Go back to your spider god.\"", intro: ["Elise: \"My god is hungry for a King's soul.\"", "Viego: \"I am not food. I am death incarnate.\"", "Elise: \"We shall see about that.\""], quotes: ["Closer..."] },
                 { id: "vladimir", name: "Vladimir", win: "Viego: \"Your blood magic is useless here.\"", intro: ["Vladimir: \"Ah, Viego. Still chasing fairytales?\"", "Viego: \"Watch your tongue, uncle. Or I will rip it out.\"", "Vladimir: \"So dramatic. Let's paint the floor red.\""], quotes: ["Delicious."] },
@@ -321,6 +322,8 @@
                 { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god has no power here.\"", intro: ["Illaoi: \"You are stagnant. You are stuck in the past.\"", "Viego: \"My love is timeless!\"", "Illaoi: \"Motion is life. You are dead inside.\""], quotes: ["Motion is life."] },
                 { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer! You let her die!\"", intro: ["Kalista: \"Viego... please. End this madness.\"", "Viego: \"You swore to protect me! You failed her!\"", "Kalista: \"I swore to the truth. You are lost.\""], quotes: ["Vengeance!"] },
                 { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
+
+                // TIER 3
                 { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"I want Isolde! Give her to me!\"", "LeBlanc: \"Catch me if you can, ruined boy.\""], quotes: ["Smoke and mirrors."] },
                 { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern, wretch.\"", intro: ["Thresh: \"Oh, the exquisite agony you spread.\"", "Viego: \"Do not mock me, Thresh. You are but a servant.\"", "Thresh: \"Servants eventually become masters, don't they?\""], quotes: ["Scream."] },
                 { id: "belveth", name: "Bel'Veth", win: "Viego: \"Even the Void bows to my love.\"", intro: ["Bel'Veth: \"I will consume your world, King.\"", "Viego: \"My world is Isolde. You cannot touch her.\"", "Bel'Veth: \"I will remake everything. Including your grief.\""], quotes: ["The end."] },
@@ -341,7 +344,7 @@
             finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR (Acıya Son Ver)", choiceSurrender: "AŞKINA TESLİM OL (Kılıcı Bırak)",
             bossLogs: {
                 stunned: "SERSEMLEDİN! HAREKET EDEMİYORSUN.",
-                threshStack: "Thresh ruh topladı! Zırhı arttı.",
+                threshStack: "Thresh 3 ruh topladı! Zırh/Hasar arttı.",
                 leblancMimic: "LeBlanc büyüyü TAKLİT ETTİ! (Çift Hasar)",
                 belvethTransform: "BEL'VETH GERÇEK FORMUNA BÜRÜNDÜ!",
                 mordeRealm: "MORDEKAISER SENİ ÖLÜLER ALEMİNE ÇEKTİ! (GÜÇLENDİ)"
@@ -405,7 +408,7 @@
         currentTrack = trackName;
         bgMusic.src = musicTracks[trackName];
         bgMusic.volume = 0.4;
-        bgMusic.play().catch(e => { console.log("Müzik çalma hatası:", e); document.getElementById('btn-force-music').style.display = 'block'; });
+        bgMusic.play().catch(e => { console.log("Müzik çalma hatası:", e); });
         updateMusicBtnText();
     }
 
@@ -444,12 +447,12 @@
 
     function forcePlayMusic() {
         bgMusic.volume = 0.4; 
-        bgMusic.play().then(_ => { document.getElementById('btn-force-music').style.display = 'none'; updateMusicBtnText(); })
-        .catch(error => { document.getElementById('btn-force-music').style.display = 'block'; });
+        bgMusic.play().then(_ => { updateMusicBtnText(); })
+        .catch(error => { console.log("Otomatik oynatma engellendi, kullanıcı etkileşimi bekleniyor."); });
     }
 
     function toggleMusic() {
-        if(bgMusic.paused) { bgMusic.play(); document.getElementById('btn-force-music').style.display = 'none'; } 
+        if(bgMusic.paused) { bgMusic.play(); } 
         else { bgMusic.pause(); }
         updateMusicBtnText();
     }
@@ -585,7 +588,12 @@
         if (isCrit && type !== 'w') { damage *= 2; logMsg += t.logCrit; }
 
         // --- BOSS DEFANS MEKANİKLERİ ---
-        if (enemyData.id === 'thresh') { let reduction = bossState.threshStacks * 2; damage -= reduction; if(damage < 0) damage = 0; }
+        // Thresh Zırhı: 20 Sabit + (Ruh * 4)
+        if (enemyData.id === 'thresh') { 
+            let reduction = 20 + (bossState.threshStacks * 4); 
+            damage -= reduction; 
+            if(damage < 0) damage = 0; 
+        }
         
         // MORDE DEATH REALM ZIRH ARTIŞI (%30 daha az hasar yer)
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) {
@@ -639,10 +647,26 @@
 
         // Boss Saldırıları
         if (enemyData.id === 'leblanc') { if (Math.random() < 0.4) { log(t.bossLogs.leblancMimic); dmg = Math.floor(dmg * 2.2); showFloatingText(document.getElementById('enemy-box'), "MIMIC!", "text-special"); } }
-        if (enemyData.id === 'thresh') { bossState.threshStacks++; log(t.bossLogs.threshStack + ` (${bossState.threshStacks})`); if (bossState.threshStacks % 5 === 0) { bossState.isPlayerStunned = true; triggerEffect('stun'); showFloatingText(document.getElementById('player-box'), "STUNNED", "text-special"); } }
+        
+        // Thresh Mekanikleri: +3 Ruh ve Hasar Artışı
+        if (enemyData.id === 'thresh') { 
+            bossState.threshStacks += 3; 
+            log(t.bossLogs.threshStack + ` (${bossState.threshStacks})`); 
+            
+            // Hasar Artışı: Ruh * 2
+            dmg += (bossState.threshStacks * 2);
+
+            // Stun: Her 12 Stackte bir
+            if (bossState.threshStacks % 12 === 0) { 
+                bossState.isPlayerStunned = true; 
+                triggerEffect('stun'); 
+                showFloatingText(document.getElementById('player-box'), "STUNNED", "text-special"); 
+            } 
+        }
+        
         if (enemyData.id === 'belveth') { let voidlingDmg = 10 * bossState.belvethForm; dmg += voidlingDmg; log(`Void creatures dealt ${voidlingDmg} extra damage.`); }
         
-        // MORDEKAISER DEATH REALM (Güçlendirmeler)
+        // MORDE DEATH REALM (Güçlendirmeler)
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) {
             // Hasar %30 artar
             dmg = Math.floor(dmg * 1.3);
