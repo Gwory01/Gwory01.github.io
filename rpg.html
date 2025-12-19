@@ -205,3 +205,349 @@
             text-align: center;
             display: none;
             z-index: 50;
+        }
+        .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
+        .overlay-msg p { font-style: italic; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
+
+        /* Level Göstergesi */
+        .level-badge {
+            position: absolute;
+            top: -10px; right: -10px;
+            background: var(--ruined-green);
+            color: black;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        /* Müzik Butonu */
+        .music-toggle {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 200;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mist-overlay"></div>
+    <button class="music-toggle" onclick="toggleMusic()">🎵 Müzik</button>
+
+    <audio id="bgMusic" loop>
+        <source src="https://ia801402.us.archive.org/16/items/hollywood_action_drums/hollywood_action_drums.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="game-wrapper">
+        
+        <div id="start-screen">
+            <h1 style="color: #fff;">MAHVOLMUŞ KRAL'IN</h1>
+            <h1>İNTİKAMI</h1>
+            <p style="color: #aaa; margin-top: 10px;">"Hepsi... Onun için."</p>
+            <button class="start-btn" onclick="startGame()">HİKAYEYE BAŞLA</button>
+        </div>
+
+        <div id="overlay" class="overlay-msg">
+            <h2 id="overlay-title">ZAFER</h2>
+            <p id="overlay-quote">"..."</p>
+            <div id="level-up-text" style="color: yellow; margin-bottom: 15px; display:none;">SEVİYE ATLADIN!</div>
+            <button class="start-btn" id="next-btn" onclick="nextLevel()">DEVAM ET</button>
+        </div>
+
+        <div class="battle-scene">
+            <div class="character-box">
+                <div class="level-badge" id="player-lvl">1</div>
+                <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
+                <h2 style="color: var(--ruined-green);">VIEGO</h2>
+                
+                <div class="stat-bar">
+                    <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="player-hp-text">100/100</span>
+                </div>
+                <div class="stat-bar">
+                    <div class="fill mana-fill" id="player-mana-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="player-mana-text">100/100</span>
+                </div>
+            </div>
+
+            <h1 style="color: #555; font-size: 3rem;">VS</h1>
+
+            <div class="character-box">
+                <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
+                <img src="" class="character-img enemy-glow" id="enemy-img">
+                <h2 style="color: #d63031;" id="enemy-name">DÜŞMAN</h2>
+                
+                <div class="stat-bar">
+                    <div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="enemy-hp-text">100/100</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="skills">
+                <button class="skill-btn" onclick="useSkill('basic')">
+                    <span class="skill-name">Kralın Kılıcı</span>
+                    <span class="skill-cost" style="color:#0f0;">+15 Mana</span>
+                </button>
+                
+                <button class="skill-btn" onclick="useSkill('q')">
+                    <span class="skill-name">Mahvolmuş Kralın Kılıcı (Q)</span>
+                    <span class="skill-cost">30 Mana</span>
+                </button>
+
+                <button class="skill-btn" onclick="useSkill('w')">
+                    <span class="skill-name">Hortlakın Pençesi (W)</span>
+                    <span class="skill-cost">50 Mana</span>
+                </button>
+
+                <button class="skill-btn ult-btn" id="btn-ult" onclick="useSkill('r')">
+                    <span class="skill-name">KALP KIRAN (R)</span>
+                    <span class="skill-cost">TÜM MANA (1 KERE)</span>
+                </button>
+            </div>
+
+            <div class="log-box" id="combat-log">
+                Savaş başlıyor... Isolde seni bekliyor.
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- OYUN AYARLARI ---
+    const player = {
+        name: "Viego",
+        level: 1,
+        maxHp: 150,
+        hp: 150,
+        maxMana: 100,
+        mana: 50, // Başlangıç manası
+        ultUsed: false
+    };
+
+    const enemies = [
+        {
+            name: "LeBlanc",
+            level: 3,
+            maxHp: 180,
+            hp: 180,
+            damage: 15,
+            img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg",
+            winQuote: "Viego: \"Yalanların seni benim gazabımdan koruyamadı, Hilekar.\""
+        },
+        {
+            name: "Vladimir",
+            level: 6,
+            maxHp: 250,
+            hp: 250,
+            damage: 25,
+            img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg",
+            winQuote: "Viego: \"O pis kanın bile bana ait, amca.\""
+        },
+        {
+            name: "Sahn-Uzal", // Mordekaiser
+            level: 10,
+            maxHp: 400,
+            hp: 400,
+            damage: 35,
+            img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg",
+            winQuote: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\""
+        }
+    ];
+
+    let currentEnemyIndex = 0;
+    let turn = "player"; // player veya enemy
+    const bgMusic = document.getElementById('bgMusic');
+
+    // --- BAŞLATMA ---
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        bgMusic.volume = 0.4;
+        bgMusic.play().catch(e => console.log("Otomatik oynatma engellendi"));
+        loadLevel(0);
+    }
+
+    function toggleMusic() {
+        if(bgMusic.paused) bgMusic.play();
+        else bgMusic.pause();
+    }
+
+    function loadLevel(index) {
+        currentEnemyIndex = index;
+        const enemy = enemies[index];
+        
+        // Düşman UI Güncelle
+        document.getElementById('enemy-name').innerText = enemy.name.toUpperCase();
+        document.getElementById('enemy-img').src = enemy.img;
+        document.getElementById('enemy-lvl').innerText = enemy.level;
+        
+        // Resetler
+        player.ultUsed = false;
+        document.getElementById('btn-ult').disabled = false;
+        document.getElementById('btn-ult').style.opacity = "1";
+        
+        updateUI();
+        log(`Bir düşman belirdi: ${enemy.name}!`);
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    // --- SAVAŞ MEKANİĞİ ---
+    function useSkill(type) {
+        if (turn !== "player") return; // Sıra oyuncuda değilse dur
+
+        const enemy = enemies[currentEnemyIndex];
+        let damage = 0;
+        let logMsg = "";
+        let manaCost = 0;
+        let manaGain = 0;
+
+        // Skill Mantığı
+        if (type === 'basic') {
+            damage = 15 + (player.level * 5);
+            manaGain = 15;
+            logMsg = `Viego kılıcını savurdu! ${damage} hasar. (+15 Mana)`;
+        } 
+        else if (type === 'q') {
+            manaCost = 30;
+            if (player.mana < manaCost) { log("Yetersiz Mana!"); return; }
+            damage = 30 + (player.level * 8);
+            logMsg = `Viego Q yeteneğini kullandı! ${damage} hasar.`;
+        }
+        else if (type === 'w') {
+            manaCost = 50;
+            if (player.mana < manaCost) { log("Yetersiz Mana!"); return; }
+            damage = 50 + (player.level * 10);
+            logMsg = `Viego sisi serbest bıraktı! ${damage} hasar.`;
+        }
+        else if (type === 'r') {
+            if (player.ultUsed) { log("Ulti bu savaşta zaten kullanıldı!"); return; }
+            if (player.mana <= 0) { log("Ulti için hiç manan yok!"); return; }
+            
+            // Ulti mekaniği: Manayı tüket, manaya göre hasar vur + base hasar
+            let currentMana = player.mana;
+            manaCost = currentMana; // Hepsini tüket
+            damage = 80 + (player.level * 10) + (currentMana * 1.5); // Mana bonusu
+            
+            player.ultUsed = true;
+            document.getElementById('btn-ult').disabled = true;
+            document.getElementById('btn-ult').style.opacity = "0.5";
+            
+            logMsg = `VIEGO KALBİNİ KIRDI! TÜM GÜCÜYLE VURDU! ${damage} HASAR!`;
+        }
+
+        // Oyuncu Saldırısı Uygulama
+        player.mana -= manaCost;
+        player.mana += manaGain;
+        if (player.mana > player.maxMana) player.mana = player.maxMana;
+
+        enemy.hp -= damage;
+        if (enemy.hp < 0) enemy.hp = 0;
+
+        // Efekt
+        shakeElement(document.getElementById('enemy-img'));
+        updateUI();
+        log(logMsg);
+
+        // Kazanma Kontrolü
+        if (enemy.hp <= 0) {
+            winBattle();
+            return;
+        }
+
+        // Sıra Düşmana Geçer
+        turn = "enemy";
+        setTimeout(enemyTurn, 1000);
+    }
+
+    function enemyTurn() {
+        const enemy = enemies[currentEnemyIndex];
+        // Düşman basit yapay zeka: Rastgele hasar aralığı
+        let dmg = enemy.damage + Math.floor(Math.random() * 10);
+        
+        player.hp -= dmg;
+        if (player.hp < 0) player.hp = 0;
+
+        shakeElement(document.getElementById('player-img'));
+        updateUI();
+        log(`${enemy.name} saldırdı! ${dmg} hasar aldın.`);
+
+        // Kaybetme Kontrolü
+        if (player.hp <= 0) {
+            log("Viego düştü... Isolde sonsuza dek kayboldu.");
+            setTimeout(() => {
+                alert("KAYBETTİN. Sayfa yenileniyor...");
+                location.reload();
+            }, 1000);
+            return;
+        }
+
+        turn = "player";
+    }
+
+    // --- SİSTEM FONKSİYONLARI ---
+    function winBattle() {
+        const enemy = enemies[currentEnemyIndex];
+        
+        // Replik Göster
+        document.getElementById('overlay-title').innerText = "DÜŞMAN KATLEDİLDİ";
+        document.getElementById('overlay-quote').innerText = enemy.winQuote;
+        
+        // Level Up
+        player.level++;
+        player.maxHp += 50;
+        player.hp = player.maxHp; // Canı fulle
+        player.maxMana += 20;
+        player.mana = 50; // Manayı sıfırla/başlangıca çek
+        
+        document.getElementById('level-up-text').innerText = `SEVİYE ATLADIN! (LVL ${player.level})`;
+        document.getElementById('level-up-text').style.display = 'block';
+
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function nextLevel() {
+        currentEnemyIndex++;
+        if (currentEnemyIndex >= enemies.length) {
+            alert("TEBRİKLER! TÜM DÜŞMANLARI YENDİN. OYUN BİTTİ.");
+            location.reload();
+        } else {
+            loadLevel(currentEnemyIndex);
+        }
+    }
+
+    function updateUI() {
+        // Player Barları
+        const pHpPerc = (player.hp / player.maxHp) * 100;
+        const pManaPerc = (player.mana / player.maxMana) * 100;
+        document.getElementById('player-hp-bar').style.width = pHpPerc + '%';
+        document.getElementById('player-hp-text').innerText = `${Math.floor(player.hp)}/${player.maxHp}`;
+        document.getElementById('player-mana-bar').style.width = pManaPerc + '%';
+        document.getElementById('player-mana-text').innerText = `${Math.floor(player.mana)}/${player.maxMana}`;
+        document.getElementById('player-lvl').innerText = player.level;
+
+        // Enemy Barları
+        const enemy = enemies[currentEnemyIndex];
+        const eHpPerc = (enemy.hp / enemy.maxHp) * 100;
+        document.getElementById('enemy-hp-bar').style.width = eHpPerc + '%';
+        document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemy.hp)}/${enemy.maxHp}`;
+    }
+
+    function log(msg) {
+        const box = document.getElementById('combat-log');
+        box.innerHTML = `> ${msg}<br>` + box.innerHTML;
+    }
+
+    function shakeElement(el) {
+        el.classList.add('shake');
+        setTimeout(() => el.classList.remove('shake'), 500);
+    }
+</script>
+
+</body>
+</html>
