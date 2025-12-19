@@ -2,7 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Neon Tetris & Leaderboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Tetris</title>
     <style>
         :root {
             --bg-color: #202028;
@@ -20,18 +21,18 @@
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
+            user-select: none; /* Yazı seçimini engelle */
         }
 
-        /* Giriş Ekranı */
         #loginScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            z-index: 999;
         }
         #loginScreen input {
             padding: 15px;
@@ -41,6 +42,7 @@
             margin-bottom: 20px;
             width: 250px;
             text-align: center;
+            outline: none;
         }
         
         .main-container {
@@ -50,20 +52,20 @@
             background: var(--panel-bg);
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            filter: blur(5px); /* Giriş yapılana kadar bulanık */
+            filter: blur(5px);
             transition: filter 0.3s;
         }
         
         canvas {
-            border: 2px solid #fff;
+            border: 2px solid #555;
             background-color: #000;
+            display: block;
         }
 
         .sidebar {
-            width: 250px;
+            width: 200px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
         .score-box {
@@ -73,7 +75,7 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        .score-box h3 { margin: 0 0 10px 0; color: #aaa; }
+        .score-box h3 { margin: 0 0 10px 0; color: #aaa; font-size: 14px; }
         .score-box div { font-size: 24px; font-weight: bold; color: var(--accent); }
 
         .leaderboard {
@@ -81,79 +83,54 @@
             padding: 10px;
             border-radius: 5px;
             flex-grow: 1;
-            overflow-y: auto;
+            font-size: 13px;
         }
-        .leaderboard h3 { text-align: center; border-bottom: 1px solid #555; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        td { padding: 5px; border-bottom: 1px solid #333; }
+        .leaderboard h3 { text-align: center; margin: 0 0 10px 0; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 5px 0; border-bottom: 1px solid #333; }
         td:nth-child(2) { text-align: right; color: var(--accent); }
 
         .btn {
             background: var(--accent);
             color: #000;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 30px;
+            font-size: 18px;
             cursor: pointer;
             font-weight: bold;
             border-radius: 5px;
             transition: 0.2s;
         }
-        .btn:hover { transform: scale(1.05); }
-
+        .btn:hover { transform: scale(1.05); background: #fff; }
     </style>
 </head>
 <body>
 
     <div id="loginScreen">
-        <h1 style="color:white; margin-bottom: 30px;">TETRIS MASTER</h1>
-        <input type="text" id="usernameInput" placeholder="Kullanıcı Adı Giriniz" maxlength="10">
-        <button class="btn" onclick="startGame()">OYUNA BAŞLA</button>
+        <h1 style="color:var(--accent); margin-bottom: 20px; font-size: 40px;">TETRIS</h1>
+        <p style="margin-bottom:20px; color:#aaa;">Skorunuzu kaydetmek için isim girin</p>
+        <input type="text" id="usernameInput" placeholder="İsminiz" maxlength="10" autocomplete="off">
+        <button class="btn" id="startBtn">OYUNA BAŞLA</button>
     </div>
 
     <div class="main-container" id="gameContainer">
         <canvas id="tetris" width="240" height="400"></canvas>
         
         <div class="sidebar">
-            <div>
-                <div class="score-box">
-                    <h3>OYUNCU</h3>
-                    <div id="currentPlayer">---</div>
-                </div>
-                <div class="score-box">
-                    <h3>SKOR</h3>
-                    <div id="score">0</div>
-                </div>
+            <div class="score-box">
+                <h3>OYUNCU</h3>
+                <div id="currentPlayer">---</div>
+            </div>
+            <div class="score-box">
+                <h3>SKOR</h3>
+                <div id="score">0</div>
             </div>
 
             <div class="leaderboard">
-                <h3>EN İYİLER (TOP 5)</h3>
+                <h3>LİDERLİK TABLOSU</h3>
                 <table id="scoreTable">
-                    </table>
+                    <tr><td colspan="2" style="text-align:center; color:#555;">Yükleniyor...</td></tr>
+                </table>
             </div>
             
-            <div style="margin-top: 10px; text-align: center; color: #888; font-size: 12px;">
-                Kontroller: Ok Tuşları<br>
-                Q / W : Döndür
-            </div>
-        </div>
-    </div>
-
-<script>
-    const canvas = document.getElementById('tetris');
-    const context = canvas.getContext('2d');
-    context.scale(20, 20); // Blok boyutu büyütme
-
-    let currentUser = "";
-    let score = 0;
-    
-    // Tetromino Parçaları
-    const pieces = 'ILJOTSZ';
-    const colors = [
-        null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF',
-    ];
-
-    function createPiece(type) {
-        if (type === 'I') {
-            return [
-                [0, 1,
+            <div style="margin-top:20px; color:#666; font-size:1
