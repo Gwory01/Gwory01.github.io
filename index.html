@@ -3,218 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kedi Puzzle</title>
+    <title>Oyun Merkezi</title>
     <style>
         body {
-            background: #202028;
-            color: #fff;
-            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #1a1a24;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
-        }
-        
-        .top-bar {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .back-btn {
-            text-decoration: none;
-            color: #fff;
-            background: #444;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 14px;
+            text-align: center;
         }
 
         /* Dil Seçici */
         .lang-select {
-            padding: 5px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px;
             border-radius: 5px;
-            background: #444;
+            background: #2a2a35;
             color: white;
-            border: 1px solid #666;
-        }
-
-        h1 { color: #ff9900; margin-bottom: 10px; }
-
-        #board {
-            width: 300px;
-            height: 300px;
-            border: 5px solid #ff9900;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            background: #000;
-        }
-
-        .tile {
-            width: 100px;
-            height: 100px;
-            border: 1px solid #333;
-            box-sizing: border-box;
-            background-image: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&w=300&q=80');
-            background-size: 300px 300px;
+            border: 1px solid #444;
             cursor: pointer;
-            transition: transform 0.1s;
         }
 
-        .tile.empty { background: #111; cursor: default; }
+        h1 { font-size: 3rem; margin-bottom: 10px; color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
+        p { color: #aaa; margin-bottom: 40px; }
         
-        .win-msg {
-            margin-top: 20px;
-            color: #00ffcc;
-            font-size: 20px;
-            display: none;
-            text-align: center;
+        .game-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        button.shuffle-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
-            background: #ff9900;
-            border: none;
+        .card {
+            background: #2a2a35;
+            border-radius: 15px;
+            width: 250px;
+            padding: 20px;
+            text-decoration: none;
             color: white;
-            cursor: pointer;
-            border-radius: 5px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+            border-color: #00ffcc;
+        }
+
+        .icon { font-size: 50px; margin-bottom: 20px; }
+        .card h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
+        .card span { font-size: 0.9rem; color: #888; }
+
+        .btn {
+            margin-top: 15px;
+            background: #00ffcc;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <a href="index.html" class="back-btn" id="backBtn">← Menü</a>
-        <select class="lang-select" id="languageSelector" onchange="changeLanguage()">
-            <option value="tr">Türkçe</option>
-            <option value="ku">Kurdî</option>
-            <option value="en">English</option>
-        </select>
+    <select class="lang-select" id="languageSelector" onchange="changeLanguage()">
+        <option value="tr">Türkçe</option>
+        <option value="ku">Kurdî</option>
+        <option value="en">English</option>
+    </select>
+
+    <h1 id="mainTitle">OYUN MERKEZİ</h1>
+    <p id="subTitle">Oynamak istediğiniz oyunu seçin</p>
+
+    <div class="game-grid">
+        <a href="tetris.html" class="card">
+            <div class="icon">🧱</div>
+            <h2 id="tetrisTitle">Neon Tetris</h2>
+            <span id="tetrisDesc">Klasik blok yerleştirme oyunu.</span>
+            <div class="btn" id="btnPlay1">OYNA</div>
+        </a>
+
+        <a href="puzzle.html" class="card">
+            <div class="icon">🐱</div>
+            <h2 id="puzzleTitle">Kedi Puzzle</h2>
+            <span id="puzzleDesc">Resmi tamamlamak için kaydır.</span>
+            <div class="btn" id="btnPlay2">OYNA</div>
+        </a>
     </div>
 
-    <h1 id="gameTitle">Kedi Puzzle</h1>
-    <div id="board"></div>
-    <div class="win-msg" id="winMsg">Tebrikler! Kediyi Kurtardın! 🐱</div>
-    <button class="shuffle-btn" id="shuffleBtn" onclick="shuffleTiles()">Yeniden Karıştır</button>
-
 <script>
-    // --- DİL SİSTEMİ ---
     const translations = {
         tr: {
-            back: "← Menü",
-            title: "Kedi Puzzle",
-            win: "Tebrikler! Kediyi Kurtardın! 🐱",
-            shuffle: "Yeniden Karıştır"
+            title: "OYUN MERKEZİ",
+            sub: "Oynamak istediğiniz oyunu seçin",
+            tetrisTitle: "Neon Tetris",
+            tetrisDesc: "Klasik blok yerleştirme oyunu.",
+            puzzleTitle: "Kedi Puzzle",
+            puzzleDesc: "Resmi tamamlamak için kaydır.",
+            play: "OYNA"
         },
         ku: {
-            back: "← Pêşek",
-            title: "Puzzleya Pisîkê",
-            win: "Pîroz be! Te Pisîk Rizgar Kir! 🐱",
-            shuffle: "Dîsa Têkel Bike"
+            title: "NAVENDA LÎSTIKAN",
+            sub: "Lîstika ku hûn dixwazin bilîzin hilbijêrin",
+            tetrisTitle: "Neon Tetris",
+            tetrisDesc: "Lîstika klasîk a danîna blokan.",
+            puzzleTitle: "Puzzleya Pisîkê",
+            puzzleDesc: "Ji bo temamkirina wêneyê bihejînin.",
+            play: "BILÎZE"
         },
         en: {
-            back: "← Menu",
-            title: "Cat Puzzle",
-            win: "Congratulations! Cat Saved! 🐱",
-            shuffle: "Shuffle Again"
+            title: "GAME CENTER",
+            sub: "Choose the game you want to play",
+            tetrisTitle: "Neon Tetris",
+            tetrisDesc: "Classic block stacking game.",
+            puzzleTitle: "Cat Puzzle",
+            puzzleDesc: "Slide tiles to complete the picture.",
+            play: "PLAY"
         }
     };
 
     function changeLanguage() {
         const lang = document.getElementById("languageSelector").value;
-        localStorage.setItem('selectedLang', lang); // Kaydet
+        localStorage.setItem('selectedLang', lang); // Dili hafızaya kaydet
         const t = translations[lang];
 
-        document.getElementById("backBtn").innerText = t.back;
-        document.getElementById("gameTitle").innerText = t.title;
-        document.getElementById("winMsg").innerText = t.win;
-        document.getElementById("shuffleBtn").innerText = t.shuffle;
+        document.getElementById("mainTitle").innerText = t.title;
+        document.getElementById("subTitle").innerText = t.sub;
+        
+        document.getElementById("tetrisTitle").innerText = t.tetrisTitle;
+        document.getElementById("tetrisDesc").innerText = t.tetrisDesc;
+        
+        document.getElementById("puzzleTitle").innerText = t.puzzleTitle;
+        document.getElementById("puzzleDesc").innerText = t.puzzleDesc;
+        
+        document.getElementById("btnPlay1").innerText = t.play;
+        document.getElementById("btnPlay2").innerText = t.play;
     }
 
-    // --- PUZZLE MOTORU ---
-    const board = document.getElementById("board");
-    const size = 3;
-    let tiles = [];
-
-    function init() {
-        tiles = Array.from({length: size * size}, (_, i) => i);
-        render();
-        // Dili Yükle
+    // Sayfa açıldığında kayıtlı dili yükle
+    window.onload = function() {
         const savedLang = localStorage.getItem('selectedLang') || 'tr';
         document.getElementById("languageSelector").value = savedLang;
         changeLanguage();
-        
-        setTimeout(shuffleTiles, 1000);
-    }
-
-    function render() {
-        board.innerHTML = "";
-        tiles.forEach((tileIndex, positionIndex) => {
-            const tile = document.createElement("div");
-            tile.classList.add("tile");
-            if (tileIndex === size * size - 1) {
-                tile.classList.add("empty");
-            } else {
-                const row = Math.floor(tileIndex / size);
-                const col = tileIndex % size;
-                tile.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
-            }
-            tile.onclick = () => moveTile(positionIndex);
-            board.appendChild(tile);
-        });
-        checkWin();
-    }
-
-    function moveTile(index) {
-        const emptyIndex = tiles.indexOf(size * size - 1);
-        const diff = Math.abs(index - emptyIndex);
-        const isAdjacent = (diff === 1 && Math.floor(index/size) === Math.floor(emptyIndex/size)) || diff === size;
-
-        if (isAdjacent) {
-            [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
-            render();
-        }
-    }
-
-    function shuffleTiles() {
-        document.getElementById("winMsg").style.display = "none";
-        let moves = 100;
-        const interval = setInterval(() => {
-            const emptyIndex = tiles.indexOf(size * size - 1);
-            const neighbors = [];
-            if (emptyIndex % size !== 0) neighbors.push(emptyIndex - 1);
-            if (emptyIndex % size !== size - 1) neighbors.push(emptyIndex + 1);
-            if (emptyIndex >= size) neighbors.push(emptyIndex - size);
-            if (emptyIndex < size * (size - 1)) neighbors.push(emptyIndex + size);
-            const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
-            [tiles[randomNeighbor], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[randomNeighbor]];
-            moves--;
-            if (moves <= 0) {
-                clearInterval(interval);
-                render();
-            }
-        }, 5);
-    }
-
-    function checkWin() {
-        const isSolved = tiles.every((val, index) => val === index);
-        if (isSolved && document.querySelector(".tile.empty")) {
-            document.getElementById("winMsg").style.display = "block";
-        }
-    }
-
-    init();
+    };
 </script>
 
 </body>
