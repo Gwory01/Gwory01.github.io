@@ -10,9 +10,10 @@
         :root {
             --ruined-green: #0ac8b9;
             --dark-bg: #05080a;
-            --mana-blue: #0070dd;
+            --power-yellow: #f1c40f; /* Güç Barı Rengi */
             --hp-red: #c0392b;
-            --crit-yellow: #ffcc00;
+            --crit-color: #ffcc00;
+            --heal-color: #2ecc71;
         }
 
         body {
@@ -33,126 +34,80 @@
             user-select: none;
         }
 
-        /* UÇAN HASAR YAZILARI İÇİN STİL */
-        .damage-text {
+        /* UÇAN YAZILAR (Floating Text) */
+        .float-text {
             position: absolute;
             font-weight: bold;
             font-size: 24px;
             pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
+            animation: floatUp 1.2s ease-out forwards;
             text-shadow: 2px 2px 0 #000;
             z-index: 100;
         }
         @keyframes floatUp {
             0% { transform: translateY(0) scale(1); opacity: 1; }
-            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-60px) scale(1); opacity: 0; }
+            50% { transform: translateY(-40px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1); opacity: 0; }
         }
+        .text-damage { color: #fff; }
+        .text-crit { color: var(--crit-color); font-size: 36px; text-shadow: 0 0 15px red; }
+        .text-heal { color: var(--heal-color); font-size: 28px; }
+        .text-enemy-dmg { color: #e74c3c; }
 
-        .crit-text {
-            color: var(--crit-yellow);
-            font-size: 36px;
-            text-shadow: 0 0 10px red;
-        }
-
-        /* EKRAN HASAR EFEKTİ */
+        /* GÖRSEL EFEKTLER */
         .damage-flash {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 0, 0, 0.3);
-            pointer-events: none;
-            z-index: 50;
-            animation: flash 0.2s linear;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear;
+        }
+        .ult-flash {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear;
         }
         @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
 
-        /* ULTİ EFEKTİ */
-        .ult-flash {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 200, 185, 0.4);
-            pointer-events: none;
-            z-index: 50;
-            animation: flash 0.5s linear;
-        }
-
-        /* Sis Efekti */
         @keyframes mist {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
         .mist-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(45deg, rgba(10, 200, 185, 0.05), transparent);
-            background-size: 400% 400%;
-            animation: mist 15s ease infinite;
-            z-index: -1;
-            pointer-events: none;
+            background-size: 400% 400%; animation: mist 15s ease infinite;
+            z-index: -1; pointer-events: none;
         }
 
         .game-wrapper {
-            width: 90%;
-            max-width: 1000px;
+            width: 90%; max-width: 1000px;
             background: rgba(10, 12, 15, 0.95);
             border: 2px solid #333;
             border-top: 4px solid var(--ruined-green);
             box-shadow: 0 0 50px rgba(10, 200, 185, 0.1);
             padding: 20px;
             position: relative;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             height: 600px;
         }
 
-        /* Başlangıç Ekranı */
         #start-screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
         }
-        #start-screen h1 { font-size: 3rem; color: var(--ruined-green); text-shadow: 0 0 20px var(--ruined-green); margin-bottom: 10px; }
         .start-btn {
-            padding: 15px 40px;
-            font-size: 1.5rem;
-            background: transparent;
-            color: var(--ruined-green);
-            border: 2px solid var(--ruined-green);
-            font-family: 'Cinzel', serif;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 30px;
+            padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green);
+            border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px;
         }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
         .battle-scene {
-            flex-grow: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
+            flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
         }
 
-        .character-box {
-            width: 250px;
-            text-align: center;
-            position: relative;
-        }
+        .character-box { width: 250px; text-align: center; position: relative; }
         .character-img {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 4px solid #444;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: transform 0.2s;
+            width: 200px; height: 200px; object-fit: cover; border-radius: 50%;
+            border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s;
         }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
@@ -161,129 +116,66 @@
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
             30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
             50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
             70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
             90% { transform: translate(1px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
+        /* Barlar */
         .stat-bar {
-            width: 100%;
-            height: 15px;
-            background: #222;
-            margin-top: 8px;
-            border: 1px solid #444;
-            position: relative;
+            width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative;
         }
         .fill { height: 100%; transition: width 0.5s ease-out; }
         .hp-fill { background-color: var(--hp-red); }
-        .mana-fill { background-color: var(--mana-blue); }
+        
+        /* GÜÇ BARI (SARI) */
+        .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); }
+        
         .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
 
         .controls {
-            height: 150px;
-            border-top: 1px solid #444;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            padding-top: 20px;
+            height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px;
         }
-
-        .skills {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 10px;
-        }
+        .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
 
         .skill-btn {
-            background: #111;
-            border: 1px solid #444;
-            color: #aaa;
-            font-family: 'Cinzel', serif;
-            cursor: pointer;
-            position: relative;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
+            background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif;
+            cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 5px;
         }
         .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
-        .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .skill-name { font-weight: bold; font-size: 0.9rem; }
-        .skill-cost { font-size: 0.7rem; color: var(--mana-blue); margin-top: 3px; }
+        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
+        
+        .skill-name { font-weight: bold; font-size: 0.8rem; text-align: center; }
+        .skill-cost { font-size: 0.7rem; color: var(--power-yellow); margin-top: 3px; }
+        .cooldown-text { color: #e74c3c; font-size: 0.7rem; display:none; }
         
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
         .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
 
         .log-box {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #333;
-            padding: 10px;
-            font-size: 0.9rem;
-            overflow-y: auto;
-            color: #ccc;
-            font-family: sans-serif;
+            background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px;
+            font-size: 0.9rem; overflow-y: auto; color: #ccc; font-family: sans-serif;
         }
 
         .overlay-msg {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            padding: 40px;
-            border: 2px solid var(--ruined-green);
-            text-align: center;
-            display: none;
-            z-index: 50;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9); padding: 40px; border: 2px solid var(--ruined-green);
+            text-align: center; display: none; z-index: 50;
         }
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
         .overlay-msg p { font-style: italic; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
 
         .level-badge {
-            position: absolute;
-            top: -10px; right: -10px;
-            background: var(--ruined-green);
-            color: black;
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold;
-            border: 2px solid white;
+            position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black;
+            width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; border: 2px solid white;
         }
 
-        .music-toggle {
-            position: fixed;
-            top: 20px; right: 20px;
-            z-index: 200;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: 1px solid #555;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-        .music-toggle:hover { background: var(--ruined-green); color: black; }
-
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 200;
-            color: var(--ruined-green);
-            text-decoration: none;
-            border: 1px solid var(--ruined-green);
-            padding: 5px 15px;
-            background: rgba(0,0,0,0.8);
-            font-weight: bold;
-        }
+        .music-toggle { position: fixed; top: 20px; right: 20px; z-index: 200; background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; }
+        .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -305,14 +197,12 @@
             <h1>İNTİKAMI</h1>
             <p style="color: #aaa; margin-top: 10px;">"Hepsi... Onun için."</p>
             <button class="start-btn" onclick="startGame()">HİKAYEYE BAŞLA</button>
-            <p style="font-size: 12px; color: #666; margin-top: 20px;">(Müzik çalmazsa sağ üstteki butona basın)</p>
         </div>
 
         <div id="overlay" class="overlay-msg">
             <h2 id="overlay-title">ZAFER</h2>
             <p id="overlay-quote">"..."</p>
             <div id="level-up-text" style="color: yellow; margin-bottom: 15px; display:none;">SEVİYE ATLADIN!</div>
-            <div id="passive-text" style="color: var(--ruined-green); font-size:14px; margin-bottom: 20px;">Pasif Aktif: Ruh Çalındı! (+HP, +Hasar)</div>
             <button class="start-btn" id="next-btn" onclick="nextLevel()">DEVAM ET</button>
         </div>
 
@@ -326,9 +216,9 @@
                     <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
                     <span class="bar-text" id="player-hp-text">100/100</span>
                 </div>
-                <div class="stat-bar">
-                    <div class="fill mana-fill" id="player-mana-bar" style="width: 100%;"></div>
-                    <span class="bar-text" id="player-mana-text">100/100</span>
+                <div class="stat-bar" style="border-color:#b7950b;">
+                    <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
+                    <span class="bar-text" id="player-power-text" style="color:black; font-weight:bold; text-shadow:none;">0/100</span>
                 </div>
             </div>
 
@@ -350,22 +240,24 @@
             <div class="skills">
                 <button class="skill-btn" onclick="useSkill('basic')">
                     <span class="skill-name">Kralın Kılıcı</span>
-                    <span class="skill-cost" style="color:#0f0;">+15 Mana</span>
+                    <span class="skill-cost" style="color:#2ecc71;">+Güç</span>
                 </button>
                 
-                <button class="skill-btn" onclick="useSkill('q')">
-                    <span class="skill-name">Mahvolmuş Kralın Kılıcı (Q)</span>
-                    <span class="skill-cost">30 Mana</span>
+                <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
+                    <span class="skill-name">M. Kralın Kılıcı (Q)</span>
+                    <span class="skill-cost">15 Güç</span>
+                    <span style="font-size:10px; color:#aaa;">%7 Can Çalma</span>
                 </button>
 
-                <button class="skill-btn" onclick="useSkill('w')">
+                <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
                     <span class="skill-name">Hortlakın Pençesi (W)</span>
-                    <span class="skill-cost">50 Mana</span>
+                    <span class="skill-cost">25 Güç</span>
+                    <span class="cooldown-text" id="cd-w">Bekleme: 2</span>
                 </button>
 
                 <button class="skill-btn ult-btn" id="btn-ult" onclick="useSkill('r')">
                     <span class="skill-name">KALP KIRAN (R)</span>
-                    <span class="skill-cost">TÜM MANA (1 KERE)</span>
+                    <span class="skill-cost">TEK KULLANIM</span>
                 </button>
             </div>
 
@@ -382,37 +274,27 @@
         level: 1,
         maxHp: 150,
         hp: 150,
-        maxMana: 100,
-        mana: 50,
+        maxPower: 100,
+        power: 0, // GÜÇ SIFIRLA BAŞLAR
         ultUsed: false,
-        critChance: 0.2 // %20 Kritik Şansı
+        critChance: 0.2, // %20 Baz Kritik
+        nextHitCrit: false, // W ile %100 olacak
+        wCooldown: 0 // Tur sayacı
     };
 
     const enemies = [
         {
-            name: "LeBlanc",
-            level: 3,
-            maxHp: 180,
-            hp: 180,
-            damage: 15,
+            name: "LeBlanc", level: 3, maxHp: 180, hp: 180, damage: 15,
             img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg",
             winQuote: "Viego: \"Yalanların seni benim gazabımdan koruyamadı, Hilekar.\""
         },
         {
-            name: "Vladimir",
-            level: 6,
-            maxHp: 250,
-            hp: 250,
-            damage: 25,
+            name: "Vladimir", level: 6, maxHp: 250, hp: 250, damage: 25,
             img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg",
             winQuote: "Viego: \"O pis kanın bile bana ait, amca.\""
         },
         {
-            name: "Sahn-Uzal", // Mordekaiser
-            level: 10,
-            maxHp: 400,
-            hp: 400,
-            damage: 35,
+            name: "Sahn-Uzal", level: 10, maxHp: 450, hp: 450, damage: 40,
             img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg",
             winQuote: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\""
         }
@@ -422,30 +304,22 @@
     let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
 
-    // --- SİSTEM ---
-    function startGame() {
-        document.getElementById('start-screen').style.display = 'none';
-        forcePlayMusic();
-        loadLevel(0);
-    }
-
+    // --- MÜZİK ---
     function forcePlayMusic() {
         bgMusic.volume = 0.3;
         bgMusic.play().then(() => {
             document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
-        }).catch(error => {
-            console.log("Müzik hatası:", error);
-        });
+        }).catch(error => { console.log(error); });
+    }
+    function toggleMusic() {
+        if(bgMusic.paused) { bgMusic.play(); document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK"; }
+        else { bgMusic.pause(); document.querySelector('.music-toggle').innerText = "🎵 Müzik: KAPALI"; }
     }
 
-    function toggleMusic() {
-        if (bgMusic.paused) {
-            bgMusic.play();
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
-        } else {
-            bgMusic.pause();
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: KAPALI";
-        }
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        forcePlayMusic();
+        loadLevel(0);
     }
 
     function loadLevel(index) {
@@ -456,9 +330,11 @@
         document.getElementById('enemy-img').src = enemy.img;
         document.getElementById('enemy-lvl').innerText = enemy.level;
         
+        // Resetler
         player.ultUsed = false;
-        document.getElementById('btn-ult').disabled = false;
-        document.getElementById('btn-ult').style.opacity = "1";
+        player.power = 0; // Her savaş başı güç sıfırlanır mı? İsteğe bağlı, burada sıfırladım zorluk için.
+        player.wCooldown = 0;
+        player.nextHitCrit = false;
         
         updateUI();
         log(`Bir düşman belirdi: ${enemy.name}!`);
@@ -472,57 +348,72 @@
         const enemy = enemies[currentEnemyIndex];
         let damage = 0;
         let logMsg = "";
-        let manaCost = 0;
-        let manaGain = 0;
+        let powerGain = 0;
         let isCrit = false;
 
-        // Kritik Vuruş Hesapla (Sadece Ulti hariç)
-        if (type !== 'r' && Math.random() < player.critChance) {
+        // KRİTİK KONTROLÜ
+        if (player.nextHitCrit) {
             isCrit = true;
+            player.nextHitCrit = false; // Tüketildi
+        } else {
+            if (Math.random() < player.critChance) isCrit = true;
         }
 
+        // --- YETENEKLER ---
         if (type === 'basic') {
             damage = 15 + (player.level * 5);
-            manaGain = 15;
+            // Güç Kazanımı: 5-15 arası, Kritikse 15
+            powerGain = isCrit ? 15 : Math.floor(Math.random() * 11) + 5;
             logMsg = `Viego kılıcını savurdu!`;
         } 
+        
         else if (type === 'q') {
-            manaCost = 30;
-            if (player.mana < manaCost) { log("Yetersiz Mana!"); return; }
+            if (player.power < 15) { log("Yetersiz Güç!"); return; }
+            player.power -= 15;
+            
             damage = 30 + (player.level * 8);
             logMsg = `Viego Q yeteneğini kullandı!`;
+            
+            // %7 Can Çalma
+            let heal = Math.floor(damage * 0.07);
+            if(isCrit) heal = Math.floor((damage * 2) * 0.07); // Kritik vurursa heal artar
+            
+            player.hp += heal;
+            if (player.hp > player.maxHp) player.hp = player.maxHp;
+            showFloatingText(document.getElementById('player-box'), `+${heal}`, 'heal');
         }
+        
         else if (type === 'w') {
-            manaCost = 50;
-            if (player.mana < manaCost) { log("Yetersiz Mana!"); return; }
-            damage = 50 + (player.level * 10);
-            logMsg = `Viego sisi serbest bıraktı!`;
+            if (player.wCooldown > 0) { log("W yeteneği beklemede!"); return; }
+            if (player.power < 25) { log("Yetersiz Güç!"); return; }
+            
+            player.power -= 25;
+            damage = 40 + (player.level * 6);
+            player.nextHitCrit = true; // Bir sonraki vuruş kesin kritik
+            player.wCooldown = 3; // 2 tur kullanamaz (Bu tur + Sonraki 2 tur)
+            
+            logMsg = `Viego W ile saldırdı! Bir sonraki vuruş KRİTİK olacak!`;
         }
+        
         else if (type === 'r') {
-            if (player.ultUsed) { log("Ulti bu savaşta zaten kullanıldı!"); return; }
-            if (player.mana <= 0) { log("Ulti için hiç manan yok!"); return; }
-            
-            let currentMana = player.mana;
-            manaCost = currentMana; 
-            damage = 80 + (player.level * 10) + (currentMana * 1.5);
-            
+            if (player.ultUsed) { log("Ulti zaten kullanıldı!"); return; }
+            // Ulti Güç İstemez ama Tek Seferlik
             player.ultUsed = true;
-            document.getElementById('btn-ult').disabled = true;
-            document.getElementById('btn-ult').style.opacity = "0.5";
             
-            logMsg = `VIEGO KALBİNİ KIRDI!`;
+            damage = 100 + (player.level * 15);
             triggerEffect('ult');
+            logMsg = `VIEGO KALBİNİ KIRDI!`;
+            isCrit = true; // Ulti havalı olsun diye her zaman kritik efekti verelim
         }
 
-        // Kritik Uygula
-        if (isCrit) {
+        // HASAR UYGULAMA
+        if (isCrit && type !== 'w') { // W'nun kendisi kritik vurmaz, sonrakini kritik yapar (tercihen)
             damage *= 2;
             logMsg += " (KRİTİK!)";
         }
 
-        player.mana -= manaCost;
-        player.mana += manaGain;
-        if (player.mana > player.maxMana) player.mana = player.maxMana;
+        player.power += powerGain;
+        if (player.power > player.maxPower) player.power = player.maxPower;
 
         enemy.hp -= damage;
         if (enemy.hp < 0) enemy.hp = 0;
@@ -530,8 +421,8 @@
         // Görseller
         shakeElement(document.getElementById('enemy-img'));
         showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal');
-        updateUI();
         log(`${logMsg} ${damage} hasar.`);
+        updateUI();
 
         if (enemy.hp <= 0) {
             winBattle();
@@ -549,16 +440,19 @@
         player.hp -= dmg;
         if (player.hp < 0) player.hp = 0;
 
+        // Cooldown Yönetimi
+        if (player.wCooldown > 0) player.wCooldown--;
+
         triggerEffect('damage');
         shakeElement(document.getElementById('player-img'));
-        showFloatingText(document.getElementById('player-box'), dmg, 'damage');
+        showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage');
         updateUI();
         log(`${enemy.name} saldırdı! ${dmg} hasar aldın.`);
 
         if (player.hp <= 0) {
-            log("Viego düştü... Isolde sonsuza dek kayboldu.");
+            log("Viego düştü...");
             setTimeout(() => {
-                alert("KAYBETTİN. Sayfa yenileniyor...");
+                alert("KAYBETTİN. Tekrar dene...");
                 location.reload();
             }, 1000);
             return;
@@ -567,17 +461,15 @@
         turn = "player";
     }
 
+    // --- SİSTEM ---
     function winBattle() {
         const enemy = enemies[currentEnemyIndex];
         document.getElementById('overlay-title').innerText = "DÜŞMAN KATLEDİLDİ";
         document.getElementById('overlay-quote').innerText = enemy.winQuote;
         
-        // Viego Pasifi: Ruh Çalma
         player.level++;
         player.maxHp += 50;
         player.hp = player.maxHp; 
-        player.maxMana += 20;
-        player.mana = 50;
         
         document.getElementById('level-up-text').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
@@ -586,29 +478,48 @@
     function nextLevel() {
         currentEnemyIndex++;
         if (currentEnemyIndex >= enemies.length) {
-            alert("TEBRİKLER! TÜM DÜŞMANLARI YENDİN. OYUN BİTTİ.");
+            alert("TEBRİKLER! TÜM İNTİKAM ALINDI. OYUN BİTTİ.");
             location.reload();
         } else {
             loadLevel(currentEnemyIndex);
         }
     }
 
-    // --- GÖRSEL EFEKTLER ---
+    // --- UI GÜNCELLEME ---
     function updateUI() {
+        // Player HP
         const pHpPerc = (player.hp / player.maxHp) * 100;
-        const pManaPerc = (player.mana / player.maxMana) * 100;
         document.getElementById('player-hp-bar').style.width = pHpPerc + '%';
         document.getElementById('player-hp-text').innerText = `${Math.floor(player.hp)}/${player.maxHp}`;
-        document.getElementById('player-mana-bar').style.width = pManaPerc + '%';
-        document.getElementById('player-mana-text').innerText = `${Math.floor(player.mana)}/${player.maxMana}`;
+        
+        // Player Power
+        const pPowPerc = (player.power / player.maxPower) * 100;
+        document.getElementById('player-power-bar').style.width = pPowPerc + '%';
+        document.getElementById('player-power-text').innerText = `${player.power}/${player.maxPower}`;
+        
         document.getElementById('player-lvl').innerText = player.level;
 
+        // Enemy HP
         const enemy = enemies[currentEnemyIndex];
         const eHpPerc = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = eHpPerc + '%';
         document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemy.hp)}/${enemy.maxHp}`;
+
+        // Buton Durumları
+        document.getElementById('btn-q').disabled = player.power < 15;
+        document.getElementById('btn-w').disabled = (player.power < 25 || player.wCooldown > 0);
+        document.getElementById('btn-ult').disabled = player.ultUsed;
+
+        // Cooldown Metni
+        if(player.wCooldown > 0) {
+            document.getElementById('cd-w').style.display = 'block';
+            document.getElementById('cd-w').innerText = `Bekleme: ${player.wCooldown}`;
+        } else {
+            document.getElementById('cd-w').style.display = 'none';
+        }
     }
 
+    // --- EFEKTLER ---
     function log(msg) {
         const box = document.getElementById('combat-log');
         box.innerHTML = `> ${msg}<br>` + box.innerHTML;
@@ -616,44 +527,29 @@
 
     function shakeElement(el) {
         el.classList.remove('shake');
-        void el.offsetWidth; // Reset animation
+        void el.offsetWidth;
         el.classList.add('shake');
     }
 
     function triggerEffect(type) {
         const flash = document.getElementById('flash-effect');
-        flash.className = ''; // Reset
-        
+        flash.className = ''; 
         if (type === 'damage') flash.classList.add('damage-flash');
         if (type === 'ult') flash.classList.add('ult-flash');
-        
         setTimeout(() => flash.className = '', 500);
     }
 
-    function showFloatingText(targetElement, value, type) {
+    function showFloatingText(target, val, type) {
         const text = document.createElement('div');
-        text.className = 'damage-text';
-        text.innerText = value;
+        text.className = 'float-text ' + (type === 'crit' ? 'text-crit' : (type === 'heal' ? 'text-heal' : (type === 'damage' ? 'text-enemy-dmg' : 'text-damage')));
+        text.innerText = type === 'crit' ? val + "!" : val;
         
-        if (type === 'crit') {
-            text.classList.add('crit-text');
-            text.innerText += "!";
-        } else if (type === 'damage') {
-            text.style.color = '#ff0000';
-        } else {
-            text.style.color = '#fff';
-        }
-
-        const rect = targetElement.getBoundingClientRect();
+        const rect = target.getBoundingClientRect();
         text.style.left = (rect.left + rect.width / 2) + 'px';
         text.style.top = rect.top + 'px';
-
+        
         document.body.appendChild(text);
-
-        // Animasyon bitince sil
-        setTimeout(() => {
-            text.remove();
-        }, 1000);
+        setTimeout(() => text.remove(), 1200);
     }
 </script>
 
