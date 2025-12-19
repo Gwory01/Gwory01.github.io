@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tetris - Pro Audio</title>
+    <title>Tetris - Final Audio</title>
     <style>
         :root {
             --accent: #00ffcc;
@@ -26,7 +26,6 @@
             touch-action: none;
         }
 
-        /* Başlangıç Ekranı */
         #startOverlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -62,10 +61,9 @@
             z-index: -1;
         }
 
-        .menu-btn {
+        .menu-btn, .music-btn {
             position: fixed;
             top: 15px;
-            left: 15px;
             z-index: 100;
             color: white;
             background: rgba(255, 255, 255, 0.1);
@@ -74,21 +72,10 @@
             border-radius: 6px;
             font-size: 14px;
             border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .music-btn {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 12px;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
         }
+        .menu-btn { left: 15px; }
+        .music-btn { right: 15px; }
 
         .main-wrapper {
             display: flex;
@@ -138,9 +125,6 @@
         <source src="https://ia800504.us.archive.org/33/items/TetrisThemeMusic/Tetris.mp3" type="audio/mpeg">
     </audio>
 
-    <audio id="sndScore" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."></audio> 
-    <audio id="sndOver"></audio>
-
     <div class="main-wrapper">
         <div class="header">
             <select id="languageSelector" onchange="changeLanguage()">
@@ -174,78 +158,82 @@
     </div>
 
 <script>
-    // --- SES DOSYALARI (GÖMÜLÜ) ---
-    // Bu yöntemle ses dosyaları internetten çekilmez, doğrudan çalışır.
-    
-    // Puan Sesi (Kısa bip)
-    const scoreSoundData = "data:audio/wav;base64,UklGRi4AAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="; // Boş placeholder, aşağıda Web Audio API kullanacağız daha güvenilir.
-
     // --- GELİŞMİŞ SES MOTORU (WEB AUDIO API) ---
-    // Tarayıcının kendi ses sentezleyicisini kullanacağız. Dosya indirmeye gerek yok.
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    function playSynthesizedSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+    function playTone(type) {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
 
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
+        const now = audioCtx.currentTime;
+
         if (type === 'score') {
-            // Puan Sesi: İnce ve mutlu bir ses
+            // Puan Sesi
             osc.type = 'square';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
-            
-            // Müzik Kısma (Ducking)
-            duckMusic();
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.linearRampToValueAtTime(1200, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+            duckMusic(500);
         } 
         else if (type === 'gameover') {
-            // Kaybetme Sesi: Kalın ve azalan bir ses
+            // Kaybetme Sesi
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5);
-            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
-
-            // Müzik Kısma
-            duckMusic();
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.linearRampToValueAtTime(50, now + 1.0);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 1.0);
+            osc.start(now);
+            osc.stop(now + 1.0);
+            duckMusic(2000);
         }
     }
 
-    // --- MÜZİK YÖNETİMİ ---
+    // --- MÜZİK YÖNETİMİ & DUCKING ---
     const bgMusic = document.getElementById('bgMusic');
-    const MUSIC_VOL_NORMAL = 0.4;
-    const MUSIC_VOL_LOW = 0.05;
+    
+    // --- DEĞİŞİKLİK BURADA: SES SEVİYESİ %20 OLDU ---
+    const MUSIC_VOL_NORMAL = 0.2; // %20
+    const MUSIC_VOL_LOW = 0.05;   // %5
 
     bgMusic.volume = MUSIC_VOL_NORMAL;
     let isMusicPlaying = false;
     let isGameRunning = false;
+    let duckTimeout = null;
 
-    function duckMusic() {
-        if(isMusicPlaying && !bgMusic.paused) {
-            bgMusic.volume = MUSIC_VOL_LOW;
-            setTimeout(() => {
+    function duckMusic(duration) {
+        if (!isMusicPlaying || bgMusic.paused) return;
+
+        if (duckTimeout) clearTimeout(duckTimeout);
+
+        bgMusic.volume = MUSIC_VOL_LOW;
+
+        duckTimeout = setTimeout(() => {
+            if (isMusicPlaying) {
                 bgMusic.volume = MUSIC_VOL_NORMAL;
-            }, 600); // 0.6 saniye sonra sesi aç
-        }
+            }
+        }, duration);
     }
 
     function startGameWithMusic() {
         document.getElementById('startOverlay').style.display = 'none';
         
-        // Audio Context'i başlat
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
 
         bgMusic.play().then(() => {
             isMusicPlaying = true;
+            bgMusic.volume = MUSIC_VOL_NORMAL; // %20 ile başlat
             updateMusicBtnText();
         }).catch(error => {
             console.log("Müzik hatası:", error);
@@ -260,6 +248,7 @@
     function toggleMusic() {
         if (bgMusic.paused) {
             bgMusic.play();
+            bgMusic.volume = MUSIC_VOL_NORMAL;
             isMusicPlaying = true;
         } else {
             bgMusic.pause();
@@ -392,8 +381,7 @@
         player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
         
         if (collide(arena, player)) {
-            // --- OYUN BİTTİ ---
-            playSynthesizedSound('gameover'); // Kaybetme Sesi
+            playTone('gameover');
             saveGameToHistory(player.score);
             arena.forEach(row => row.fill(0));
             player.score = 0;
@@ -464,9 +452,8 @@
             clearedSomething = true;
         }
 
-        // Eğer satır silindiyse ses çal
         if (clearedSomething) {
-            playSynthesizedSound('score');
+            playTone('score');
         }
     }
 
