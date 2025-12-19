@@ -2,26 +2,63 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basit Tetris</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tetris Mobile</title>
     <style>
+        :root {
+            --bg-color: #1a1a24;
+            --accent: #00ffcc;
+            --btn-bg: #333;
+            --text-color: #fff;
+        }
         body {
-            background: #202028;
-            color: #fff;
-            font-family: sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 10px;
+            overflow: hidden; /* Kaydırmayı engelle */
+            touch-action: none; /* Telefondaki yakınlaştırmayı engelle */
         }
 
+        /* Üst Panel (Dil ve Skor) */
+        .header {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 5px;
+            border-radius: 5px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            font-size: 14px;
+        }
+
+        .score-board {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .score-board span {
+            color: var(--accent);
+        }
+
+        /* Oyun Alanı */
         .game-container {
-            position: relative;
-            border: 2px solid #333;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 2px solid #444;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
         }
 
         canvas {
@@ -29,101 +66,156 @@
             background-color: #000;
         }
 
-        .ui-panel {
-            display: flex;
-            justify-content: space-between;
-            width: 240px; /* Canvas genişliği ile aynı */
-            margin-bottom: 10px;
-            font-size: 20px;
-            font-weight: bold;
+        /* Mobil Kontroller */
+        .controls-area {
+            width: 100%;
+            max-width: 300px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: auto; /* En alta it */
+            margin-bottom: 20px;
         }
 
-        .controls {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #888;
+        .control-btn {
+            background: var(--btn-bg);
+            color: white;
+            border: none;
+            padding: 20px 0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #111;
+            user-select: none; /* Yazı seçilmesin */
+            touch-action: manipulation;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+            background: #555;
+        }
+
+        .btn-rotate {
+            grid-column: 2; /* Ortada */
+            background-color: #d35400;
+        }
+
+        .btn-down {
+            grid-column: 2;
+        }
+        
+        .desktop-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
             text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="ui-panel">
-        <span>TETRIS</span>
-        <span>Skor: <span id="score">0</span></span>
+    <div class="header">
+        <select id="languageSelector" onchange="changeLanguage()">
+            <option value="tr">Türkçe</option>
+            <option value="ku">Kurdî</option>
+            <option value="en">English</option>
+        </select>
+        <div class="score-board">
+            <span id="scoreLabel">Skor</span>: <span id="score">0</span>
+        </div>
     </div>
 
     <div class="game-container">
         <canvas id="tetris" width="240" height="400"></canvas>
     </div>
 
-    <div class="controls">
-        <p>Yön Tuşları: Sağa/Sola/Aşağı</p>
-        <p>Yukarı Tuşu veya Q/W: Döndür</p>
+    <div class="controls-area">
+        <div style="grid-column: 1;"></div> <button class="control-btn btn-rotate" id="btnRotate" onclick="playerRotate(1)">↻</button>
+        <div style="grid-column: 3;"></div> <button class="control-btn" id="btnLeft" onclick="playerMove(-1)">←</button>
+        <button class="control-btn" id="btnDown" onclick="playerDrop()">↓</button>
+        <button class="control-btn" id="btnRight" onclick="playerMove(1)">→</button>
+    </div>
+
+    <div class="desktop-hint" id="desktopHint">
+        Klavye: Yön Tuşları
     </div>
 
 <script>
-    const canvas = document.getElementById('tetris');
-    const context = canvas.getContext('2d');
-    context.scale(20, 20); // Blokları büyüt
-
-    // Tetromino Parçaları
-    function createPiece(type) {
-        if (type === 'I') {
-            return [
-                [0, 1, 0, 0],
-                [0, 1, 0, 0],
-                [0, 1, 0, 0],
-                [0, 1, 0, 0],
-            ];
-        } else if (type === 'L') {
-            return [
-                [0, 2, 0],
-                [0, 2, 0],
-                [0, 2, 2],
-            ];
-        } else if (type === 'J') {
-            return [
-                [0, 3, 0],
-                [0, 3, 0],
-                [3, 3, 0],
-            ];
-        } else if (type === 'O') {
-            return [
-                [4, 4],
-                [4, 4],
-            ];
-        } else if (type === 'Z') {
-            return [
-                [5, 5, 0],
-                [0, 5, 5],
-                [0, 0, 0],
-            ];
-        } else if (type === 'S') {
-            return [
-                [0, 6, 6],
-                [6, 6, 0],
-                [0, 0, 0],
-            ];
-        } else if (type === 'T') {
-            return [
-                [0, 7, 0],
-                [7, 7, 7],
-                [0, 0, 0],
-            ];
+    // --- DİL SİSTEMİ (LOCALIZATION) ---
+    const translations = {
+        tr: {
+            score: "Skor",
+            rotate: "Çevir",
+            left: "Sol",
+            right: "Sağ",
+            down: "İn",
+            hint: "Klavye: Yön Tuşları"
+        },
+        ku: {
+            score: "Puan",
+            rotate: "Zivir",
+            left: "Çep",
+            right: "Rast",
+            down: "Jêr",
+            hint: "Klavyeyê: Bişkokên Arasteyê"
+        },
+        en: {
+            score: "Score",
+            rotate: "Rotate",
+            left: "Left",
+            right: "Right",
+            down: "Down",
+            hint: "Keyboard: Arrow Keys"
         }
+    };
+
+    function changeLanguage() {
+        const lang = document.getElementById("languageSelector").value;
+        const t = translations[lang];
+
+        document.getElementById("scoreLabel").innerText = t.score;
+        document.getElementById("desktopHint").innerText = t.hint;
+        
+        // Butonların içindeki yazıları değiştirmek istersen (Şu an ok işareti var, gerek yok ama ekliyorum)
+        // document.getElementById("btnRotate").innerText = t.rotate; 
     }
 
-    // Oyun Matrisi Oluştur
+    // --- OYUN MOTORU ---
+    const canvas = document.getElementById('tetris');
+    const context = canvas.getContext('2d');
+    context.scale(20, 20);
+
+    // Parça Tanımları
+    function createPiece(type) {
+        if (type === 'I') return [[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0]];
+        if (type === 'L') return [[0, 2, 0],[0, 2, 0],[0, 2, 2]];
+        if (type === 'J') return [[0, 3, 0],[0, 3, 0],[3, 3, 0]];
+        if (type === 'O') return [[4, 4],[4, 4]];
+        if (type === 'Z') return [[5, 5, 0],[0, 5, 5],[0, 0, 0]];
+        if (type === 'S') return [[0, 6, 6],[6, 6, 0],[0, 0, 0]];
+        if (type === 'T') return [[0, 7, 0],[7, 7, 7],[0, 0, 0]];
+    }
+
+    const arena = createMatrix(12, 20);
+    const player = {
+        pos: {x: 0, y: 0},
+        matrix: null,
+        score: 0,
+    };
+
+    const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
+
     function createMatrix(w, h) {
         const matrix = [];
-        while (h--) {
-            matrix.push(new Array(w).fill(0));
-        }
+        while (h--) matrix.push(new Array(w).fill(0));
         return matrix;
     }
 
-    // Çizim Fonksiyonu
     function draw() {
         context.fillStyle = '#000';
         context.fillRect(0, 0, canvas.width, canvas.height);
@@ -170,10 +262,8 @@
         player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
         player.pos.y = 0;
         player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-        
-        // Oyun Bitti Kontrolü (Game Over)
         if (collide(arena, player)) {
-            arena.forEach(row => row.fill(0)); // Sahayı temizle
+            arena.forEach(row => row.fill(0));
             player.score = 0;
             updateScore();
         }
@@ -218,8 +308,7 @@
         const o = player.pos;
         for (let y = 0; y < m.length; ++y) {
             for (let x = 0; x < m[y].length; ++x) {
-                if (m[y][x] !== 0 &&
-                   (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
                     return true;
                 }
             }
@@ -249,9 +338,7 @@
         const deltaTime = time - lastTime;
         lastTime = time;
         dropCounter += deltaTime;
-        if (dropCounter > dropInterval) {
-            playerDrop();
-        }
+        if (dropCounter > dropInterval) playerDrop();
         draw();
         requestAnimationFrame(update);
     }
@@ -260,38 +347,19 @@
         document.getElementById('score').innerText = player.score;
     }
 
-    // Renk Paleti
-    const colors = [
-        null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF',
-    ];
-
-    const arena = createMatrix(12, 20);
-    const player = {
-        pos: {x: 0, y: 0},
-        matrix: null,
-        score: 0,
-    };
-
-    // Kontroller
+    // Klavye Kontrolleri (Bilgisayar İçin)
     document.addEventListener('keydown', event => {
-        if (event.keyCode === 37) { // Sol
-            playerMove(-1);
-        } else if (event.keyCode === 39) { // Sağ
-            playerMove(1);
-        } else if (event.keyCode === 40) { // Aşağı
-            playerDrop();
-        } else if (event.keyCode === 81) { // Q
-            playerRotate(-1);
-        } else if (event.keyCode === 87 || event.keyCode === 38) { // W veya Yukarı
-            playerRotate(1);
-        }
+        if (event.keyCode === 37) playerMove(-1);
+        else if (event.keyCode === 39) playerMove(1);
+        else if (event.keyCode === 40) playerDrop();
+        else if (event.keyCode === 81) playerRotate(-1);
+        else if (event.keyCode === 87 || event.keyCode === 38) playerRotate(1);
     });
 
-    // Oyunu Başlat
+    // Başlangıç
     playerReset();
     updateScore();
     update();
-
 </script>
 </body>
 </html>
