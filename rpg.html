@@ -70,4 +70,486 @@
         @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
         
         @keyframes mist { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .mist-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(10, 200,
+        .mist-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(10, 200, 185, 0.05), transparent); background-size: 400% 400%; animation: mist 15s ease infinite; z-index: -1; pointer-events: none; }
+
+        .game-wrapper {
+            width: 90%; max-width: 1000px; background: rgba(10, 12, 15, 0.95);
+            border: 2px solid #333; border-top: 4px solid var(--ruined-green);
+            box-shadow: 0 0 50px rgba(10, 200, 185, 0.1); padding: 20px;
+            position: relative; display: flex; flex-direction: column; height: 600px;
+        }
+
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px; }
+        .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
+
+        .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .character-box { width: 250px; text-align: center; position: relative; }
+        .character-img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
+        .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
+        .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
+        
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+
+        .stat-bar { width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative; }
+        .fill { height: 100%; transition: width 0.5s ease-out; }
+        .hp-fill { background-color: var(--hp-red); }
+        .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); }
+        .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
+
+        .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; }
+        .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+        .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; }
+        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
+        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
+        .skill-name { font-weight: bold; font-size: 0.7rem; text-align: center; }
+        .skill-cost { font-size: 0.6rem; color: var(--power-yellow); margin-top: 3px; }
+        .skill-sub { font-size: 0.55rem; color: #aaa; margin-top: 2px; }
+        .cooldown-text { color: #e74c3c; font-size: 0.6rem; display:none; }
+        .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
+
+        .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; overflow-y: auto; color: #ccc; font-family: sans-serif; }
+        .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 50; }
+        .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
+        .level-badge { position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
+        
+        .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
+        .control-btn-ui { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; }
+        .control-btn-ui:hover { background: var(--ruined-green); color: black; }
+        
+        select.control-btn-ui { outline: none; }
+        select.control-btn-ui option { background: #000; color: white; }
+
+        .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn" id="btn-menu">← Menu</a>
+    <div id="flash-effect"></div>
+    
+    <div class="top-bar-controls">
+        <button class="control-btn-ui" onclick="forcePlayMusic()" id="btn-music">🎵 Music: OFF</button>
+        <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+        </select>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="muzik.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="game-wrapper">
+        <div id="start-screen">
+            <h1 style="color: #fff;" id="start-title-1">THE RUINED KING'S</h1>
+            <h1 id="start-title-2">REVENGE</h1>
+            <p style="color: #aaa; margin-top: 10px;" id="start-sub">"It is all... for her."</p>
+            <button class="start-btn" onclick="startGame()" id="start-btn">START STORY</button>
+            <p style="font-size: 12px; color: #666; margin-top: 20px;" id="start-note">(Check file names if music doesn't play)</p>
+        </div>
+
+        <div id="overlay" class="overlay-msg">
+            <h2 id="overlay-title">VICTORY</h2>
+            <p id="overlay-quote">"..."</p>
+            <div id="level-up-text" style="color: yellow; margin-bottom: 15px; display:none;">LEVEL UP!</div>
+            <button class="start-btn" id="next-btn" onclick="nextLevel()">CONTINUE</button>
+        </div>
+
+        <div class="battle-scene">
+            <div class="character-box" id="player-box">
+                <div class="speech-bubble" id="player-bubble">...</div>
+                <div class="level-badge" id="player-lvl">1</div>
+                <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
+                <h2 style="color: var(--ruined-green);">VIEGO</h2>
+                
+                <div class="stat-bar">
+                    <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="player-hp-text">100/100</span>
+                </div>
+                <div class="stat-bar" style="border-color:#b7950b;">
+                    <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
+                    <span class="bar-text" id="player-power-text" style="color:black; font-weight:bold; text-shadow:none;">0/100</span>
+                </div>
+            </div>
+
+            <h1 style="color: #555; font-size: 3rem;" id="vs-text">VS</h1>
+
+            <div class="character-box" id="enemy-box">
+                <div class="speech-bubble" id="enemy-bubble">...</div>
+                <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
+                <img src="" class="character-img enemy-glow" id="enemy-img">
+                <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
+                
+                <div class="stat-bar">
+                    <div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="enemy-hp-text">100/100</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="skills">
+                <button class="skill-btn" onclick="useSkill('basic')">
+                    <span class="skill-name" id="skill-basic-name">Blade of the King</span>
+                    <span class="skill-cost" style="color:#2ecc71;" id="skill-basic-cost">+Power</span>
+                </button>
+                
+                <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
+                    <span class="skill-name" id="skill-q-name">Blade of the Ruined King (Q)</span>
+                    <span class="skill-cost" id="skill-q-cost">15 Power</span>
+                    <span class="skill-sub" id="skill-q-desc">7% Enemy HP Steal</span>
+                </button>
+
+                <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
+                    <span class="skill-name" id="skill-w-name">Spectral Maw (W)</span>
+                    <span class="skill-cost" id="skill-w-cost">25 Power</span>
+                    <span class="cooldown-text" id="cd-w">Cooldown: 2</span>
+                </button>
+
+                <button class="skill-btn ult-btn" id="btn-ult" onclick="useSkill('r')">
+                    <span class="skill-name" id="skill-r-name">HEARTBREAKER (R)</span>
+                    <span class="skill-cost" id="skill-r-cost">SINGLE USE</span>
+                </button>
+            </div>
+
+            <div class="log-box" id="combat-log">
+                Battle starting... Isolde awaits.
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- ÇEVİRİ VERİLERİ (EN/TR) ---
+    const translations = {
+        en: {
+            title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY",
+            musicOn: "🎵 Music: ON", musicOff: "🎵 Music: OFF", menu: "← Menu", victory: "VICTORY", levelUp: "LEVEL UP!",
+            continue: "CONTINUE", defeat: "DEFEAT. Try again...", skillBasic: "Blade of the King", skillBasicCost: "+Power",
+            skillQ: "Blade of the Ruined King (Q)", skillQCost: "15 Power", skillQDesc: "7% Enemy HP Steal",
+            skillW: "Spectral Maw (W)", skillWCost: "25 Power", skillR: "HEARTBREAKER (R)", skillRCost: "SINGLE USE",
+            logStart: "Battle starting... Isolde awaits.", logEnemy: "An enemy appeared:", logNoPower: "Insufficient Power!",
+            logCooldown: "Skill on cooldown!", logUltUsed: "Ultimate already used!", logViegoBasic: "Viego strikes!",
+            logViegoQ: "Viego used Q!", logViegoW: "Viego released the Mist!", logViegoR: "VIEGO BROKE THEIR HEART!",
+            logCrit: " (CRIT!)", logDamage: "damage.", logEnemyAtk: "attacked! You took", logDefeat: "Viego fell...",
+            logEnd: "CONGRATULATIONS! ALL ENEMIES DEFEATED.",
+            enemies: [
+                { name: "LeBlanc", win: "Viego: \"Your lies end here, Deceiver.\"", quotes: ["Smoke and mirrors.", "Are you truly a king?", "How naive.", "You will vanish."] },
+                { name: "Vladimir", win: "Viego: \"Even that blood belongs to me, uncle.\"", quotes: ["The smell of blood...", "Delightful taste.", "Nephew, stop this.", "Making art."] },
+                { name: "Sahn-Uzal", win: "Viego: \"The realm of death has only one king, ME!\"", quotes: ["Iron stands eternal.", "You are weak.", "Your soul is mine.", "Crumble."] }
+            ],
+            playerQuotes: ["Isolde...", "Out of my way!", "Love ruins all.", "I will take your soul.", "The mist spreads."]
+        },
+        tr: {
+            title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA",
+            musicOn: "🎵 Müzik: AÇIK", musicOff: "🎵 Müzik: KAPALI", menu: "← Menü", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!",
+            continue: "DEVAM ET", defeat: "KAYBETTİN. Tekrar dene...", skillBasic: "Kralın Kılıcı", skillBasicCost: "+Güç",
+            skillQ: "M. Kralın Kılıcı (Q)", skillQCost: "15 Güç", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)",
+            skillWCost: "25 Güç", skillR: "KALP KIRAN (R)", skillRCost: "TEK KULLANIM", logStart: "Savaş başlıyor... Isolde seni bekliyor.",
+            logEnemy: "Bir düşman belirdi:", logNoPower: "Yetersiz Güç!", logCooldown: "Yetenek beklemede!", logUltUsed: "Ulti zaten kullanıldı!",
+            logViegoBasic: "Viego kılıcını savurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego Sisi serbest bıraktı!",
+            logViegoR: "VIEGO KALBİNİ KIRDI!", logCrit: " (KRİTİK!)", logDamage: "hasar.", logEnemyAtk: "saldırdı! Hasar aldın:",
+            logDefeat: "Viego düştü...", logEnd: "TEBRİKLER! TÜM DÜŞMANLARI YENDİN.",
+            enemies: [
+                { name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", quotes: ["Göz yanılması.", "Gerçekten kral mısın?", "Çok safsın.", "Kaybolacaksın."] },
+                { name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", quotes: ["Kanın kokusu...", "Harika bir tat.", "Yeğenim, dur artık.", "Sanat yapıyorum."] },
+                { name: "Sahn-Uzal", win: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\"", quotes: ["Demir ebedidir.", "Zayıfsın.", "Ruhun benim.", "Yıkıl."] }
+            ],
+            playerQuotes: ["Isolde...", "Yolumdan çekil!", "Aşk her şeyi mahveder.", "Ruhunu alacağım.", "Karanlık yayılıyor."]
+        }
+    };
+
+    let currentLang = 'en'; 
+    let t = translations.en;
+
+    // --- SES YÖNETİCİSİ (WAV DOSYALARI) ---
+    // Resimdeki dosya isimleri birebir kullanıldı.
+    const sounds = {
+        basic1: new Audio('BasicAA_1.wav'),
+        basic2: new Audio('BasicAA_2.wav'),
+        w: new Audio('W_Skill.wav'),
+        // Diğerleri için placeholder (yoksa sessiz kalır, hata vermez)
+        q: new Audio(), 
+        r: new Audio() 
+    };
+
+    function playSkillSound(type) {
+        try {
+            if (type === 'basic') {
+                // Rastgele 1 veya 2 çal
+                if(Math.random() > 0.5) sounds.basic1.play();
+                else sounds.basic2.play();
+            }
+            if (type === 'w') sounds.w.play();
+            // Q ve R dosyası olmadığı için boş bırakıldı
+        } catch (e) { console.log("Ses hatası (Dosya eksik olabilir):", e); }
+    }
+
+    // --- OYUN VERİLERİ ---
+    const player = {
+        name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0,
+        ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0
+    };
+
+    const enemiesBase = [
+        { name: "LeBlanc", level: 3, maxHp: 180, hp: 180, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
+        { name: "Vladimir", level: 6, maxHp: 250, hp: 250, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg" },
+        { name: "Sahn-Uzal", level: 10, maxHp: 450, hp: 450, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
+    ];
+
+    let currentEnemyIndex = 0;
+    let turn = "player"; 
+    const bgMusic = document.getElementById('bgMusic');
+
+    // --- DİL DEĞİŞTİRME ---
+    function changeLanguage(lang) {
+        currentLang = lang;
+        t = translations[lang];
+        localStorage.setItem('rpgLang', lang);
+
+        document.getElementById('start-title-1').innerText = t.title1;
+        document.getElementById('start-title-2').innerText = t.title2;
+        document.getElementById('start-sub').innerText = t.sub;
+        document.getElementById('start-btn').innerText = t.startBtn;
+        document.getElementById('btn-menu').innerText = t.menu;
+        document.getElementById('overlay-title').innerText = t.victory;
+        document.getElementById('level-up-text').innerText = t.levelUp;
+        document.getElementById('next-btn').innerText = t.continue;
+        
+        document.getElementById('skill-basic-name').innerText = t.skillBasic;
+        document.getElementById('skill-basic-cost').innerText = t.skillBasicCost;
+        document.getElementById('skill-q-name').innerText = t.skillQ;
+        document.getElementById('skill-q-cost').innerText = t.skillQCost;
+        document.getElementById('skill-q-desc').innerText = t.skillQDesc;
+        document.getElementById('skill-w-name').innerText = t.skillW;
+        document.getElementById('skill-w-cost').innerText = t.skillWCost;
+        document.getElementById('skill-r-name').innerText = t.skillR;
+        document.getElementById('skill-r-cost').innerText = t.skillRCost;
+
+        updateMusicBtnText();
+        if (document.getElementById('enemy-name').innerText !== "ENEMY" && document.getElementById('enemy-name').innerText !== "DÜŞMAN") {
+             document.getElementById('enemy-name').innerText = t.enemies[currentEnemyIndex].name.toUpperCase();
+        }
+    }
+
+    function updateMusicBtnText() {
+        const btn = document.getElementById('btn-music');
+        btn.innerText = !bgMusic.paused ? t.musicOn : t.musicOff;
+    }
+
+    // --- MÜZİK ---
+    function forcePlayMusic() {
+        bgMusic.volume = 0.1;
+        bgMusic.play().then(() => updateMusicBtnText()).catch(error => console.log(error));
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        forcePlayMusic();
+        loadLevel(0);
+        log(t.logStart);
+    }
+
+    function loadLevel(index) {
+        currentEnemyIndex = index;
+        const enemyData = enemiesBase[index];
+        const enemyTrans = t.enemies[index];
+        
+        document.getElementById('enemy-name').innerText = enemyTrans.name.toUpperCase();
+        document.getElementById('enemy-img').src = enemyData.img;
+        document.getElementById('enemy-lvl').innerText = enemyData.level;
+        
+        enemyData.hp = enemyData.maxHp; 
+
+        player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
+        updateUI();
+        log(`${t.logEnemy} ${enemyTrans.name}!`);
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    // --- DİYALOG ---
+    function triggerBanter(isPlayerTurn) {
+        if (Math.random() > 0.3) return;
+        
+        if (isPlayerTurn) {
+            const quotes = t.playerQuotes;
+            showSpeech('player', quotes[Math.floor(Math.random() * quotes.length)]);
+        } else {
+            const quotes = t.enemies[currentEnemyIndex].quotes;
+            showSpeech('enemy', quotes[Math.floor(Math.random() * quotes.length)]);
+        }
+    }
+
+    function showSpeech(who, text) {
+        const bubble = document.getElementById(who + '-bubble');
+        bubble.innerText = text;
+        bubble.classList.add('speech-visible');
+    }
+
+    function clearBubbles() {
+        document.getElementById('player-bubble').classList.remove('speech-visible');
+        document.getElementById('enemy-bubble').classList.remove('speech-visible');
+    }
+
+    // --- YETENEKLER ---
+    function useSkill(type) {
+        if (turn !== "player") return;
+        clearBubbles(); triggerBanter(true);
+
+        const enemyData = enemiesBase[currentEnemyIndex];
+        let damage = 0; let logMsg = ""; let powerGain = 0; let isCrit = false;
+
+        if (player.nextHitCrit) { isCrit = true; player.nextHitCrit = false; }
+        else { if (Math.random() < player.critChance) isCrit = true; }
+
+        if (type === 'basic') {
+            playSkillSound('basic'); // Random 1 or 2
+            damage = 15 + (player.level * 5);
+            powerGain = isCrit ? 15 : Math.floor(Math.random() * 11) + 5;
+            logMsg = t.logViegoBasic;
+        } 
+        else if (type === 'q') {
+            if (player.power < 15) { log(t.logNoPower); return; }
+            playSkillSound('q'); // Placeholder
+            player.power -= 15;
+            damage = 30 + (player.level * 8);
+            logMsg = t.logViegoQ;
+            let heal = Math.floor(enemyData.hp * 0.07);
+            if(heal < 5) heal = 5;
+            player.hp += heal; if (player.hp > player.maxHp) player.hp = player.maxHp;
+            showFloatingText(document.getElementById('player-box'), `+${heal}`, 'heal');
+        }
+        else if (type === 'w') {
+            if (player.wCooldown > 0) { log(t.logCooldown); return; }
+            if (player.power < 25) { log(t.logNoPower); return; }
+            playSkillSound('w'); // W_Skill.wav
+            player.power -= 25;
+            damage = 40 + (player.level * 6);
+            player.nextHitCrit = true;
+            player.wCooldown = 3;
+            logMsg = t.logViegoW;
+        }
+        else if (type === 'r') {
+            if (player.ultUsed) { log(t.logUltUsed); return; }
+            playSkillSound('r'); // Placeholder
+            player.ultUsed = true;
+            damage = 100 + (player.level * 15);
+            triggerEffect('ult');
+            logMsg = t.logViegoR;
+            isCrit = true;
+        }
+
+        if (isCrit && type !== 'w') { damage *= 2; logMsg += t.logCrit; }
+
+        player.power += powerGain; if (player.power > player.maxPower) player.power = player.maxPower;
+        enemyData.hp -= damage; if (enemyData.hp < 0) enemyData.hp = 0;
+
+        shakeElement(document.getElementById('enemy-img'));
+        showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal');
+        log(`${logMsg} ${damage} ${t.logDamage}`);
+        updateUI();
+
+        if (enemyData.hp <= 0) { winBattle(); return; }
+        turn = "enemy"; setTimeout(enemyTurn, 1500);
+    }
+
+    function enemyTurn() {
+        clearBubbles(); triggerBanter(false);
+        const enemyData = enemiesBase[currentEnemyIndex];
+        const enemyTrans = t.enemies[currentEnemyIndex];
+
+        let dmg = enemyData.damage + Math.floor(Math.random() * 10);
+        player.hp -= dmg; if (player.hp < 0) player.hp = 0;
+        if (player.wCooldown > 0) player.wCooldown--;
+
+        triggerEffect('damage');
+        shakeElement(document.getElementById('player-img'));
+        showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage');
+        updateUI();
+        log(`${enemyTrans.name} ${t.logEnemyAtk} ${dmg}.`);
+
+        if (player.hp <= 0) {
+            log(t.logDefeat);
+            setTimeout(() => { alert(t.defeat); location.reload(); }, 1000);
+            return;
+        }
+        turn = "player";
+    }
+
+    function winBattle() {
+        const enemyTrans = t.enemies[currentEnemyIndex];
+        document.getElementById('overlay-title').innerText = t.victory;
+        document.getElementById('overlay-quote').innerText = enemyTrans.win;
+        player.level++; player.maxHp += 50; player.hp = player.maxHp; 
+        document.getElementById('level-up-text').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function nextLevel() {
+        currentEnemyIndex++;
+        if (currentEnemyIndex >= enemiesBase.length) {
+            alert(t.logEnd); location.reload();
+        } else {
+            loadLevel(currentEnemyIndex);
+        }
+    }
+
+    function updateUI() {
+        const enemyData = enemiesBase[currentEnemyIndex];
+        const pHpPerc = (player.hp / player.maxHp) * 100;
+        const pPowPerc = (player.power / player.maxPower) * 100;
+        document.getElementById('player-hp-bar').style.width = pHpPerc + '%';
+        document.getElementById('player-hp-text').innerText = `${Math.floor(player.hp)}/${player.maxHp}`;
+        document.getElementById('player-power-bar').style.width = pPowPerc + '%';
+        document.getElementById('player-power-text').innerText = `${player.power}/${player.maxPower}`;
+        document.getElementById('player-lvl').innerText = player.level;
+
+        const eHpPerc = (enemyData.hp / enemyData.maxHp) * 100;
+        document.getElementById('enemy-hp-bar').style.width = eHpPerc + '%';
+        document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemyData.hp)}/${enemyData.maxHp}`;
+        
+        document.getElementById('btn-q').disabled = player.power < 15;
+        document.getElementById('btn-w').disabled = (player.power < 25 || player.wCooldown > 0);
+        document.getElementById('btn-ult').disabled = player.ultUsed;
+
+        if(player.wCooldown > 0) {
+            document.getElementById('cd-w').style.display = 'block';
+            document.getElementById('cd-w').innerText = `${t.skillW} Cooldown: ${player.wCooldown}`;
+        } else {
+            document.getElementById('cd-w').style.display = 'none';
+        }
+    }
+
+    function log(msg) {
+        const box = document.getElementById('combat-log');
+        box.innerHTML = `> ${msg}<br>` + box.innerHTML;
+    }
+    function shakeElement(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+    function triggerEffect(type) {
+        const flash = document.getElementById('flash-effect'); flash.className = ''; 
+        if (type === 'damage') flash.classList.add('damage-flash');
+        if (type === 'ult') flash.classList.add('ult-flash');
+        setTimeout(() => flash.className = '', 500);
+    }
+    function showFloatingText(target, val, type) {
+        const text = document.createElement('div');
+        text.className = 'float-text ' + (type === 'crit' ? 'text-crit' : (type === 'heal' ? 'text-heal' : (type === 'damage' ? 'text-enemy-dmg' : 'text-damage')));
+        text.innerText = type === 'crit' ? val + "!" : val;
+        const rect = target.getBoundingClientRect();
+        text.style.left = (rect.left + rect.width / 2) + 'px';
+        text.style.top = rect.top + 'px';
+        document.body.appendChild(text);
+        setTimeout(() => text.remove(), 1200);
+    }
+
+    window.onload = function() {
+        const savedLang = localStorage.getItem('rpgLang') || 'en';
+        document.getElementById('lang-select').value = savedLang;
+        changeLanguage(savedLang);
+    };
+</script>
+
+</body>
+</html>
