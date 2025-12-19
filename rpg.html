@@ -14,6 +14,7 @@
             --hp-red: #c0392b;
             --crit-color: #ffcc00;
             --heal-color: #2ecc71;
+            --morde-realm: #2c3e50;
         }
 
         body {
@@ -32,6 +33,13 @@
             margin: 0;
             overflow: hidden;
             user-select: none;
+            transition: filter 1s ease, box-shadow 1s ease;
+        }
+
+        /* --- MORDEKAISER DEATH REALM EFEKTİ --- */
+        body.death-realm-active {
+            filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1);
+            box-shadow: inset 0 0 150px #0ac8b9;
         }
 
         /* --- BUTONLAR --- */
@@ -58,9 +66,12 @@
         .float-text { position: absolute; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; }
         @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
         .text-damage { color: #fff; } .text-crit { color: var(--crit-color); font-size: 36px; text-shadow: 0 0 15px red; } .text-heal { color: var(--heal-color); font-size: 28px; } .text-enemy-dmg { color: #e74c3c; }
+        .text-special { color: #0ac8b9; font-size: 28px; text-shadow: 0 0 10px white; font-weight: bold; }
 
         .damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear; }
         .ult-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear; }
+        .stun-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.5s linear; }
+        .void-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(160, 32, 240, 0.4); pointer-events: none; z-index: 50; animation: flash 1s linear; }
         @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
         
         .game-wrapper { width: 90%; max-width: 1000px; background: rgba(10, 12, 15, 0.95); border: 2px solid #333; border-top: 4px solid var(--ruined-green); box-shadow: 0 0 50px rgba(10, 200, 185, 0.1); padding: 20px; position: relative; display: flex; flex-direction: column; height: 600px; }
@@ -93,7 +104,8 @@
         .fill { height: 100%; transition: width 0.5s ease-out; }
         .hp-fill { background-color: var(--hp-red); }
         .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); }
-        .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
+        .shield-fill { background-color: #95a5a6; position: absolute; top: 0; left: 0; height: 100%; width: 0%; opacity: 0.7; }
+        .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; z-index: 10; }
 
         .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; }
         .hidden-ui { opacity: 0; pointer-events: none; }
@@ -111,6 +123,10 @@
         .level-badge { position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
         .control-btn-ui { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; }
+        .control-btn-ui:hover { background: var(--ruined-green); color: black; }
+        .music-error-btn { background: #c0392b; animation: pulse 1s infinite; display: none; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        select.control-btn-ui { outline: none; } select.control-btn-ui option { background: #000; color: white; }
         .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
     </style>
 </head>
@@ -120,7 +136,8 @@
     <div id="flash-effect"></div>
     
     <div class="top-bar-controls">
-        <button class="control-btn-ui" onclick="forcePlayMusic()" id="btn-music">🎵 Music: OFF</button>
+        <button class="control-btn-ui music-error-btn" id="btn-force-music" onclick="forcePlayMusic()">⚠️ MÜZİĞİ BAŞLAT</button>
+        <button class="control-btn-ui" onclick="toggleMusic()" id="btn-music">🎵 Music: OFF</button>
         <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
             <option value="en">English</option>
             <option value="tr">Türkçe</option>
@@ -128,7 +145,7 @@
     </div>
 
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://ia800504.us.archive.org/11/items/Kevin_MacLeod_-_Royalty_Free_Music_Collection/Kevin_MacLeod_-_Volatile_Reaction.mp3" type="audio/mpeg">
+        <source src="" type="audio/mpeg">
     </audio>
 
     <div class="game-wrapper">
@@ -175,7 +192,11 @@
                 <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
-                <div class="stat-bar hidden-ui" id="ui-hp-e"><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
+                <div class="stat-bar hidden-ui" id="ui-hp-e">
+                    <div class="shield-fill" id="enemy-shield-bar" style="width: 0%;"></div> <div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="enemy-hp-text">100/100</span>
+                </div>
+                <div id="boss-status" style="color: #ccc; font-size: 12px; margin-top: 5px;"></div>
             </div>
         </div>
 
@@ -205,102 +226,24 @@
     </div>
 
 <script>
-    // --- SES YÖNETİMİ (%50 SFX, %40 Music) ---
+    // --- SES ---
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
-    
-    // Ses Seviyelerini Ayarla (Yüzde 50)
-    sounds.basic1.volume = 0.5;
-    sounds.basic2.volume = 0.5;
-    sounds.w.volume = 0.5;
-
-    function playSkillSound(type) { 
-        try { 
-            if(type==='basic'){if(Math.random()>0.5)sounds.basic1.play();else sounds.basic2.play();} 
-            if(type==='w')sounds.w.play(); 
-        } catch(e){} 
-    }
+    sounds.basic1.volume = 0.5; sounds.basic2.volume = 0.5; sounds.w.volume = 0.5;
+    function playSkillSound(type) { try { if(type==='basic'){if(Math.random()>0.5)sounds.basic1.play();else sounds.basic2.play();} if(type==='w')sounds.w.play(); } catch(e){} }
 
     const player = { name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0 };
     
-    const translations = {
-        en: {
-            title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY",
-            musicOn: "🎵 Music: ON", musicOff: "🎵 Music: OFF", menu: "← Menu", victory: "VICTORY", levelUp: "LEVEL UP!",
-            continue: "CONTINUE", defeat: "DEFEAT. Try again...", skillBasic: "Blade of the King", skillBasicCost: "+Power",
-            skillQ: "Blade of the Ruined King (Q)", skillQCost: "15 Power", skillQDesc: "7% Enemy HP Steal",
-            skillW: "Spectral Maw (W)", skillWCost: "25 Power", skillR: "HEARTBREAKER (R)", skillRCost: "SINGLE USE",
-            logStart: "Battle starting... Isolde awaits.", logEnemy: "An enemy appeared:", logNoPower: "Insufficient Power!",
-            logCooldown: "Skill on cooldown!", logUltUsed: "Ultimate already used!", logViegoBasic: "Viego strikes!",
-            logViegoQ: "Viego used Q!", logViegoW: "Viego released the Mist!", logViegoR: "VIEGO BROKE THEIR HEART!",
-            logCrit: " (CRIT!)", logDamage: "damage.", logEnemyAtk: "attacked! You took", logDefeat: "Viego fell...",
-            logEnd: "CONGRATULATIONS! THE RUINATION IS COMPLETE.",
-            finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN (End the Pain)", choiceSurrender: "SURRENDER TO LOVE (Drop Sword)",
-            isolde: {
-                intro: [ "Viego: \"Isolde... My love... I have burned the world for you.\"", "Isolde: \"Viego... look at what you have become. This is not love.\"", "Viego: \"It IS love! I did it all to see your face again!\"", "Isolde: \"You are a monster, my King. Let me go.\"", "Viego: \"NEVER! I will never lose you again!\"" ],
-                endingAttack: [ "Viego: \"If I cannot have you... then no one can.\"", "Isolde: \"Viego... finally... peace...\"", "System: You struck down your only love. The mist fades, leaving an empty throne." ],
-                endingSurrender: [ "Viego: \"I... I cannot hurt you. I am yours, forever.\"", "Isolde: \"Oh, Viego. My poor, foolish King.\"", "*Viego drops his blade. Isolde picks it up with tears.*", "Isolde: \"Sleep now, my love. The nightmare is over.\"", "*Isolde plunges the blade into Viego's heart. They fade together.*" ]
-            },
-            enemies: [
-                { id: "gangplank", name: "Gangplank", win: "Viego: \"A pirate cannot stop a King.\"", intro: ["Gangplank: \"Get off my ship, ghost! This city is mine!\"", "Viego: \"Everything the mist touches belongs to me.\"", "Gangplank: \"I'll carve your heart out!\"", "Viego: \"I have no heart left to break.\""], quotes: ["Barrel!", "Burn!"] },
-                { id: "yorick", name: "Yorick", win: "Viego: \"Return to your grave, Monk.\"", intro: ["Yorick: \"The Mist must be purged. You must be stopped.\"", "Viego: \"The Mist IS me. You fight the inevitable.\"", "Yorick: \"I fight for the living. You fight for a corpse.\""], quotes: ["Join the grave."] },
-                { id: "akshan", name: "Akshan", win: "Viego: \"No absolver can save you.\"", intro: ["Akshan: \"Pretty face, ugly soul. Let's fix that.\"", "Viego: \"You are an annoying insect.\"", "Akshan: \"And you're a king with a temper tantrum.\""], quotes: ["Boom!"] },
-                { id: "gwen", name: "Gwen", win: "Viego: \"You are nothing but a doll.\"", intro: ["Gwen: \"I remember her smile... She wouldn't want this!\"", "Viego: \"Silence! You are a mockery of her memory!\"", "Gwen: \"I will cut the mist away from you!\""], quotes: ["Snip snip!"] },
-                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Your love is weak compared to mine.\"", intro: ["Lucian: \"It ends here, Viego! For everyone you've hurt!\"", "Viego: \"You saved your wife, Lucian. Why can't I have mine?!\"", "Senna: \"Because she is gone! You are chasing a ghost!\""], quotes: ["For the Light!", "Together!"] },
-                { id: "maokai", name: "Maokai", win: "Viego: \"Burn with the Isles.\"", intro: ["Maokai: \"You poisoned the waters of life!\"", "Viego: \"I made them eternal. You should thank me.\"", "Maokai: \"I will crush you into the dirt!\""], quotes: ["Nature wrath."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Go back to your spider god.\"", intro: ["Elise: \"My god is hungry for a King's soul.\"", "Viego: \"I am not food. I am death incarnate.\"", "Elise: \"We shall see about that.\""], quotes: ["Closer..."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Your blood magic is useless here.\"", intro: ["Vladimir: \"Ah, Viego. Still chasing fairytales?\"", "Viego: \"Watch your tongue, uncle. Or I will rip it out.\"", "Vladimir: \"So dramatic. Let's paint the floor red.\""], quotes: ["Delicious."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"The war is over, rider.\"", intro: ["Hecarim: \"War! Eternal war! Lead us, my King!\"", "Viego: \"You are a blunt instrument, Hecarim. Obey me.\"", "Hecarim: \"I only obey the charge!\""], quotes: ["Trample them!"] },
-                { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god has no power here.\"", intro: ["Illaoi: \"You are stagnant. You are stuck in the past.\"", "Viego: \"My love is timeless!\"", "Illaoi: \"Motion is life. You are dead inside.\""], quotes: ["Motion is life."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer! You let her die!\"", intro: ["Kalista: \"Viego... please. End this madness.\"", "Viego: \"You swore to protect me! You failed her!\"", "Kalista: \"I swore to the truth. You are lost.\""], quotes: ["Vengeance!"] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"I want Isolde! Give her to me!\"", "LeBlanc: \"Catch me if you can, ruined boy.\""], quotes: ["Smoke and mirrors."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern, wretch.\"", intro: ["Thresh: \"Oh, the exquisite agony you spread.\"", "Viego: \"Do not mock me, Thresh. You are but a servant.\"", "Thresh: \"Servants eventually become masters, don't they?\""], quotes: ["Scream."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Even the Void bows to my love.\"", intro: ["Bel'Veth: \"I will consume your world, King.\"", "Viego: \"My world is Isolde. You cannot touch her.\"", "Bel'Veth: \"I will remake everything. Including your grief.\""], quotes: ["The end."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
-            ],
-            playerQuotes: ["Isolde...", "Out of my way!", "Love ruins all.", "I will take your soul.", "The mist spreads."]
-        },
-        tr: {
-            title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA",
-            musicOn: "🎵 Müzik: AÇIK", musicOff: "🎵 Müzik: KAPALI", menu: "← Menü", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!",
-            continue: "DEVAM ET", defeat: "KAYBETTİN. Tekrar dene...", skillBasic: "Kralın Kılıcı", skillBasicCost: "+Güç",
-            skillQ: "M. Kralın Kılıcı (Q)", skillQCost: "15 Güç", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)",
-            skillWCost: "25 Güç", skillR: "KALP KIRAN (R)", skillRCost: "TEK KULLANIM", logStart: "Savaş başlıyor... Isolde seni bekliyor.",
-            logEnemy: "Bir düşman belirdi:", logNoPower: "Yetersiz Güç!", logCooldown: "Yetenek beklemede!", logUltUsed: "Ulti zaten kullanıldı!",
-            logViegoBasic: "Viego kılıcını savurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego Sisi serbest bıraktı!",
-            logViegoR: "VIEGO KALBİNİ KIRDI!", logCrit: " (KRİTİK!)", logDamage: "hasar.", logEnemyAtk: "saldırdı! Hasar aldın:",
-            logDefeat: "Viego düştü...", logEnd: "TEBRİKLER! TÜM DÜŞMANLARI YENDİN.",
-            finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR (Acıya Son Ver)", choiceSurrender: "AŞKINA TESLİM OL (Kılıcı Bırak)",
-            isolde: {
-                intro: [ "Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\"" ],
-                endingAttack: [ "Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı." ],
-                endingSurrender: [ "Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*" ]
-            },
-            enemies: [
-                { id: "gangplank", name: "Gangplank", win: "Viego: \"Burası benim şehrim.\"", intro: ["Gangplank: \"Gemimden defol hayalet! Bu şehir benim!\"", "Viego: \"Sisin dokunduğu her şey bana aittir.\"", "Gangplank: \"Kalbini söküp alacağım!\"", "Viego: \"Kırılacak bir kalbim kalmadı.\""], quotes: ["Fıçı!"] },
-                { id: "yorick", name: "Yorick", win: "Viego: \"Mezarını kaz.\"", intro: ["Yorick: \"Sis temizlenmeli. Durdurulmalısın.\"", "Viego: \"Sis BENİM. Kaçınılmaz olandan kaçamazsın.\"", "Yorick: \"Ben yaşayanlar için savaşıyorum. Sen bir ceset için.\""], quotes: ["Mezara gir."] },
-                { id: "akshan", name: "Akshan", win: "Viego: \"Diriliş yok.\"", intro: ["Akshan: \"Güzel yüz, çirkin ruh. Hadi düzeltelim.\"", "Viego: \"Sen sadece can sıkıcı bir böceksin.\"", "Akshan: \"Sen de mızmız bir kralsın.\""], quotes: ["Bum!"] },
-                { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"O'nun gülüşünü hatırlıyorum... Bunu istemezdi!\"", "Viego: \"Kes sesini! Sen sadece onun gölgesisin!\"", "Gwen: \"Seni durduracağım ve herkesi kurtaracağım!\""], quotes: ["Kesip biçerim!"] },
-                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Aşkınız zayıf.\"", intro: ["Lucian: \"Burada bitiyor Viego! İncittiğin herkes için!\"", "Viego: \"Sen karını kurtardın Lucian. Ben neden kurtaramayayım?!\"", "Senna: \"Çünkü o gitti Viego! Bir hayali kovalıyorsun!\""], quotes: ["Işık adına!", "Birlikte!"] },
-                { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Yaşam sularını zehirledin!\"", "Viego: \"Onları sonsuz kıldım. Bana teşekkür etmelisin.\"", "Maokai: \"Seni toprağa gömeceğim!\""], quotes: ["Doğa affetmez."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım aç.\"", "Viego: \"Ben yemek değilim.\""], quotes: ["Yaklaş..."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"En sevdiğim yeğenim.\"", "Viego: \"Büyün onu getirebilir mi?\"", "Vladimir: \"Hayır.\""], quotes: ["Kanın kokusu..."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş! Bize liderlik et Kralım!\"", "Viego: \"Sen sadece kör bir silahsın Hecarim. İtaat et.\"", "Hecarim: \"Ben sadece katliama itaat ederim!\""], quotes: ["Ezip geçin!"] },
-                { id: "illaoi", name: "Illaoi", win: "Viego: \"Tanrın sessiz kaldı.\"", intro: ["Illaoi: \"Sen durgunsun. Geçmişe saplanmışsın.\"", "Viego: \"Aşkım zamansızdır!\"", "Illaoi: \"Hareket hayattır. Sen içten ölüsün.\""], quotes: ["Hareket hayattır."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Hain.\"", intro: ["Kalista: \"Viego... dur artık.\"", "Viego: \"Yemin etmiştin!\""], quotes: ["İntikam!"] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Bu bitmeli Kralım.\"", "Viego: \"Onu almadan asla.\""], quotes: ["Düşemem."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", intro: ["Viego: \"O nerede?! Bir şeyler bildiğini biliyorum!\"", "LeBlanc: \"Çok şey biliyorum. Ama gerçeği kaldırabilir misin?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Ne harika bir acı.\"", "Viego: \"Sen sadece hizmetkarsın.\""], quotes: ["Çığlık at."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
-            ],
-            playerQuotes: ["Isolde...", "Yolumdan çekil!", "Aşk her şeyi mahveder.", "Ruhunu alacağım.", "Karanlık yayılıyor."]
-        }
+    // Boss Mekanikleri İçin Durum
+    let bossState = {
+        isPlayerStunned: false, 
+        threshStacks: 0,        
+        belvethForm: 1,         
+        mordeRealmTriggered: false, // TEK SEFERLİK TETİK İÇİN
+        mordeRealmActive: false,    // DEVAM EDEN ETKİLER İÇİN (ZIRH, HASAR VS)
+        turnCount: 0            
     };
 
-    let currentLang = 'en'; 
-    let t = translations.en;
-
+    const musicTracks = { tier1: "tier1.mp3", tier2: "tier2.mp3", tier3: "tier3.mp3", morde: "morde.mp3", isolde: "isolde.mp3" };
     const enemiesBase = [
         { id: "gangplank", level: 2, maxHp: 200, hp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 4, maxHp: 250, hp: 250, damage: 18, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
@@ -320,6 +263,99 @@
         { id: "mordekaiser", level: 35, maxHp: 2000, hp: 2000, damage: 90, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
 
+    // --- ÇEVİRİ ---
+    const translations = {
+        en: {
+            title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY",
+            musicOn: "🎵 Music: ON", musicOff: "🎵 Music: OFF", menu: "← Menu", victory: "VICTORY", levelUp: "LEVEL UP!",
+            continue: "CONTINUE", defeat: "DEFEAT. Try again...", skillBasic: "Blade of the King", skillBasicCost: "+Power",
+            skillQ: "Blade of the Ruined King (Q)", skillQCost: "15 Power", skillQDesc: "7% Enemy HP Steal",
+            skillW: "Spectral Maw (W)", skillWCost: "25 Power", skillR: "HEARTBREAKER (R)", skillRCost: "SINGLE USE",
+            logStart: "Battle starting... Isolde awaits.", logEnemy: "An enemy appeared:", logNoPower: "Insufficient Power!",
+            logCooldown: "Skill on cooldown!", logUltUsed: "Ultimate already used!", logViegoBasic: "Viego strikes!",
+            logViegoQ: "Viego used Q!", logViegoW: "Viego released the Mist!", logViegoR: "VIEGO BROKE THEIR HEART!",
+            logCrit: " (CRIT!)", logDamage: "damage.", logEnemyAtk: "attacked! You took", logDefeat: "Viego fell...",
+            logEnd: "CONGRATULATIONS! THE RUINATION IS COMPLETE.",
+            finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN (End the Pain)", choiceSurrender: "SURRENDER TO LOVE (Drop Sword)",
+            bossLogs: {
+                stunned: "YOU ARE STUNNED! CANNOT ACT.",
+                threshStack: "Thresh collected a soul! Armor UP.",
+                leblancMimic: "LeBlanc MIMICS her spell! (Double Damage)",
+                belvethTransform: "BEL'VETH REVEALS HER TRUE FORM!",
+                mordeRealm: "MORDEKAISER TOOK YOU TO THE DEATH REALM!"
+            },
+            isolde: {
+                intro: [ "Viego: \"Isolde... My love...\"", "Isolde: \"Viego... stop this.\"", "Viego: \"It IS love!\"", "Isolde: \"You are a monster.\"", "Viego: \"NEVER!\"" ],
+                endingAttack: [ "Viego: \"If I cannot have you... then no one can.\"", "Isolde: \"Peace...\"", "System: You ended it." ],
+                endingSurrender: [ "Viego: \"I am yours.\"", "Isolde: \"Sleep now.\"", "*Fade to mist*" ]
+            },
+            enemies: [
+                { id: "gangplank", name: "Gangplank", win: "Viego: \"Mine.\"", intro: ["GP: \"Get off!\"", "Viego: \"No.\""], quotes: ["Barrel!"] },
+                { id: "yorick", name: "Yorick", win: "Viego: \"Die.\"", intro: ["Yorick: \"Mist must go.\"", "Viego: \"I am Mist.\""], quotes: ["Grave."] },
+                { id: "akshan", name: "Akshan", win: "Viego: \"No.\"", intro: ["Akshan: \"Ugly heart.\"", "Viego: \"Annoying.\""], quotes: ["Boom!"] },
+                { id: "gwen", name: "Gwen", win: "Viego: \"Doll.\"", intro: ["Gwen: \"I won't let you!\"", "Viego: \"Obey!\""], quotes: ["Snip!"] },
+                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Weak.\"", intro: ["Lucian: \"Ends here!\"", "Senna: \"Stop!\""], quotes: ["Light!"] },
+                { id: "maokai", name: "Maokai", win: "Viego: \"Burn.\"", intro: ["Maokai: \"Poison!\"", "Viego: \"Eternal.\""], quotes: ["Wrath."] },
+                { id: "elise", name: "Elise", win: "Viego: \"Go back.\"", intro: ["Elise: \"Hungry.\"", "Viego: \"Death.\""], quotes: ["Closer."] },
+                { id: "vladimir", name: "Vladimir", win: "Viego: \"Useless.\"", intro: ["Vlad: \"Nephew.\"", "Viego: \"Silence.\""], quotes: ["Blood."] },
+                { id: "hecarim", name: "Hecarim", win: "Viego: \"Over.\"", intro: ["Hecarim: \"War!\"", "Viego: \"Obey.\""], quotes: ["Trample!"] },
+                { id: "illaoi", name: "Illaoi", win: "Viego: \"Silent.\"", intro: ["Illaoi: \"Stagnant.\"", "Viego: \"Timeless.\""], quotes: ["Motion."] },
+                { id: "kalista", name: "Kalista", win: "Viego: \"Traitor.\"", intro: ["Kalista: \"Stop.\"", "Viego: \"You swore!\""], quotes: ["Vengeance."] },
+                { id: "ledros", name: "Ledros", win: "Viego: \"Sleep.\"", intro: ["Ledros: \"End this.\"", "Viego: \"Never.\""], quotes: ["I stand."] },
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Lies.\"", intro: ["Viego: \"Where?!\"", "LeBlanc: \"Lost.\""], quotes: ["Mirrors."] },
+                { id: "thresh", name: "Thresh", win: "Viego: \"Servant.\"", intro: ["Thresh: \"Agony.\"", "Viego: \"Silence.\""], quotes: ["Scream."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Void fails.\"", intro: ["Bel'Veth: \"Consume.\"", "Viego: \"My world.\""], quotes: ["End."] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"New King.\"", intro: ["Morde: \"Iron.\"", "Viego: \"Rust.\""], quotes: ["Crumble."] }
+            ],
+            playerQuotes: ["Isolde...", "Out of my way!", "The mist spreads."]
+        },
+        tr: {
+            title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA",
+            musicOn: "🎵 Müzik: AÇIK", musicOff: "🎵 Müzik: KAPALI", menu: "← Menü", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!",
+            continue: "DEVAM ET", defeat: "KAYBETTİN. Tekrar dene...", skillBasic: "Kralın Kılıcı", skillBasicCost: "+Güç",
+            skillQ: "M. Kralın Kılıcı (Q)", skillQCost: "15 Güç", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)",
+            skillWCost: "25 Güç", skillR: "KALP KIRAN (R)", skillRCost: "TEK KULLANIM", logStart: "Savaş başlıyor... Isolde seni bekliyor.",
+            logEnemy: "Bir düşman belirdi:", logNoPower: "Yetersiz Güç!", logCooldown: "Yetenek beklemede!", logUltUsed: "Ulti zaten kullanıldı!",
+            logViegoBasic: "Viego kılıcını savurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego Sisi serbest bıraktı!",
+            logViegoR: "VIEGO KALBİNİ KIRDI!", logCrit: " (KRİTİK!)", logDamage: "hasar.", logEnemyAtk: "saldırdı! Hasar aldın:",
+            logDefeat: "Viego düştü...", logEnd: "TEBRİKLER! TÜM DÜŞMANLARI YENDİN.",
+            finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR (Acıya Son Ver)", choiceSurrender: "AŞKINA TESLİM OL (Kılıcı Bırak)",
+            bossLogs: {
+                stunned: "SERSEMLEDİN! HAREKET EDEMİYORSUN.",
+                threshStack: "Thresh ruh topladı! Zırhı arttı.",
+                leblancMimic: "LeBlanc büyüyü TAKLİT ETTİ! (Çift Hasar)",
+                belvethTransform: "BEL'VETH GERÇEK FORMUNA BÜRÜNDÜ!",
+                mordeRealm: "MORDEKAISER SENİ ÖLÜLER ALEMİNE ÇEKTİ! (GÜÇLENDİ)"
+            },
+            isolde: {
+                intro: [ "Viego: \"Isolde... Aşkım...\"", "Isolde: \"Viego... neye dönüştüğüne bir bak.\"", "Viego: \"Her şeyi senin için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\"" ],
+                endingAttack: [ "Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Sis dağıldı, geriye boş bir taht kaldı." ],
+                endingSurrender: [ "Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı Kralım.\"", "*Viego kılıcını yere atar. Isolde kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar.*" ]
+            },
+            enemies: [
+                { id: "gangplank", name: "Gangplank", win: "Viego: \"Burası benim şehrim.\"", intro: ["Gangplank: \"Gemimden defol hayalet!\"", "Viego: \"Her şey bana ait.\""], quotes: ["Fıçı!"] },
+                { id: "yorick", name: "Yorick", win: "Viego: \"Mezarını kaz.\"", intro: ["Yorick: \"Sis temizlenmeli.\"", "Viego: \"Sis BENİM.\""], quotes: ["Mezara gir."] },
+                { id: "akshan", name: "Akshan", win: "Viego: \"Diriliş yok.\"", intro: ["Akshan: \"Güzel yüz, çirkin kalp.\"", "Viego: \"Canımı sıkıyorsun.\""], quotes: ["Bum!"] },
+                { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"Kimseyi incitmene izin vermem!\"", "Viego: \"Yaratıcına itaat et!\""], quotes: ["Kesip biçerim!"] },
+                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Aşkınız zayıf.\"", intro: ["Lucian: \"Burada bitiyor Viego!\"", "Senna: \"Isolde bunu istemiyor!\""], quotes: ["Işık adına!"] },
+                { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Suları zehirledin!\"", "Viego: \"Onları sonsuz kıldım.\""], quotes: ["Doğa affetmez."] },
+                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım aç.\"", "Viego: \"Ben ölümün kendisiyim.\""], quotes: ["Yaklaş..."] },
+                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"Yeğenim.\"", "Viego: \"Büyün onu getirebilir mi?\""], quotes: ["Kanın kokusu..."] },
+                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş!\"", "Viego: \"Kralına hizmet et!\""], quotes: ["Ezip geçin!"] },
+                { id: "illaoi", name: "Illaoi", win: "Viego: \"Tanrın sessiz kaldı.\"", intro: ["Illaoi: \"Sen durgunsun.\"", "Viego: \"Aşkım sonsuz.\""], quotes: ["Hareket hayattır."] },
+                { id: "kalista", name: "Kalista", win: "Viego: \"Hain!\"", intro: ["Kalista: \"Viego... dur artık.\"", "Viego: \"Bana sadakat yemini etmiştin!\""], quotes: ["İntikam!"] },
+                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Bu bitmeli Kralım.\"", "Viego: \"Onu almadan asla.\""], quotes: ["Düşemem."] },
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", intro: ["Viego: \"O nerede?!\"", "LeBlanc: \"Gölgelerde kayboldu.\""], quotes: ["Göz yanılması."] },
+                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Ne harika bir acı.\"", "Viego: \"Sen sadece hizmetkarsın.\""], quotes: ["Çığlık at."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
+            ],
+            playerQuotes: ["Isolde...", "Out of my way!", "Love ruins all.", "I will take your soul.", "The mist spreads."]
+        }
+    };
+
+    let currentLang = 'en'; 
+    let t = translations.en;
     let currentEnemyIndex = 0;
     let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
@@ -327,8 +363,17 @@
     let currentDialogues = [];
     let enemyTimeout = null;
     let isIsoldeScene = false;
+    let currentTrack = "";
 
-    // --- SİSTEM ---
+    function changeMusic(trackName) {
+        if (currentTrack === trackName) return;
+        currentTrack = trackName;
+        bgMusic.src = musicTracks[trackName];
+        bgMusic.volume = 0.4;
+        bgMusic.play().catch(e => { console.log("Müzik çalma hatası:", e); document.getElementById('btn-force-music').style.display = 'block'; });
+        updateMusicBtnText();
+    }
+
     function changeLanguage(lang) {
         currentLang = lang; t = translations[lang]; localStorage.setItem('rpgLang', lang);
         document.getElementById('start-title-1').innerText = t.title1;
@@ -363,37 +408,53 @@
     }
 
     function forcePlayMusic() {
-        bgMusic.volume = 0.4; // Ses seviyesi %40
-        // Kullanıcı etkileşimi olmadan çalmayı denemek (tarayıcı izin verirse)
-        var promise = bgMusic.play();
-        if (promise !== undefined) {
-            promise.then(_ => {
-                updateMusicBtnText();
-            }).catch(error => {
-                console.log("Otomatik oynatma engellendi, kullanıcı etkileşimi bekleniyor.");
-                document.getElementById('start-note').innerText = "AUDIO BLOCKED: CLICK START TO ENABLE";
-                document.getElementById('start-note').style.color = "red";
-            });
-        }
+        bgMusic.volume = 0.4; 
+        bgMusic.play().then(_ => { document.getElementById('btn-force-music').style.display = 'none'; updateMusicBtnText(); })
+        .catch(error => { document.getElementById('btn-force-music').style.display = 'block'; });
+    }
+
+    function toggleMusic() {
+        if(bgMusic.paused) { bgMusic.play(); document.getElementById('btn-force-music').style.display = 'none'; } 
+        else { bgMusic.pause(); }
+        updateMusicBtnText();
     }
 
     function startGame() {
         document.getElementById('start-screen').style.display = 'none';
-        // Butona tıklandığında müzik kesinlikle başlar
-        bgMusic.play().then(() => updateMusicBtnText());
+        forcePlayMusic();
         loadLevel(0);
     }
 
     function loadLevel(index) {
         if (enemyTimeout) clearTimeout(enemyTimeout);
         if (index >= enemiesBase.length) { startIsoldeScene(); return; }
+        
         currentEnemyIndex = index;
         const enemyData = enemiesBase[index];
         const enemyTrans = t.enemies[index];
+        
+        // Müzik Mantığı
+        if (enemyData.id === 'mordekaiser') changeMusic('morde');
+        else if (index < 5) changeMusic('tier1');
+        else if (index < 12) changeMusic('tier2');
+        else changeMusic('tier3');
+
         document.getElementById('enemy-name').innerText = enemyTrans.name.toUpperCase();
         document.getElementById('enemy-img').src = enemyData.img;
         document.getElementById('enemy-lvl').innerText = enemyData.level;
         enemyData.hp = enemyData.maxHp; 
+        
+        // Boss Reset
+        bossState.threshStacks = 0;
+        bossState.belvethForm = 1;
+        bossState.mordeRealmTriggered = false; // Realm reset
+        bossState.mordeRealmActive = false;
+        bossState.turnCount = 0;
+        bossState.isPlayerStunned = false;
+        document.body.classList.remove('death-realm-active'); // Görsel reset
+
+        if(enemyData.id === 'belveth') document.getElementById('enemy-img').src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg";
+
         player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
         turn = "player";
         toggleBattleUI(false);
@@ -402,6 +463,7 @@
 
     function startIsoldeScene() {
         isIsoldeScene = true;
+        changeMusic('isolde');
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('enemy-name').innerText = "ISOLDE";
         document.getElementById('enemy-img').src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gwen_1.jpg"; 
@@ -463,29 +525,100 @@
     function showSpeech(who, text) { const bubble = document.getElementById(who + '-bubble'); bubble.innerText = text; bubble.classList.add('speech-visible'); }
     function clearBubbles() { document.getElementById('player-bubble').classList.remove('speech-visible'); document.getElementById('enemy-bubble').classList.remove('speech-visible'); }
 
+    // --- OYUNCU HAMLESİ ---
     function useSkill(type) {
         if (turn !== "player") return;
+        
+        if (bossState.isPlayerStunned) {
+            log(t.bossLogs.stunned);
+            bossState.isPlayerStunned = false; 
+            turn = "enemy"; setTimeout(enemyTurn, 1000);
+            return;
+        }
+
         clearBubbles(); triggerBanter(true);
         const enemyData = enemiesBase[currentEnemyIndex];
         let damage = 0; let logMsg = ""; let powerGain = 0; let isCrit = false;
+
         if (player.nextHitCrit) { isCrit = true; player.nextHitCrit = false; } else { if (Math.random() < player.critChance) isCrit = true; }
+
         if (type === 'basic') { playSkillSound('basic'); damage = 15 + (player.level * 5); powerGain = isCrit ? 15 : Math.floor(Math.random() * 11) + 5; logMsg = t.logViegoBasic; } 
         else if (type === 'q') { if (player.power < 15) { log(t.logNoPower); return; } playSkillSound('q'); player.power -= 15; damage = 30 + (player.level * 8); logMsg = t.logViegoQ; let heal = Math.floor(enemyData.hp * 0.07); if(heal < 5) heal = 5; player.hp += heal; if (player.hp > player.maxHp) player.hp = player.maxHp; showFloatingText(document.getElementById('player-box'), `+${heal}`, 'heal'); }
         else if (type === 'w') { if (player.wCooldown > 0) { log(t.logCooldown); return; } if (player.power < 25) { log(t.logNoPower); return; } playSkillSound('w'); player.power -= 25; damage = 40 + (player.level * 6); player.nextHitCrit = true; player.wCooldown = 3; logMsg = t.logViegoW; }
         else if (type === 'r') { if (player.ultUsed) { log(t.logUltUsed); return; } playSkillSound('r'); player.ultUsed = true; damage = 100 + (player.level * 15); triggerEffect('ult'); logMsg = t.logViegoR; isCrit = true; }
+
         if (isCrit && type !== 'w') { damage *= 2; logMsg += t.logCrit; }
+
+        // --- BOSS DEFANS MEKANİKLERİ ---
+        if (enemyData.id === 'thresh') { let reduction = bossState.threshStacks * 2; damage -= reduction; if(damage < 0) damage = 0; }
+        
+        // MORDE DEATH REALM ZIRH ARTIŞI (%30 daha az hasar yer)
+        if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) {
+            damage = Math.floor(damage * 0.7); 
+        }
+
         player.power += powerGain; if (player.power > player.maxPower) player.power = player.maxPower;
-        enemyData.hp -= damage; if (enemyData.hp < 0) enemyData.hp = 0;
+        enemyData.hp -= damage;
+        
+        // BEL'VETH DÖNÜŞÜM
+        if (enemyData.id === 'belveth' && enemyData.hp <= 0 && bossState.belvethForm === 1) {
+            enemyData.hp = 1200; bossState.belvethForm = 2;
+            document.getElementById('enemy-img').src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_1.jpg"; 
+            log(t.bossLogs.belvethTransform); triggerEffect('void'); showFloatingText(document.getElementById('enemy-box'), "TRANSFORM!", "damage"); updateUI(); return; 
+        }
+
+        // --- MORDEKAISER DEATH REALM TETİKLEYİCİSİ (Tek Seferlik, %35 Can) ---
+        if (enemyData.id === 'mordekaiser' && !bossState.mordeRealmTriggered && (enemyData.hp / enemyData.maxHp) <= 0.35) {
+            bossState.mordeRealmTriggered = true;
+            bossState.mordeRealmActive = true;
+            document.body.classList.add('death-realm-active');
+            
+            // 1. Eksik canının %5'ini iyileştir
+            let missingHp = enemyData.maxHp - enemyData.hp;
+            let healAmount = Math.floor(missingHp * 0.05);
+            enemyData.hp += healAmount;
+            showFloatingText(document.getElementById('enemy-box'), `+${healAmount}`, 'heal');
+
+            // 2. Canı ve Max Canı %25 artır
+            enemyData.maxHp = Math.floor(enemyData.maxHp * 1.25);
+            enemyData.hp = Math.floor(enemyData.hp * 1.25);
+
+            log(t.bossLogs.mordeRealm);
+            showFloatingText(document.getElementById('enemy-box'), "DEATH REALM!", "text-special");
+        }
+
+        if (enemyData.hp < 0) enemyData.hp = 0;
         shakeElement(document.getElementById('enemy-img')); showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal'); log(`${logMsg} ${damage} ${t.logDamage}`); updateUI();
+
         if (enemyData.hp <= 0) { winBattle(); return; }
         turn = "enemy"; enemyTimeout = setTimeout(enemyTurn, 1500);
     }
 
+    // --- DÜŞMAN HAMLESİ ---
     function enemyTurn() {
         clearBubbles(); triggerBanter(false);
         const enemyData = enemiesBase[currentEnemyIndex];
         const enemyTrans = t.enemies[currentEnemyIndex];
         let dmg = enemyData.damage + Math.floor(Math.random() * 10);
+        bossState.turnCount++;
+
+        // Boss Saldırıları
+        if (enemyData.id === 'leblanc') { if (Math.random() < 0.4) { log(t.bossLogs.leblancMimic); dmg = Math.floor(dmg * 2.2); showFloatingText(document.getElementById('enemy-box'), "MIMIC!", "text-special"); } }
+        if (enemyData.id === 'thresh') { bossState.threshStacks++; log(t.bossLogs.threshStack + ` (${bossState.threshStacks})`); if (bossState.threshStacks % 5 === 0) { bossState.isPlayerStunned = true; triggerEffect('stun'); showFloatingText(document.getElementById('player-box'), "STUNNED", "text-special"); } }
+        if (enemyData.id === 'belveth') { let voidlingDmg = 10 * bossState.belvethForm; dmg += voidlingDmg; log(`Void creatures dealt ${voidlingDmg} extra damage.`); }
+        
+        // MORDEKAISER DEATH REALM (Güçlendirmeler)
+        if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) {
+            // Hasar %30 artar
+            dmg = Math.floor(dmg * 1.3);
+            
+            // Can Çalma %75
+            let lifesteal = Math.floor(dmg * 0.75);
+            enemyData.hp += lifesteal;
+            if(enemyData.hp > enemyData.maxHp) enemyData.hp = enemyData.maxHp;
+            showFloatingText(document.getElementById('enemy-box'), `+${lifesteal}`, 'heal');
+        }
+
         player.hp -= dmg; if (player.hp < 0) player.hp = 0;
         if (player.wCooldown > 0) player.wCooldown--;
         triggerEffect('damage'); shakeElement(document.getElementById('player-img')); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
@@ -519,9 +652,17 @@
         document.getElementById('player-power-bar').style.width = pPowPerc + '%';
         document.getElementById('player-power-text').innerText = `${player.power}/${player.maxPower}`;
         document.getElementById('player-lvl').innerText = player.level;
+        
         const eHpPerc = (enemyData.hp / enemyData.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = eHpPerc + '%';
         document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemyData.hp)}/${enemyData.maxHp}`;
+        
+        let statusText = "";
+        if (enemyData.id === 'thresh') statusText = `Souls: ${bossState.threshStacks}`;
+        if (enemyData.id === 'belveth') statusText = `Form: ${bossState.belvethForm}`;
+        if (enemyData.id === 'mordekaiser') statusText = bossState.mordeRealmActive ? "DEATH REALM ACTIVE" : "IRON STANDS ETERNAL";
+        document.getElementById('boss-status').innerText = statusText;
+
         document.getElementById('btn-q').disabled = player.power < 15;
         document.getElementById('btn-w').disabled = (player.power < 25 || player.wCooldown > 0);
         document.getElementById('btn-ult').disabled = player.ultUsed;
@@ -531,8 +672,8 @@
 
     function log(msg) { const box = document.getElementById('combat-log'); box.innerHTML = `> ${msg}<br>` + box.innerHTML; }
     function shakeElement(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
-    function triggerEffect(type) { const flash = document.getElementById('flash-effect'); flash.className = ''; if (type === 'damage') flash.classList.add('damage-flash'); if (type === 'ult') flash.classList.add('ult-flash'); setTimeout(() => flash.className = '', 500); }
-    function showFloatingText(target, val, type) { const text = document.createElement('div'); text.className = 'float-text ' + (type === 'crit' ? 'text-crit' : (type === 'heal' ? 'text-heal' : (type === 'damage' ? 'text-enemy-dmg' : 'text-damage'))); text.innerText = type === 'crit' ? val + "!" : val; const rect = target.getBoundingClientRect(); text.style.left = (rect.left + rect.width / 2) + 'px'; text.style.top = rect.top + 'px'; document.body.appendChild(text); setTimeout(() => text.remove(), 1200); }
+    function triggerEffect(type) { const flash = document.getElementById('flash-effect'); flash.className = ''; if (type === 'damage') flash.classList.add('damage-flash'); if (type === 'ult') flash.classList.add('ult-flash'); if (type === 'stun') flash.classList.add('stun-flash'); if (type === 'void') flash.classList.add('void-flash'); setTimeout(() => flash.className = '', 500); }
+    function showFloatingText(target, val, type) { const text = document.createElement('div'); text.className = 'float-text ' + (type === 'crit' ? 'text-crit' : (type === 'heal' ? 'text-heal' : (type === 'damage' ? 'text-enemy-dmg' : (type === 'text-special' ? 'text-special' : 'text-damage')))); text.innerText = type === 'crit' ? val + "!" : val; const rect = target.getBoundingClientRect(); text.style.left = (rect.left + rect.width / 2) + 'px'; text.style.top = rect.top + 'px'; document.body.appendChild(text); setTimeout(() => text.remove(), 1200); }
 
     window.onload = function() {
         const savedLang = localStorage.getItem('rpgLang') || 'en';
