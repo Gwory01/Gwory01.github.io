@@ -10,7 +10,7 @@
         :root {
             --ruined-green: #0ac8b9;
             --dark-bg: #05080a;
-            --power-yellow: #f1c40f; /* Güç Barı Rengi */
+            --power-yellow: #f1c40f;
             --hp-red: #c0392b;
             --crit-color: #ffcc00;
             --heal-color: #2ecc71;
@@ -34,15 +34,39 @@
             user-select: none;
         }
 
-        /* UÇAN YAZILAR (Floating Text) */
-        .float-text {
+        /* KONUŞMA BALONCUKLARI */
+        .speech-bubble {
             position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-family: sans-serif;
+            font-size: 12px;
             font-weight: bold;
-            font-size: 24px;
+            width: 200px;
+            text-align: center;
+            z-index: 200;
+            opacity: 0;
             pointer-events: none;
-            animation: floatUp 1.2s ease-out forwards;
-            text-shadow: 2px 2px 0 #000;
-            z-index: 100;
+            transition: opacity 0.3s, transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 2px solid var(--ruined-green);
+        }
+        /* Konuşma oku */
+        .speech-bubble::after {
+            content: ''; position: absolute; bottom: -10px; left: 50%; margin-left: -10px;
+            border-width: 10px 10px 0; border-style: solid; border-color: #fff transparent; display: block; width: 0;
+        }
+        .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+
+        /* UÇAN YAZILAR */
+        .float-text {
+            position: absolute; font-weight: bold; font-size: 24px; pointer-events: none;
+            animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100;
         }
         @keyframes floatUp {
             0% { transform: translateY(0) scale(1); opacity: 1; }
@@ -54,126 +78,52 @@
         .text-heal { color: var(--heal-color); font-size: 28px; }
         .text-enemy-dmg { color: #e74c3c; }
 
-        /* GÖRSEL EFEKTLER */
-        .damage-flash {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear;
-        }
-        .ult-flash {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear;
-        }
+        /* EFEKTLER */
+        .damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear; }
+        .ult-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear; }
         @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
 
-        @keyframes mist {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .mist-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, rgba(10, 200, 185, 0.05), transparent);
-            background-size: 400% 400%; animation: mist 15s ease infinite;
-            z-index: -1; pointer-events: none;
-        }
-
         .game-wrapper {
-            width: 90%; max-width: 1000px;
-            background: rgba(10, 12, 15, 0.95);
-            border: 2px solid #333;
-            border-top: 4px solid var(--ruined-green);
-            box-shadow: 0 0 50px rgba(10, 200, 185, 0.1);
-            padding: 20px;
-            position: relative;
-            display: flex; flex-direction: column;
-            height: 600px;
+            width: 90%; max-width: 1000px; background: rgba(10, 12, 15, 0.95);
+            border: 2px solid #333; border-top: 4px solid var(--ruined-green);
+            box-shadow: 0 0 50px rgba(10, 200, 185, 0.1); padding: 20px;
+            position: relative; display: flex; flex-direction: column; height: 600px;
         }
 
-        #start-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 100;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-        }
-        .start-btn {
-            padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green);
-            border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px;
-        }
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 30px; }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
 
-        .battle-scene {
-            flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
-        }
-
+        .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
         .character-box { width: 250px; text-align: center; position: relative; }
-        .character-img {
-            width: 200px; height: 200px; object-fit: cover; border-radius: 50%;
-            border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s;
-        }
+        .character-img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         
         .shake { animation: shake 0.5s; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-        /* Barlar */
-        .stat-bar {
-            width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative;
-        }
+        .stat-bar { width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative; }
         .fill { height: 100%; transition: width 0.5s ease-out; }
         .hp-fill { background-color: var(--hp-red); }
-        
-        /* GÜÇ BARI (SARI) */
         .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); }
-        
         .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
 
-        .controls {
-            height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px;
-        }
+        .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; }
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-
-        .skill-btn {
-            background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif;
-            cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 5px;
-        }
+        .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; }
         .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
         .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
-        
         .skill-name { font-weight: bold; font-size: 0.8rem; text-align: center; }
         .skill-cost { font-size: 0.7rem; color: var(--power-yellow); margin-top: 3px; }
         .cooldown-text { color: #e74c3c; font-size: 0.7rem; display:none; }
-        
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
         .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
 
-        .log-box {
-            background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px;
-            font-size: 0.9rem; overflow-y: auto; color: #ccc; font-family: sans-serif;
-        }
-
-        .overlay-msg {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); padding: 40px; border: 2px solid var(--ruined-green);
-            text-align: center; display: none; z-index: 50;
-        }
+        .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; overflow-y: auto; color: #ccc; font-family: sans-serif; }
+        .overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 40px; border: 2px solid var(--ruined-green); text-align: center; display: none; z-index: 50; }
         .overlay-msg h2 { color: var(--ruined-green); font-size: 2rem; margin-bottom: 20px; }
-        .overlay-msg p { font-style: italic; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
-
-        .level-badge {
-            position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black;
-            width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-weight: bold; border: 2px solid white;
-        }
-
+        .level-badge { position: absolute; top: -10px; right: -10px; background: var(--ruined-green); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
         .music-toggle { position: fixed; top: 20px; right: 20px; z-index: 200; background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; }
         .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
     </style>
@@ -181,9 +131,7 @@
 <body>
 
     <a href="index.html" class="back-btn">← Menü</a>
-    <div class="mist-overlay"></div>
     <div id="flash-effect"></div>
-    
     <button class="music-toggle" onclick="forcePlayMusic()">🎵 MÜZİĞİ BAŞLAT</button>
 
     <audio id="bgMusic" loop preload="auto">
@@ -191,12 +139,12 @@
     </audio>
 
     <div class="game-wrapper">
-        
         <div id="start-screen">
             <h1 style="color: #fff;">MAHVOLMUŞ KRAL'IN</h1>
             <h1>İNTİKAMI</h1>
             <p style="color: #aaa; margin-top: 10px;">"Hepsi... Onun için."</p>
             <button class="start-btn" onclick="startGame()">HİKAYEYE BAŞLA</button>
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">(Müzik çalmazsa sağ üstteki butona basın)</p>
         </div>
 
         <div id="overlay" class="overlay-msg">
@@ -208,6 +156,7 @@
 
         <div class="battle-scene">
             <div class="character-box" id="player-box">
+                <div class="speech-bubble" id="player-bubble">Konuşma metni...</div>
                 <div class="level-badge" id="player-lvl">1</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
@@ -225,6 +174,7 @@
             <h1 style="color: #555; font-size: 3rem;">VS</h1>
 
             <div class="character-box" id="enemy-box">
+                <div class="speech-bubble" id="enemy-bubble">Konuşma metni...</div>
                 <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">DÜŞMAN</h2>
@@ -246,7 +196,7 @@
                 <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
                     <span class="skill-name">M. Kralın Kılıcı (Q)</span>
                     <span class="skill-cost">15 Güç</span>
-                    <span style="font-size:10px; color:#aaa;">%7 Can Çalma</span>
+                    <span style="font-size:10px; color:#aaa;">%7 Rakip HP Çal</span>
                 </button>
 
                 <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
@@ -268,35 +218,72 @@
     </div>
 
 <script>
+    // --- SES EFEKTLERİ MOTORU (WEB AUDIO API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSkillSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'q') {
+            // Keskin Kılıç Sesi (Yüksek frekanslı sweep)
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else if (type === 'w') {
+            // Sis Sesi (Daha boğuk ve uzun)
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(50, now + 0.5);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        } else if (type === 'r') {
+            // Ulti Sesi (Ağır darbe)
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(100, now);
+            osc.frequency.exponentialRampToValueAtTime(10, now + 0.5);
+            gainNode.gain.setValueAtTime(0.4, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+            osc.start(now);
+            osc.stop(now + 0.8);
+        }
+    }
+
     // --- OYUN VERİLERİ ---
     const player = {
-        name: "Viego",
-        level: 1,
-        maxHp: 150,
-        hp: 150,
-        maxPower: 100,
-        power: 0, // GÜÇ SIFIRLA BAŞLAR
-        ultUsed: false,
-        critChance: 0.2, // %20 Baz Kritik
-        nextHitCrit: false, // W ile %100 olacak
-        wCooldown: 0 // Tur sayacı
+        name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0,
+        ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
+        quotes: ["Isolde...", "Yolumdan çekil!", "Aşk her şeyi mahveder.", "Ruhunu alacağım.", "Karanlık yayılıyor."]
     };
 
     const enemies = [
         {
             name: "LeBlanc", level: 3, maxHp: 180, hp: 180, damage: 15,
             img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg",
-            winQuote: "Viego: \"Yalanların seni benim gazabımdan koruyamadı, Hilekar.\""
+            winQuote: "Viego: \"Yalanların bitti, Hilekar.\"",
+            quotes: ["Göz yanılması.", "Gerçekten kral mısın?", "Çok safsın.", "Kaybolacaksın."]
         },
         {
             name: "Vladimir", level: 6, maxHp: 250, hp: 250, damage: 25,
             img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg",
-            winQuote: "Viego: \"O pis kanın bile bana ait, amca.\""
+            winQuote: "Viego: \"Kanın bana ait amca.\"",
+            quotes: ["Kanın kokusu...", "Harika bir tat.", "Yeğenim, dur artık.", "Sanat yapıyorum."]
         },
         {
             name: "Sahn-Uzal", level: 10, maxHp: 450, hp: 450, damage: 40,
             img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg",
-            winQuote: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\""
+            winQuote: "Viego: \"Ölüler diyarı benimdir!\"",
+            quotes: ["Demir ebedidir.", "Zayıfsın.", "Ruhun benim.", "Yıkıl."]
         }
     ];
 
@@ -304,12 +291,10 @@
     let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
 
-    // --- MÜZİK ---
     function forcePlayMusic() {
-        bgMusic.volume = 0.3;
-        bgMusic.play().then(() => {
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
-        }).catch(error => { console.log(error); });
+        bgMusic.volume = 0.1; // SES KISILDI
+        bgMusic.play().then(() => { document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK"; })
+        .catch(error => { console.log(error); });
     }
     function toggleMusic() {
         if(bgMusic.paused) { bgMusic.play(); document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK"; }
@@ -325,92 +310,99 @@
     function loadLevel(index) {
         currentEnemyIndex = index;
         const enemy = enemies[index];
-        
         document.getElementById('enemy-name').innerText = enemy.name.toUpperCase();
         document.getElementById('enemy-img').src = enemy.img;
         document.getElementById('enemy-lvl').innerText = enemy.level;
-        
-        // Resetler
-        player.ultUsed = false;
-        player.power = 0; // Her savaş başı güç sıfırlanır mı? İsteğe bağlı, burada sıfırladım zorluk için.
-        player.wCooldown = 0;
-        player.nextHitCrit = false;
-        
+        player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
         updateUI();
         log(`Bir düşman belirdi: ${enemy.name}!`);
         document.getElementById('overlay').style.display = 'none';
     }
 
-    // --- SAVAŞ MEKANİĞİ ---
+    // --- DİYALOG SİSTEMİ (BANTER) ---
+    function triggerBanter(isPlayerTurn) {
+        // %30 şansla konuşma tetiklenir
+        if (Math.random() > 0.3) return;
+
+        const enemy = enemies[currentEnemyIndex];
+        
+        if (isPlayerTurn) {
+            // Viego konuşur
+            const text = player.quotes[Math.floor(Math.random() * player.quotes.length)];
+            showSpeech('player', text);
+        } else {
+            // Düşman konuşur
+            const text = enemy.quotes[Math.floor(Math.random() * enemy.quotes.length)];
+            showSpeech('enemy', text);
+        }
+    }
+
+    function showSpeech(who, text) {
+        const bubble = document.getElementById(who + '-bubble');
+        bubble.innerText = text;
+        bubble.classList.add('speech-visible');
+    }
+
+    function clearBubbles() {
+        document.getElementById('player-bubble').classList.remove('speech-visible');
+        document.getElementById('enemy-bubble').classList.remove('speech-visible');
+    }
+
+    // --- YETENEKLER ---
     function useSkill(type) {
         if (turn !== "player") return;
 
+        clearBubbles(); // Eski konuşmaları temizle
+        triggerBanter(true); // Viego konuşabilir
+
         const enemy = enemies[currentEnemyIndex];
-        let damage = 0;
-        let logMsg = "";
-        let powerGain = 0;
-        let isCrit = false;
+        let damage = 0; let logMsg = ""; let powerGain = 0; let isCrit = false;
 
-        // KRİTİK KONTROLÜ
-        if (player.nextHitCrit) {
-            isCrit = true;
-            player.nextHitCrit = false; // Tüketildi
-        } else {
-            if (Math.random() < player.critChance) isCrit = true;
-        }
+        if (player.nextHitCrit) { isCrit = true; player.nextHitCrit = false; }
+        else { if (Math.random() < player.critChance) isCrit = true; }
 
-        // --- YETENEKLER ---
         if (type === 'basic') {
+            playSkillSound('q'); // Kılıç sesi
             damage = 15 + (player.level * 5);
-            // Güç Kazanımı: 5-15 arası, Kritikse 15
             powerGain = isCrit ? 15 : Math.floor(Math.random() * 11) + 5;
             logMsg = `Viego kılıcını savurdu!`;
         } 
-        
         else if (type === 'q') {
             if (player.power < 15) { log("Yetersiz Güç!"); return; }
+            playSkillSound('q'); 
             player.power -= 15;
-            
             damage = 30 + (player.level * 8);
-            logMsg = `Viego Q yeteneğini kullandı!`;
+            logMsg = `Viego Q kullandı!`;
             
-            // %7 Can Çalma
-            let heal = Math.floor(damage * 0.07);
-            if(isCrit) heal = Math.floor((damage * 2) * 0.07); // Kritik vurursa heal artar
+            // YENİ Q MANTIĞI: Rakibin O ANKİ canının %7'si
+            let heal = Math.floor(enemy.hp * 0.07);
+            if(heal < 5) heal = 5; // Minimum iyileşme
             
             player.hp += heal;
             if (player.hp > player.maxHp) player.hp = player.maxHp;
             showFloatingText(document.getElementById('player-box'), `+${heal}`, 'heal');
         }
-        
         else if (type === 'w') {
-            if (player.wCooldown > 0) { log("W yeteneği beklemede!"); return; }
+            if (player.wCooldown > 0) { log("W beklemede!"); return; }
             if (player.power < 25) { log("Yetersiz Güç!"); return; }
-            
+            playSkillSound('w');
             player.power -= 25;
             damage = 40 + (player.level * 6);
-            player.nextHitCrit = true; // Bir sonraki vuruş kesin kritik
-            player.wCooldown = 3; // 2 tur kullanamaz (Bu tur + Sonraki 2 tur)
-            
-            logMsg = `Viego W ile saldırdı! Bir sonraki vuruş KRİTİK olacak!`;
+            player.nextHitCrit = true;
+            player.wCooldown = 3;
+            logMsg = `Viego Sisi serbest bıraktı!`;
         }
-        
         else if (type === 'r') {
-            if (player.ultUsed) { log("Ulti zaten kullanıldı!"); return; }
-            // Ulti Güç İstemez ama Tek Seferlik
+            if (player.ultUsed) { log("Ulti kullanıldı!"); return; }
+            playSkillSound('r');
             player.ultUsed = true;
-            
             damage = 100 + (player.level * 15);
             triggerEffect('ult');
             logMsg = `VIEGO KALBİNİ KIRDI!`;
-            isCrit = true; // Ulti havalı olsun diye her zaman kritik efekti verelim
+            isCrit = true;
         }
 
-        // HASAR UYGULAMA
-        if (isCrit && type !== 'w') { // W'nun kendisi kritik vurmaz, sonrakini kritik yapar (tercihen)
-            damage *= 2;
-            logMsg += " (KRİTİK!)";
-        }
+        if (isCrit && type !== 'w') { damage *= 2; logMsg += " (KRİTİK!)"; }
 
         player.power += powerGain;
         if (player.power > player.maxPower) player.power = player.maxPower;
@@ -418,29 +410,24 @@
         enemy.hp -= damage;
         if (enemy.hp < 0) enemy.hp = 0;
 
-        // Görseller
         shakeElement(document.getElementById('enemy-img'));
         showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal');
         log(`${logMsg} ${damage} hasar.`);
         updateUI();
 
-        if (enemy.hp <= 0) {
-            winBattle();
-            return;
-        }
-
-        turn = "enemy";
-        setTimeout(enemyTurn, 1000);
+        if (enemy.hp <= 0) { winBattle(); return; }
+        turn = "enemy"; setTimeout(enemyTurn, 1500); // Sıra bekleme süresini biraz artırdım
     }
 
     function enemyTurn() {
+        clearBubbles();
+        triggerBanter(false); // Düşman konuşabilir
+
         const enemy = enemies[currentEnemyIndex];
         let dmg = enemy.damage + Math.floor(Math.random() * 10);
-        
         player.hp -= dmg;
         if (player.hp < 0) player.hp = 0;
 
-        // Cooldown Yönetimi
         if (player.wCooldown > 0) player.wCooldown--;
 
         triggerEffect('damage');
@@ -451,26 +438,17 @@
 
         if (player.hp <= 0) {
             log("Viego düştü...");
-            setTimeout(() => {
-                alert("KAYBETTİN. Tekrar dene...");
-                location.reload();
-            }, 1000);
+            setTimeout(() => { alert("KAYBETTİN. Tekrar dene..."); location.reload(); }, 1000);
             return;
         }
-
         turn = "player";
     }
 
-    // --- SİSTEM ---
     function winBattle() {
         const enemy = enemies[currentEnemyIndex];
         document.getElementById('overlay-title').innerText = "DÜŞMAN KATLEDİLDİ";
         document.getElementById('overlay-quote').innerText = enemy.winQuote;
-        
-        player.level++;
-        player.maxHp += 50;
-        player.hp = player.maxHp; 
-        
+        player.level++; player.maxHp += 50; player.hp = player.maxHp; 
         document.getElementById('level-up-text').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
@@ -478,39 +456,30 @@
     function nextLevel() {
         currentEnemyIndex++;
         if (currentEnemyIndex >= enemies.length) {
-            alert("TEBRİKLER! TÜM İNTİKAM ALINDI. OYUN BİTTİ.");
-            location.reload();
+            alert("TEBRİKLER! OYUN BİTTİ."); location.reload();
         } else {
             loadLevel(currentEnemyIndex);
         }
     }
 
-    // --- UI GÜNCELLEME ---
     function updateUI() {
-        // Player HP
         const pHpPerc = (player.hp / player.maxHp) * 100;
+        const pPowPerc = (player.power / player.maxPower) * 100;
         document.getElementById('player-hp-bar').style.width = pHpPerc + '%';
         document.getElementById('player-hp-text').innerText = `${Math.floor(player.hp)}/${player.maxHp}`;
-        
-        // Player Power
-        const pPowPerc = (player.power / player.maxPower) * 100;
         document.getElementById('player-power-bar').style.width = pPowPerc + '%';
         document.getElementById('player-power-text').innerText = `${player.power}/${player.maxPower}`;
-        
         document.getElementById('player-lvl').innerText = player.level;
 
-        // Enemy HP
         const enemy = enemies[currentEnemyIndex];
         const eHpPerc = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = eHpPerc + '%';
         document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemy.hp)}/${enemy.maxHp}`;
-
-        // Buton Durumları
+        
         document.getElementById('btn-q').disabled = player.power < 15;
         document.getElementById('btn-w').disabled = (player.power < 25 || player.wCooldown > 0);
         document.getElementById('btn-ult').disabled = player.ultUsed;
 
-        // Cooldown Metni
         if(player.wCooldown > 0) {
             document.getElementById('cd-w').style.display = 'block';
             document.getElementById('cd-w').innerText = `Bekleme: ${player.wCooldown}`;
@@ -519,35 +488,24 @@
         }
     }
 
-    // --- EFEKTLER ---
     function log(msg) {
         const box = document.getElementById('combat-log');
         box.innerHTML = `> ${msg}<br>` + box.innerHTML;
     }
-
-    function shakeElement(el) {
-        el.classList.remove('shake');
-        void el.offsetWidth;
-        el.classList.add('shake');
-    }
-
+    function shakeElement(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
     function triggerEffect(type) {
-        const flash = document.getElementById('flash-effect');
-        flash.className = ''; 
+        const flash = document.getElementById('flash-effect'); flash.className = ''; 
         if (type === 'damage') flash.classList.add('damage-flash');
         if (type === 'ult') flash.classList.add('ult-flash');
         setTimeout(() => flash.className = '', 500);
     }
-
     function showFloatingText(target, val, type) {
         const text = document.createElement('div');
         text.className = 'float-text ' + (type === 'crit' ? 'text-crit' : (type === 'heal' ? 'text-heal' : (type === 'damage' ? 'text-enemy-dmg' : 'text-damage')));
         text.innerText = type === 'crit' ? val + "!" : val;
-        
         const rect = target.getBoundingClientRect();
         text.style.left = (rect.left + rect.width / 2) + 'px';
         text.style.top = rect.top + 'px';
-        
         document.body.appendChild(text);
         setTimeout(() => text.remove(), 1200);
     }
