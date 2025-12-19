@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viego: The Ruined King RPG (WAV Audio)</title>
+    <title>Viego: The Ruined King RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
 
@@ -34,7 +34,42 @@
             user-select: none;
         }
 
-        /* DİYALOG BALONCUKLARI */
+        /* --- SİNEMATİK DİYALOG KUTUSU --- */
+        #cinematic-dialogue {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--ruined-green);
+            padding: 20px;
+            z-index: 150;
+            display: none; /* JS ile açılacak */
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(10, 200, 185, 0.2);
+        }
+        #cinematic-text {
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        #cinematic-btn {
+            background: transparent;
+            border: 1px solid var(--ruined-green);
+            color: var(--ruined-green);
+            padding: 5px 20px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            transition: 0.3s;
+        }
+        #cinematic-btn:hover { background: var(--ruined-green); color: black; }
+
+
+        /* DİĞER STİLLER (Aynı kaldı) */
         .speech-bubble {
             position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
             background: #fff; color: #000; padding: 10px 15px; border-radius: 15px;
@@ -49,7 +84,6 @@
         }
         .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
-        /* UÇAN YAZILAR */
         .float-text {
             position: absolute; font-weight: bold; font-size: 24px; pointer-events: none;
             animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100;
@@ -64,7 +98,6 @@
         .text-heal { color: var(--heal-color); font-size: 28px; }
         .text-enemy-dmg { color: #e74c3c; }
 
-        /* EFEKTLER */
         .damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear; }
         .ult-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear; }
         @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
@@ -92,13 +125,18 @@
         .shake { animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-        .stat-bar { width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative; }
+        /* Barlar ve Kontroller Başlangıçta Gizlenecek */
+        .stat-bar { width: 100%; height: 15px; background: #222; margin-top: 8px; border: 1px solid #444; position: relative; transition: opacity 0.5s; }
         .fill { height: 100%; transition: width 0.5s ease-out; }
         .hp-fill { background-color: var(--hp-red); }
         .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); }
         .bar-text { font-size: 12px; position: absolute; width: 100%; text-align: center; top: -2px; text-shadow: 1px 1px 2px black; }
 
-        .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; }
+        .controls { height: 150px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; }
+        
+        /* GİZLEME SINIFI */
+        .hidden-ui { opacity: 0; pointer-events: none; }
+
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; }
         .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
@@ -151,6 +189,11 @@
             <p style="font-size: 12px; color: #666; margin-top: 20px;" id="start-note">(Check file names if music doesn't play)</p>
         </div>
 
+        <div id="cinematic-dialogue">
+            <div id="cinematic-text">...</div>
+            <button id="cinematic-btn" onclick="nextDialogue()">NEXT</button>
+        </div>
+
         <div id="overlay" class="overlay-msg">
             <h2 id="overlay-title">VICTORY</h2>
             <p id="overlay-quote">"..."</p>
@@ -165,11 +208,11 @@
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
                 
-                <div class="stat-bar">
+                <div class="stat-bar hidden-ui" id="ui-hp-p">
                     <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
                     <span class="bar-text" id="player-hp-text">100/100</span>
                 </div>
-                <div class="stat-bar" style="border-color:#b7950b;">
+                <div class="stat-bar hidden-ui" style="border-color:#b7950b;" id="ui-mp-p">
                     <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
                     <span class="bar-text" id="player-power-text" style="color:black; font-weight:bold; text-shadow:none;">0/100</span>
                 </div>
@@ -183,14 +226,14 @@
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
                 
-                <div class="stat-bar">
+                <div class="stat-bar hidden-ui" id="ui-hp-e">
                     <div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div>
                     <span class="bar-text" id="enemy-hp-text">100/100</span>
                 </div>
             </div>
         </div>
 
-        <div class="controls">
+        <div class="controls hidden-ui" id="combat-controls">
             <div class="skills">
                 <button class="skill-btn" onclick="useSkill('basic')">
                     <span class="skill-name" id="skill-basic-name">Blade of the King</span>
@@ -222,7 +265,7 @@
     </div>
 
 <script>
-    // --- ÇEVİRİ VERİLERİ (EN/TR) ---
+    // --- ÇEVİRİ VERİLERİ (GÜNCELLENMİŞ) ---
     const translations = {
         en: {
             title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY",
@@ -236,9 +279,24 @@
             logCrit: " (CRIT!)", logDamage: "damage.", logEnemyAtk: "attacked! You took", logDefeat: "Viego fell...",
             logEnd: "CONGRATULATIONS! ALL ENEMIES DEFEATED.",
             enemies: [
-                { name: "LeBlanc", win: "Viego: \"Your lies end here, Deceiver.\"", quotes: ["Smoke and mirrors.", "Are you truly a king?", "How naive.", "You will vanish."] },
-                { name: "Vladimir", win: "Viego: \"Even that blood belongs to me, uncle.\"", quotes: ["The smell of blood...", "Delightful taste.", "Nephew, stop this.", "Making art."] },
-                { name: "Sahn-Uzal", win: "Viego: \"The realm of death has only one king, ME!\"", quotes: ["Iron stands eternal.", "You are weak.", "Your soul is mine.", "Crumble."] }
+                { 
+                    name: "LeBlanc", 
+                    win: "Viego: \"Your lies end here, Deceiver.\"", 
+                    intro: ["Viego: \"Where is she? Where is Isolde?!\"", "LeBlanc: \"Lost in shadows, my King. Just like you.\"", "Viego: \"Speak! Or I will tear this place apart!\""],
+                    quotes: ["Smoke and mirrors.", "Are you truly a king?", "How naive.", "You will vanish."] 
+                },
+                { 
+                    name: "Vladimir", 
+                    win: "Viego: \"Even that blood belongs to me, uncle.\"", 
+                    intro: ["Vladimir: \"Ah, my favorite nephew. You look... terrible.\"", "Viego: \"Your blood magic... Can it bring her back?\"", "Vladimir: \"Death is not reversible, only delayable.\"", "Viego: \"Then you are useless to me.\""],
+                    quotes: ["The smell of blood...", "Delightful taste.", "Nephew, stop this.", "Making art."] 
+                },
+                { 
+                    name: "Sahn-Uzal", 
+                    win: "Viego: \"The realm of death has only one king, ME!\"", 
+                    intro: ["Sahn-Uzal: \"Iron stands eternal.\"", "Viego: \"I will rust your armor and break your will.\"", "Sahn-Uzal: \"You are but a child throwing a tantrum.\"", "Viego: \"I AM THE RUINED KING!\""],
+                    quotes: ["Iron stands eternal.", "You are weak.", "Your soul is mine.", "Crumble."] 
+                }
             ],
             playerQuotes: ["Isolde...", "Out of my way!", "Love ruins all.", "I will take your soul.", "The mist spreads."]
         },
@@ -253,9 +311,24 @@
             logViegoR: "VIEGO KALBİNİ KIRDI!", logCrit: " (KRİTİK!)", logDamage: "hasar.", logEnemyAtk: "saldırdı! Hasar aldın:",
             logDefeat: "Viego düştü...", logEnd: "TEBRİKLER! TÜM DÜŞMANLARI YENDİN.",
             enemies: [
-                { name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", quotes: ["Göz yanılması.", "Gerçekten kral mısın?", "Çok safsın.", "Kaybolacaksın."] },
-                { name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", quotes: ["Kanın kokusu...", "Harika bir tat.", "Yeğenim, dur artık.", "Sanat yapıyorum."] },
-                { name: "Sahn-Uzal", win: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\"", quotes: ["Demir ebedidir.", "Zayıfsın.", "Ruhun benim.", "Yıkıl."] }
+                { 
+                    name: "LeBlanc", 
+                    win: "Viego: \"Yalanların bitti, Hilekar.\"", 
+                    intro: ["Viego: \"O nerede? Isolde nerede?!\"", "LeBlanc: \"Gölgelerde kayboldu Kralım. Tıpkı senin gibi.\"", "Viego: \"Konuş! Yoksa burayı başına yıkarım!\""],
+                    quotes: ["Göz yanılması.", "Gerçekten kral mısın?", "Çok safsın.", "Kaybolacaksın."] 
+                },
+                { 
+                    name: "Vladimir", 
+                    win: "Viego: \"Kanın bana ait amca.\"", 
+                    intro: ["Vladimir: \"Ah, en sevdiğim yeğenim. Berbat görünüyorsun.\"", "Viego: \"Kan büyün... Onu geri getirebilir mi?\"", "Vladimir: \"Ölüm geri alınamaz, sadece ertelenir.\"", "Viego: \"O zaman benim için bir hiçsin.\""],
+                    quotes: ["Kanın kokusu...", "Harika bir tat.", "Yeğenim, dur artık.", "Sanat yapıyorum."] 
+                },
+                { 
+                    name: "Sahn-Uzal", 
+                    win: "Viego: \"Ölüler diyarının tek bir kralı var, o da BENİM!\"", 
+                    intro: ["Sahn-Uzal: \"Demir ebedidir.\"", "Viego: \"Zırhını paslandırıp iradeni kıracağım.\"", "Sahn-Uzal: \"Sen sadece ağlayan bir çocuksun.\"", "Viego: \"BEN MAHVOLMUŞ KRALIM!\""],
+                    quotes: ["Demir ebedidir.", "Zayıfsın.", "Ruhun benim.", "Yıkıl."] 
+                }
             ],
             playerQuotes: ["Isolde...", "Yolumdan çekil!", "Aşk her şeyi mahveder.", "Ruhunu alacağım.", "Karanlık yayılıyor."]
         }
@@ -265,12 +338,10 @@
     let t = translations.en;
 
     // --- SES YÖNETİCİSİ (WAV DOSYALARI) ---
-    // Resimdeki dosya isimleri birebir kullanıldı.
     const sounds = {
         basic1: new Audio('BasicAA_1.wav'),
         basic2: new Audio('BasicAA_2.wav'),
         w: new Audio('W_Skill.wav'),
-        // Diğerleri için placeholder (yoksa sessiz kalır, hata vermez)
         q: new Audio(), 
         r: new Audio() 
     };
@@ -278,13 +349,11 @@
     function playSkillSound(type) {
         try {
             if (type === 'basic') {
-                // Rastgele 1 veya 2 çal
                 if(Math.random() > 0.5) sounds.basic1.play();
                 else sounds.basic2.play();
             }
             if (type === 'w') sounds.w.play();
-            // Q ve R dosyası olmadığı için boş bırakıldı
-        } catch (e) { console.log("Ses hatası (Dosya eksik olabilir):", e); }
+        } catch (e) { console.log("Ses hatası:", e); }
     }
 
     // --- OYUN VERİLERİ ---
@@ -302,6 +371,10 @@
     let currentEnemyIndex = 0;
     let turn = "player"; 
     const bgMusic = document.getElementById('bgMusic');
+    
+    // Diyalog Değişkenleri
+    let dialogueIndex = 0;
+    let currentDialogues = [];
 
     // --- DİL DEĞİŞTİRME ---
     function changeLanguage(lang) {
@@ -349,7 +422,6 @@
         document.getElementById('start-screen').style.display = 'none';
         forcePlayMusic();
         loadLevel(0);
-        log(t.logStart);
     }
 
     function loadLevel(index) {
@@ -362,14 +434,59 @@
         document.getElementById('enemy-lvl').innerText = enemyData.level;
         
         enemyData.hp = enemyData.maxHp; 
-
         player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
-        updateUI();
-        log(`${t.logEnemy} ${enemyTrans.name}!`);
-        document.getElementById('overlay').style.display = 'none';
+        
+        // Savaş UI'ını Gizle
+        toggleBattleUI(false);
+        
+        // Diyalogu Başlat
+        startPreFightDialogue();
     }
 
-    // --- DİYALOG ---
+    // --- YENİ DİYALOG SİSTEMİ ---
+    function startPreFightDialogue() {
+        const enemyTrans = t.enemies[currentEnemyIndex];
+        currentDialogues = enemyTrans.intro;
+        dialogueIndex = 0;
+        
+        document.getElementById('cinematic-dialogue').style.display = 'flex';
+        updateDialogueText();
+    }
+
+    function updateDialogueText() {
+        if(dialogueIndex < currentDialogues.length) {
+            document.getElementById('cinematic-text').innerText = currentDialogues[dialogueIndex];
+        } else {
+            endDialogue();
+        }
+    }
+
+    function nextDialogue() {
+        dialogueIndex++;
+        updateDialogueText();
+    }
+
+    function endDialogue() {
+        document.getElementById('cinematic-dialogue').style.display = 'none';
+        toggleBattleUI(true); // Savaş UI'ını Göster
+        log(t.logStart);
+    }
+
+    function toggleBattleUI(show) {
+        const elements = [
+            document.getElementById('combat-controls'),
+            document.getElementById('ui-hp-p'),
+            document.getElementById('ui-mp-p'),
+            document.getElementById('ui-hp-e')
+        ];
+        
+        elements.forEach(el => {
+            if(show) el.classList.remove('hidden-ui');
+            else el.classList.add('hidden-ui');
+        });
+    }
+
+    // --- BANTER (Savaş İçi Konuşma) ---
     function triggerBanter(isPlayerTurn) {
         if (Math.random() > 0.3) return;
         
@@ -405,14 +522,14 @@
         else { if (Math.random() < player.critChance) isCrit = true; }
 
         if (type === 'basic') {
-            playSkillSound('basic'); // Random 1 or 2
+            playSkillSound('basic'); 
             damage = 15 + (player.level * 5);
             powerGain = isCrit ? 15 : Math.floor(Math.random() * 11) + 5;
             logMsg = t.logViegoBasic;
         } 
         else if (type === 'q') {
             if (player.power < 15) { log(t.logNoPower); return; }
-            playSkillSound('q'); // Placeholder
+            playSkillSound('q');
             player.power -= 15;
             damage = 30 + (player.level * 8);
             logMsg = t.logViegoQ;
@@ -424,7 +541,7 @@
         else if (type === 'w') {
             if (player.wCooldown > 0) { log(t.logCooldown); return; }
             if (player.power < 25) { log(t.logNoPower); return; }
-            playSkillSound('w'); // W_Skill.wav
+            playSkillSound('w'); 
             player.power -= 25;
             damage = 40 + (player.level * 6);
             player.nextHitCrit = true;
@@ -433,7 +550,7 @@
         }
         else if (type === 'r') {
             if (player.ultUsed) { log(t.logUltUsed); return; }
-            playSkillSound('r'); // Placeholder
+            playSkillSound('r');
             player.ultUsed = true;
             damage = 100 + (player.level * 15);
             triggerEffect('ult');
