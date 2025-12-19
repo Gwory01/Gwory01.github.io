@@ -12,6 +12,7 @@
             --dark-bg: #05080a;
             --mana-blue: #0070dd;
             --hp-red: #c0392b;
+            --crit-yellow: #ffcc00;
         }
 
         body {
@@ -32,6 +33,50 @@
             user-select: none;
         }
 
+        /* UÇAN HASAR YAZILARI İÇİN STİL */
+        .damage-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 100;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-60px) scale(1); opacity: 0; }
+        }
+
+        .crit-text {
+            color: var(--crit-yellow);
+            font-size: 36px;
+            text-shadow: 0 0 10px red;
+        }
+
+        /* EKRAN HASAR EFEKTİ */
+        .damage-flash {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 0, 0, 0.3);
+            pointer-events: none;
+            z-index: 50;
+            animation: flash 0.2s linear;
+        }
+        @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+
+        /* ULTİ EFEKTİ */
+        .ult-flash {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 200, 185, 0.4);
+            pointer-events: none;
+            z-index: 50;
+            animation: flash 0.5s linear;
+        }
+
+        /* Sis Efekti */
         @keyframes mist {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -61,6 +106,7 @@
             height: 600px;
         }
 
+        /* Başlangıç Ekranı */
         #start-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -221,7 +267,11 @@
             border: 1px solid #555;
             padding: 5px 10px;
             cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
         }
+        .music-toggle:hover { background: var(--ruined-green); color: black; }
+
         .back-btn {
             position: fixed;
             top: 20px;
@@ -240,7 +290,13 @@
 
     <a href="index.html" class="back-btn">← Menü</a>
     <div class="mist-overlay"></div>
-    <button class="music-toggle" onclick="toggleMusic()">🎵 Müzik: Açık</button>
+    <div id="flash-effect"></div>
+    
+    <button class="music-toggle" onclick="forcePlayMusic()">🎵 MÜZİĞİ BAŞLAT</button>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://opengameart.org/sites/default/files/Heroic%20Demise%20%28New%29.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="game-wrapper">
         
@@ -249,17 +305,19 @@
             <h1>İNTİKAMI</h1>
             <p style="color: #aaa; margin-top: 10px;">"Hepsi... Onun için."</p>
             <button class="start-btn" onclick="startGame()">HİKAYEYE BAŞLA</button>
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">(Müzik çalmazsa sağ üstteki butona basın)</p>
         </div>
 
         <div id="overlay" class="overlay-msg">
             <h2 id="overlay-title">ZAFER</h2>
             <p id="overlay-quote">"..."</p>
             <div id="level-up-text" style="color: yellow; margin-bottom: 15px; display:none;">SEVİYE ATLADIN!</div>
+            <div id="passive-text" style="color: var(--ruined-green); font-size:14px; margin-bottom: 20px;">Pasif Aktif: Ruh Çalındı! (+HP, +Hasar)</div>
             <button class="start-btn" id="next-btn" onclick="nextLevel()">DEVAM ET</button>
         </div>
 
         <div class="battle-scene">
-            <div class="character-box">
+            <div class="character-box" id="player-box">
                 <div class="level-badge" id="player-lvl">1</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
@@ -276,7 +334,7 @@
 
             <h1 style="color: #555; font-size: 3rem;">VS</h1>
 
-            <div class="character-box">
+            <div class="character-box" id="enemy-box">
                 <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">DÜŞMAN</h2>
@@ -318,61 +376,6 @@
     </div>
 
 <script>
-    // --- GÜVENİLİR SES SİSTEMİ (WEB AUDIO API) ---
-    // Bu sistem dosya indirmez, tarayıcıda karanlık bir atmosfer sesi üretir.
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let ambientNodes = [];
-    let masterGain = null;
-    let isMusicPlaying = false;
-
-    function initAtmosphere() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        if (isMusicPlaying) return; // Zaten çalıyorsa tekrar başlatma
-
-        masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.3; // Ses seviyesi
-        masterGain.connect(audioCtx.destination);
-
-        // 1. Düşük Frekanslı Drone (Derinlik)
-        const osc1 = audioCtx.createOscillator();
-        osc1.type = 'sawtooth';
-        osc1.frequency.value = 50; 
-        const filter1 = audioCtx.createBiquadFilter();
-        filter1.type = 'lowpass';
-        filter1.frequency.value = 150;
-        osc1.connect(filter1).connect(masterGain);
-        osc1.start();
-        ambientNodes.push(osc1);
-
-        // 2. Uğultu (Detune edilmiş sine dalgası)
-        const osc2 = audioCtx.createOscillator();
-        osc2.type = 'sine';
-        osc2.frequency.value = 55; // Hafif uyumsuzluk korku hissi verir
-        const gain2 = audioCtx.createGain();
-        gain2.gain.value = 0.5;
-        osc2.connect(gain2).connect(masterGain);
-        osc2.start();
-        ambientNodes.push(osc2);
-
-        isMusicPlaying = true;
-        document.querySelector('.music-toggle').innerText = "🎵 Müzik: Açık";
-    }
-
-    function toggleMusic() {
-        if (!masterGain) return;
-        
-        if (isMusicPlaying) {
-            masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5); // Sesi yumuşakça kapat
-            isMusicPlaying = false;
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: Kapalı";
-        } else {
-            masterGain.gain.setTargetAtTime(0.3, audioCtx.currentTime, 0.5); // Sesi yumuşakça aç
-            isMusicPlaying = true;
-            document.querySelector('.music-toggle').innerText = "🎵 Müzik: Açık";
-        }
-    }
-
     // --- OYUN VERİLERİ ---
     const player = {
         name: "Viego",
@@ -381,7 +384,8 @@
         hp: 150,
         maxMana: 100,
         mana: 50,
-        ultUsed: false
+        ultUsed: false,
+        critChance: 0.2 // %20 Kritik Şansı
     };
 
     const enemies = [
@@ -416,14 +420,32 @@
 
     let currentEnemyIndex = 0;
     let turn = "player"; 
+    const bgMusic = document.getElementById('bgMusic');
 
+    // --- SİSTEM ---
     function startGame() {
         document.getElementById('start-screen').style.display = 'none';
-        
-        // ATMOSFER SESİNİ BAŞLAT
-        initAtmosphere();
-        
+        forcePlayMusic();
         loadLevel(0);
+    }
+
+    function forcePlayMusic() {
+        bgMusic.volume = 0.3;
+        bgMusic.play().then(() => {
+            document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
+        }).catch(error => {
+            console.log("Müzik hatası:", error);
+        });
+    }
+
+    function toggleMusic() {
+        if (bgMusic.paused) {
+            bgMusic.play();
+            document.querySelector('.music-toggle').innerText = "🎵 Müzik: AÇIK";
+        } else {
+            bgMusic.pause();
+            document.querySelector('.music-toggle').innerText = "🎵 Müzik: KAPALI";
+        }
     }
 
     function loadLevel(index) {
@@ -443,6 +465,7 @@
         document.getElementById('overlay').style.display = 'none';
     }
 
+    // --- SAVAŞ MEKANİĞİ ---
     function useSkill(type) {
         if (turn !== "player") return;
 
@@ -451,23 +474,29 @@
         let logMsg = "";
         let manaCost = 0;
         let manaGain = 0;
+        let isCrit = false;
+
+        // Kritik Vuruş Hesapla (Sadece Ulti hariç)
+        if (type !== 'r' && Math.random() < player.critChance) {
+            isCrit = true;
+        }
 
         if (type === 'basic') {
             damage = 15 + (player.level * 5);
             manaGain = 15;
-            logMsg = `Viego kılıcını savurdu! ${damage} hasar. (+15 Mana)`;
+            logMsg = `Viego kılıcını savurdu!`;
         } 
         else if (type === 'q') {
             manaCost = 30;
             if (player.mana < manaCost) { log("Yetersiz Mana!"); return; }
             damage = 30 + (player.level * 8);
-            logMsg = `Viego Q yeteneğini kullandı! ${damage} hasar.`;
+            logMsg = `Viego Q yeteneğini kullandı!`;
         }
         else if (type === 'w') {
             manaCost = 50;
             if (player.mana < manaCost) { log("Yetersiz Mana!"); return; }
             damage = 50 + (player.level * 10);
-            logMsg = `Viego sisi serbest bıraktı! ${damage} hasar.`;
+            logMsg = `Viego sisi serbest bıraktı!`;
         }
         else if (type === 'r') {
             if (player.ultUsed) { log("Ulti bu savaşta zaten kullanıldı!"); return; }
@@ -481,7 +510,14 @@
             document.getElementById('btn-ult').disabled = true;
             document.getElementById('btn-ult').style.opacity = "0.5";
             
-            logMsg = `VIEGO KALBİNİ KIRDI! TÜM GÜCÜYLE VURDU! ${damage} HASAR!`;
+            logMsg = `VIEGO KALBİNİ KIRDI!`;
+            triggerEffect('ult');
+        }
+
+        // Kritik Uygula
+        if (isCrit) {
+            damage *= 2;
+            logMsg += " (KRİTİK!)";
         }
 
         player.mana -= manaCost;
@@ -491,9 +527,11 @@
         enemy.hp -= damage;
         if (enemy.hp < 0) enemy.hp = 0;
 
+        // Görseller
         shakeElement(document.getElementById('enemy-img'));
+        showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal');
         updateUI();
-        log(logMsg);
+        log(`${logMsg} ${damage} hasar.`);
 
         if (enemy.hp <= 0) {
             winBattle();
@@ -511,7 +549,9 @@
         player.hp -= dmg;
         if (player.hp < 0) player.hp = 0;
 
+        triggerEffect('damage');
         shakeElement(document.getElementById('player-img'));
+        showFloatingText(document.getElementById('player-box'), dmg, 'damage');
         updateUI();
         log(`${enemy.name} saldırdı! ${dmg} hasar aldın.`);
 
@@ -532,15 +572,14 @@
         document.getElementById('overlay-title').innerText = "DÜŞMAN KATLEDİLDİ";
         document.getElementById('overlay-quote').innerText = enemy.winQuote;
         
+        // Viego Pasifi: Ruh Çalma
         player.level++;
         player.maxHp += 50;
         player.hp = player.maxHp; 
         player.maxMana += 20;
         player.mana = 50;
         
-        document.getElementById('level-up-text').innerText = `SEVİYE ATLADIN! (LVL ${player.level})`;
         document.getElementById('level-up-text').style.display = 'block';
-
         document.getElementById('overlay').style.display = 'block';
     }
 
@@ -554,6 +593,7 @@
         }
     }
 
+    // --- GÖRSEL EFEKTLER ---
     function updateUI() {
         const pHpPerc = (player.hp / player.maxHp) * 100;
         const pManaPerc = (player.mana / player.maxMana) * 100;
@@ -575,8 +615,45 @@
     }
 
     function shakeElement(el) {
+        el.classList.remove('shake');
+        void el.offsetWidth; // Reset animation
         el.classList.add('shake');
-        setTimeout(() => el.classList.remove('shake'), 500);
+    }
+
+    function triggerEffect(type) {
+        const flash = document.getElementById('flash-effect');
+        flash.className = ''; // Reset
+        
+        if (type === 'damage') flash.classList.add('damage-flash');
+        if (type === 'ult') flash.classList.add('ult-flash');
+        
+        setTimeout(() => flash.className = '', 500);
+    }
+
+    function showFloatingText(targetElement, value, type) {
+        const text = document.createElement('div');
+        text.className = 'damage-text';
+        text.innerText = value;
+        
+        if (type === 'crit') {
+            text.classList.add('crit-text');
+            text.innerText += "!";
+        } else if (type === 'damage') {
+            text.style.color = '#ff0000';
+        } else {
+            text.style.color = '#fff';
+        }
+
+        const rect = targetElement.getBoundingClientRect();
+        text.style.left = (rect.left + rect.width / 2) + 'px';
+        text.style.top = rect.top + 'px';
+
+        document.body.appendChild(text);
+
+        // Animasyon bitince sil
+        setTimeout(() => {
+            text.remove();
+        }, 1000);
     }
 </script>
 
