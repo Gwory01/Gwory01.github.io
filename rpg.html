@@ -33,11 +33,24 @@
         /* --- UI ELEMENTLERİ --- */
         .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
-        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); border-radius: 4px; color: #ddd; text-align: center; }
+        
+        /* Genel Modal Stilleri (Restart modalı buraya eklendi) */
+        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); border-radius: 4px; color: #ddd; text-align: center; }
+        
         .info-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; padding: 20px; z-index: 2000; display: none; text-align: left; font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.6; }
         .info-modal h3 { color: var(--ruined-green); margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-family: 'Cinzel', serif; }
         .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
         .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } .info-close:hover { background: var(--ruined-green); color: black; }
+
+        /* --- RESTART MODAL ÖZEL STİLLERİ --- */
+        #restart-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; padding: 25px; z-index: 2600; display: none; font-family: 'Cinzel', serif; }
+        #restart-modal h3 { color: var(--hp-red); margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 15px; }
+        #restart-modal p { font-family: 'Roboto', sans-serif; color: #ccc; margin: 20px 0; }
+        .modal-btn-container { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+        .modal-btn { padding: 10px 20px; border: 2px solid var(--ruined-green); background: rgba(0,0,0,0.8); color: var(--ruined-green); font-family: 'Cinzel'; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .modal-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 15px var(--ruined-green); }
+        .danger-btn { border-color: var(--hp-red); color: var(--hp-red); }
+        .danger-btn:hover { background: var(--hp-red); color: white; box-shadow: 0 0 15px var(--hp-red); }
 
         /* --- SHOP MODAL & SELL MODE --- */
         #shop-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; padding: 20px; z-index: 2100; display: none; text-align: left; }
@@ -151,7 +164,7 @@
     
     <div class="top-bar-controls">
         <div class="control-row">
-            <button class="control-btn-ui" id="btn-restart" onclick="restartGameAction()">🔄 Restart</button>
+            <button class="control-btn-ui" id="btn-restart" onclick="showRestartModal()">🔄 Restart</button>
             <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
                 <option value="en">English</option>
                 <option value="tr">Türkçe</option>
@@ -170,6 +183,15 @@
     <audio id="bgMusic" loop preload="auto"><source src="" type="audio/mpeg"></audio>
 
     <div id="inv-tooltip"></div>
+
+    <div id="restart-modal">
+        <h3 id="restart-title">OYUNU SIFIRLA?</h3>
+        <p id="restart-msg">Emin misin? Tüm ilerleme silinecek.</p>
+        <div class="modal-btn-container">
+            <button id="btn-restart-confirm" class="modal-btn danger-btn" onclick="confirmRestart()">EVET, SIFIRLA</button>
+            <button id="btn-restart-cancel" class="modal-btn" onclick="cancelRestart()">İPTAL</button>
+        </div>
+    </div>
 
     <div id="info-modal" class="info-modal">
         <h3 id="info-title">KARAKTER BİLGİSİ</h3>
@@ -263,13 +285,16 @@
     const musicSlider = document.getElementById('music-vol');
     const sfxSlider = document.getElementById('sfx-vol');
 
-    // --- YENİ RESTART FONKSİYONU ---
-    function restartGameAction() {
-        if (confirm(currentLang === 'en' ? "Are you sure you want to restart? All progress will be lost." : "Yeniden başlamak istediğine emin misin? Tüm ilerleme silinecek.")) {
-            // Sadece oyun kaydını sil, ayarları silme
-            localStorage.removeItem('viegoRPG_save');
-            location.reload();
-        }
+    // --- YENİ OYUN İÇİ RESTART MANTIĞI ---
+    function showRestartModal() {
+        document.getElementById('restart-modal').style.display = 'block';
+    }
+    function confirmRestart() {
+        localStorage.removeItem('viegoRPG_save');
+        location.reload();
+    }
+    function cancelRestart() {
+        document.getElementById('restart-modal').style.display = 'none';
     }
 
     // --- SES AYARLARI KAYIT SİSTEMİ ---
@@ -301,12 +326,11 @@
         } catch(e){} 
     }
 
-    // --- OYUNCU VERİ YAPISI GÜNCELLENDİ (Geliştirme kaldırıldı) ---
+    // --- OYUNCU VERİ YAPISI ---
     let player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
         gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0,
-        // 'items' nesnesi kaldırıldı, artık sadece ownedPassives var.
         ownedPassives: [] 
     };
     let currentEnemyIndex = 0;
@@ -323,7 +347,6 @@
             const data = JSON.parse(saved);
             player = data.player;
             currentEnemyIndex = data.enemyIndex;
-            // Eski kayıt yapısından geçiş için güvenlik kontrolü
             if (!player.ownedPassives) player.ownedPassives = [];
             if (player.items) delete player.items; 
 
@@ -333,18 +356,17 @@
         }
     }
 
-    // --- STAT HESAPLAMA GÜNCELLENDİ (Sabit değerler) ---
+    // --- STAT HESAPLAMA ---
     function recalculateStats() {
         player.baseDmgBonus = player.ownedPassives.includes('sword') ? 40 : 0;
         player.armor = player.ownedPassives.includes('armor') ? 20 : 0;
         player.critChance = 0.2 + (player.ownedPassives.includes('cloak') ? 0.15 : 0);
     }
 
-    // --- MAĞAZA EŞYALARI GÜNCELLENDİ (Hepsi satılabilir ve pasif) ---
+    // --- MAĞAZA EŞYALARI ---
     const shopItems = [
         { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪', sellable: true },
         { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡', sellable: true },
-        // Geliştirilebilir eşyalar 'passive' yapıldı ve fiyatları sabitlendi
         { id: 'sword', basePrice: 250, type: 'passive', icon: '⚔️', sellable: true },
         { id: 'armor', basePrice: 250, type: 'passive', icon: '🛡️', sellable: true },
         { id: 'cloak', basePrice: 250, type: 'passive', icon: '🧥', sellable: true },
@@ -386,6 +408,7 @@
     let currentLang = 'en'; let t = {};
     const translations = {
         en: { title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY", victory: "VICTORY", levelUp: "LEVEL UP!", continue: "CONTINUE", defeat: "DEFEAT...", skillBasic: "Blade of the King", skillQ: "Blade of the Ruined King (Q)", skillQDesc: "7% Enemy HP Steal", skillW: "Spectral Maw (W)", skillR: "HEARTBREAKER (R)", finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN", choiceSurrender: "SURRENDER TO LOVE", menu: "← Menu", restart: "🔄 Restart",
+            restartTitle: "RESTART GAME?", restartMsg: "Are you sure? All progress will be lost.", restartConfirm: "YES, RESTART", restartCancel: "CANCEL",
             logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!", leblancClone: "LeBlanc vanishes!", decoy: "DECOY!", leblancEnraged: "LeBlanc returns empowered! (100% Mimic)" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
@@ -420,6 +443,7 @@
             ]
         },
         tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü", restart: "🔄 Yeniden Başla",
+            restartTitle: "OYUNU SIFIRLA?", restartMsg: "Emin misin? Tüm ilerleme silinecek.", restartConfirm: "EVET, SIFIRLA", restartCancel: "İPTAL",
             logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
             isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
@@ -471,7 +495,13 @@
         document.getElementById('overlay-title').innerText = t.victory; document.getElementById('level-up-text').innerText = t.levelUp; document.getElementById('next-btn').innerText = t.continue;
         document.getElementById('skill-basic-name').innerText = t.skillBasic; document.getElementById('skill-q-name').innerText = t.skillQ; document.getElementById('skill-q-desc').innerText = t.skillQDesc; document.getElementById('skill-w-name').innerText = t.skillW; document.getElementById('skill-r-name').innerText = t.skillR;
         document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
-        document.getElementById('btn-restart').innerText = t.restart; // Restart butonu çevirisi
+        document.getElementById('btn-restart').innerText = t.restart;
+        
+        // Yeni Restart Modal Çevirileri
+        document.getElementById('restart-title').innerText = t.restartTitle;
+        document.getElementById('restart-msg').innerText = t.restartMsg;
+        document.getElementById('btn-restart-confirm').innerText = t.restartConfirm;
+        document.getElementById('btn-restart-cancel').innerText = t.restartCancel;
         
         document.getElementById('shop-title-text').innerText = t.shop.title;
         document.getElementById('shop-close-btn').innerText = t.shop.close;
@@ -485,7 +515,7 @@
     
     function forcePlayMusic() { bgMusic.volume = musicVolume; bgMusic.play().catch(e => {}); }
 
-    // --- MAĞAZA MANTIĞI (GÜNCELLENDİ: Sadece Satın Alma ve Satış) ---
+    // --- MAĞAZA MANTIĞI ---
     function toggleSellMode() {
         isSellMode = !isSellMode;
         document.body.classList.toggle('sell-mode-active', isSellMode);
@@ -516,7 +546,6 @@
             let hasConsumable = (item.id === 'potion' && player.potions > 0) || (item.id === 'elixir' && player.elixirs > 0);
 
             if (isSellMode) {
-                 // SATIŞ MODU: Hepsi satılabilir
                  if ((item.type === 'passive' && isOwnedPassive) || (item.type === 'consumable' && hasConsumable)) {
                      btnText = `${t.shop.sell} (${Math.floor(item.basePrice / 2)} G)`;
                      div.classList.add(item.type === 'passive' ? 'owned-passive' : 'owned-consumable');
@@ -524,7 +553,6 @@
                      btnText = "-"; disabled = true;
                  }
             } else {
-                // SATIN ALMA MODU (Geliştirme yok)
                 if (item.type === 'passive') {
                     if (isOwnedPassive) { btnText = t.shop.owned; disabled = true; div.classList.add('owned-passive'); }
                     else {
@@ -552,7 +580,7 @@
         if (isSellMode) sellItem(id); else buyItem(id);
     }
 
-    // --- SATIN ALMA MANTIĞI (GÜNCELLENDİ: Geliştirme kaldırıldı) ---
+    // --- SATIN ALMA MANTIĞI ---
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
         if (item.type === 'passive' && player.ownedPassives.includes(id)) return;
@@ -568,7 +596,7 @@
         }
     }
 
-    // --- SATIŞ MANTIĞI (GÜNCELLENDİ: Her şey satılabilir) ---
+    // --- SATIŞ MANTIĞI ---
     function sellItem(id) {
         const item = shopItems.find(i => i.id === id);
         let sold = false;
@@ -587,7 +615,7 @@
         }
     }
 
-    // --- INVENTORY & EQUIPPED UI GÜNCELLENDİ ---
+    // --- INVENTORY & EQUIPPED UI ---
     function updateInventoryUI() {
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
@@ -598,7 +626,6 @@
     function updateEquippedUI() {
         const container = document.getElementById('equipped-container');
         container.innerHTML = "";
-        // Sadece ownedPassives listesini dönüyoruz
         player.ownedPassives.forEach(pId => {
             const item = shopItems.find(i => i.id === pId);
             if(item) createEquippedIcon(container, pId, item.icon);
@@ -606,7 +633,6 @@
     }
     function createEquippedIcon(container, id, icon) {
         const div = document.createElement('div'); div.className = 'eq-item';
-        // Level göstergesi kaldırıldı
         div.innerHTML = `${icon}`;
         div.onmouseover = function() { 
             const itemTrans = t.shop.items[id];
