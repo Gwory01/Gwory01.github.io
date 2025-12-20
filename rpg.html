@@ -21,20 +21,69 @@
 
         body {
             background-color: var(--dark-bg);
+            /* Mevcut arka planı koruyoruz */
             background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh; margin: 0; overflow: hidden; user-select: none;
             transition: filter 1s ease, box-shadow 1s ease;
+            position: relative; /* Sis efektleri için gerekli */
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- BUTONLAR VE UI --- */
+        /* --- KARA SİS (BLACK MIST) ANİMASYONU --- */
+        #black-mist-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Tıklamaları engellemesin */
+            z-index: 1; /* Arka planın üstünde, oyunun altında */
+            overflow: hidden;
+        }
+
+        .mist-layer {
+            position: absolute;
+            top: -50%; left: -50%; /* Ekranın dışına taşır */
+            width: 200%; height: 200%; /* Ekrandan çok daha büyük */
+            opacity: 0.3; /* Yarı saydamlık */
+            mix-blend-mode: screen; /* Arka planla parlak bir şekilde karışmasını sağlar */
+        }
+
+        /* İlk Sis Katmanı - Yavaş ve sağa doğru */
+        .mist-1 {
+            background: radial-gradient(ellipse at center, rgba(10, 200, 185, 0.15) 0%, rgba(0,0,0,0) 60%);
+            animation: mistDrift 60s linear infinite;
+        }
+
+        /* İkinci Sis Katmanı - Daha yavaş, ters yöne ve biraz daha koyu */
+        .mist-2 {
+            background: radial-gradient(ellipse at center, rgba(5, 80, 90, 0.2) 0%, rgba(0,0,0,0) 70%);
+            animation: mistDriftReverse 85s linear infinite;
+            opacity: 0.4;
+        }
+
+        /* Animasyon Tanımları */
+        @keyframes mistDrift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-10%, -5%) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        @keyframes mistDriftReverse {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(10%, 5%) rotate(-3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* --- UI ELEMENTLERİ (Z-Index Ayarı Gerekli) --- */
+        /* Oyunun ana çerçevesini ve üst barı sisin üstüne çıkarıyoruz */
+        .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn {
+            z-index: 10; /* Sisten daha yüksek */
+            position: relative; /* Z-index'in çalışması için */
+        }
+
         .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
         
-        /* ORTAK PENCERE STİLİ (Tüm pencereler oyun temasına uygun) */
         .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { 
             background: rgba(10, 12, 15, 0.98); 
             border: 2px solid #1a1a1a; 
@@ -53,7 +102,11 @@
         .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } 
         .info-close:hover { background: var(--ruined-green); color: black; }
 
-        /* --- ÖZEL RESTART PENCERESİ (Warning Bar Yerine) --- */
+        /* --- LEVEL BADGE STİLLERİ --- */
+        .level-badge { position: absolute; top: -15px; right: 50%; transform: translateX(50%); width: 35px; height: 35px; background: var(--ruined-green); color: black; border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-family: sans-serif; font-size: 16px; box-shadow: 0 0 15px var(--ruined-green); z-index: 20; }
+        #enemy-lvl { background: transparent !important; border: none !important; box-shadow: none !important; color: #d63031 !important; text-shadow: 0 0 5px black, 0 0 10px black; font-size: 28px; font-family: 'Cinzel', serif; top: -30px; }
+
+        /* --- RESTART MODAL --- */
         #restart-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; padding: 30px; z-index: 3000; display: none; font-family: 'Cinzel', serif; }
         #restart-modal h3 { color: var(--hp-red); font-size: 1.5rem; margin: 0 0 15px 0; text-shadow: 0 0 10px red; border-bottom: 1px solid #444; padding-bottom: 10px;}
         #restart-modal p { font-family: 'Roboto', sans-serif; color: #ccc; margin-bottom: 25px; font-size: 1rem; }
@@ -77,8 +130,6 @@
         .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; transition: 0.2s; }
         .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: black; }
         .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
-        
-        /* Satış Modu */
         body.sell-mode-active .shop-item.owned-passive, body.sell-mode-active .shop-item.owned-consumable { border-color: var(--sell-color); background: rgba(231, 76, 60, 0.1); }
         body.sell-mode-active .buy-btn.sellable { background: var(--sell-color); color: white; border-color: #c0392b; }
         body.sell-mode-active .buy-btn.sellable:hover { background: #c0392b; }
@@ -107,7 +158,6 @@
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         
-        /* Animasyonlar */
         .attacking { animation: attack-motion 0.3s ease-in-out; }
         @keyframes attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(30px); } 100% { transform: translateX(0); } }
         #enemy-box.attacking { animation: enemy-attack-motion 0.3s ease-in-out; }
@@ -160,6 +210,11 @@
     </style>
 </head>
 <body>
+    
+    <div id="black-mist-container">
+        <div class="mist-layer mist-1"></div>
+        <div class="mist-layer mist-2"></div>
+    </div>
 
     <a href="index.html" class="back-btn" id="btn-menu">← Menu</a>
     <div id="flash-effect"></div>
@@ -271,7 +326,7 @@
             <div class="character-box" id="enemy-box">
                 <button class="info-btn" onclick="showInfo('enemy')">i</button>
                 <div class="speech-bubble" id="enemy-bubble">...</div>
-                <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
+                <div class="level-badge" id="enemy-lvl">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
                 <div class="stat-bar hidden-ui" id="ui-hp-e"><div class="shield-fill" id="enemy-shield-bar" style="width: 0%;"></div><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
@@ -421,10 +476,10 @@
                 { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god has no power here.\"", intro: ["Illaoi: \"You are stagnant. You are stuck in the past.\"", "Viego: \"My love is timeless!\"", "Illaoi: \"Motion is life. You are dead inside.\""], quotes: ["Motion is life."] },
                 { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer! You let her die!\"", intro: ["Kalista: \"Viego... please. End this madness.\"", "Viego: \"You swore to protect me! You failed her!\"", "Kalista: \"I swore to the truth. You are lost.\""], quotes: ["Vengeance!"] },
                 { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Smoke and mirrors."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern, wretch.\"", intro: ["Thresh: \"Oh, the exquisite agony you spread.\"", "Viego: \"Do not mock me, Thresh. You are but a servant.\"", "Thresh: \"Servants eventually become masters, don't they?\""], quotes: ["Scream."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Love conquered the Void.\"", intro: ["Bel'Veth: \"I will consume your world, King.\"", "Viego: \"My world is Isolde. You cannot touch her.\"", "Bel'Veth: \"I will remake everything. Including your grief.\""], quotes: ["The end."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
+                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Yaydıgın bu acı... Ne kadar lezzetli.\"", "Viego: \"Benimle alay etme Thresh. Sen sadece bir hizmetkarsın.\"", "Thresh: \"Hizmetkarlar sonunda efendi olur, değil mi?\""], quotes: ["Çığlık at."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
+                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
             ]
         },
         tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü", restart: "🔄 Yeniden Başla",
@@ -733,6 +788,7 @@
 
         if (type === 'basic') { 
             playSkillSound('basic'); damage = 15 + player.baseDmgBonus + (player.level * 5); player.power += (isCrit ? 15 : 10); logMsg = t.logViegoBasic; 
+            // Vampir Asası Pasifi
             if(player.ownedPassives.includes('vampScepter')) {
                 player.hp = Math.min(player.maxHp, player.hp + 10);
                 showFloatingText(document.getElementById('player-box'), "+10", "heal");
@@ -749,6 +805,7 @@
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) damage = Math.floor(damage * 0.7);
 
         enemyData.hp -= damage;
+        // Animasyon Tetikleme
         document.getElementById('player-box').classList.add('attacking'); setTimeout(() => document.getElementById('player-box').classList.remove('attacking'), 300);
         triggerDamageAnim('enemy-box');
 
@@ -777,51 +834,29 @@
         player.hp = Math.max(0, player.hp - dmg);
         if (player.wCooldown > 0) player.wCooldown--;
 
+        // Çivili Zırh Pasifi
         if(player.ownedPassives.includes('thornmail') && dmg > 0) {
             enemyData.hp = Math.max(0, enemyData.hp - 15);
             showFloatingText(document.getElementById('enemy-box'), "15", "text-special");
             log("Thornmail reflected 15 damage!");
         }
 
+        // Animasyon Tetikleme
         document.getElementById('enemy-box').classList.add('attacking'); setTimeout(() => document.getElementById('enemy-box').classList.remove('attacking'), 300);
         triggerDamageAnim('player-box');
         triggerEffect('damage'); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
         log(`${enemyTrans.name} ${t.logEnemyAtk} ${dmg}.`);
-        
-        // DEFEAT LOGIC (Native Alert Kaldırıldı)
-        if (player.hp <= 0) { 
-            log(t.logDefeat); 
-            setTimeout(() => { 
-                localStorage.removeItem('viegoRPG_save'); 
-                showDefeatScreen(); // Özel Defeat Ekranı
-            }, 1000); 
-            return; 
-        }
+        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert(t.defeat); localStorage.removeItem('viegoRPG_save'); location.reload(); }, 1000); return; }
         turn = "player";
     }
 
     function winBattle() {
         if (enemyTimeout) clearTimeout(enemyTimeout);
         const enemyTrans = t.enemies[currentEnemyIndex];
-        
-        // Victory Ekranını Ayarla (Defeat tarafından değiştirilmiş olabilir, resetle)
-        document.getElementById('overlay-title').innerText = t.victory;
-        document.getElementById('overlay-title').style.color = "var(--ruined-green)";
-        document.getElementById('overlay-quote').innerText = enemyTrans.win;
-        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`; 
-        document.getElementById('level-up-text').style.display = 'block';
-        
-        // Butonları Normal Haline Getir
-        const btnContainer = document.getElementById('overlay-buttons');
-        btnContainer.innerHTML = `
-            <button class="start-btn" id="btn-open-shop" onclick="openShop()">${t.shop.btnShop}</button>
-            <button class="start-btn" id="next-btn" onclick="nextLevel()">${t.continue}</button>
-        `;
-
-        document.getElementById('overlay').style.display = 'flex';
-        
+        document.getElementById('overlay-title').innerText = t.victory; document.getElementById('overlay-quote').innerText = enemyTrans.win; 
         player.level++; player.maxHp += 50; player.hp = player.maxHp; player.gold += 100; 
-        saveGame(); 
+        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`; document.getElementById('level-up-text').style.display = 'block'; document.getElementById('overlay').style.display = 'flex';
+        saveGame(); // Oyunu Kaydet
     }
 
     function nextLevel() { document.getElementById('overlay').style.display = 'none'; currentEnemyIndex++; loadLevel(currentEnemyIndex); saveGame(); }
