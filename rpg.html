@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Viego: The Ruined King RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
@@ -19,13 +19,16 @@
             --sell-color: #e74c3c;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
             background-color: var(--dark-bg);
             background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,20,20,0.95)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; margin: 0; 
+            width: 100vw; height: 100dvh; /* Dynamic Viewport Height */
+            margin: 0; padding: 0;
             overflow: hidden; 
             user-select: none;
             position: relative;
@@ -39,253 +42,263 @@
             z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.8;
         }
 
-        /* --- UI ELEMENTLERİ --- */
-        .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #shop-modal, #restart-modal { position: relative; z-index: 10; }
-
-        .info-btn { 
-            position: absolute; top: 0; left: 0; 
-            width: 25px; height: 25px; 
-            background: rgba(0,0,0,0.9); 
-            border: 1px solid var(--ruined-green); 
-            color: var(--ruined-green); 
-            border-radius: 50%; 
-            font-weight: bold; cursor: help; 
-            z-index: 100; 
-            display: flex; justify-content: center; align-items: center; 
-            transition: 0.3s; 
+        /* --- ANA KONTEYNER (Responsive) --- */
+        .game-wrapper { 
+            width: 100%; 
+            height: 100%;
+            max-width: 1200px;
+            max-height: 800px; /* Büyük ekranlarda çok uzamasın */
+            background: rgba(8, 10, 12, 0.95); 
+            border: 2px solid #1a1a1a; 
+            outline: 1px solid var(--ruined-green); 
+            outline-offset: -1px; 
+            box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); 
+            padding: 10px; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            border-radius: 4px;
+            margin: auto; /* Ortala */
+            z-index: 10;
         }
-        .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
+
+        /* --- UI ELEMENTLERİ --- */
+        .top-bar-controls, #inventory-frame, .back-btn, #shop-modal, #restart-modal { position: relative; z-index: 20; }
+
+        /* INFO BUTONU */
+        .info-btn { 
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 24px; height: 24px; 
+            background: rgba(0,0,0,0.8); border: 1px solid var(--ruined-green); 
+            color: var(--ruined-green); border-radius: 50%; 
+            font-weight: bold; cursor: help; z-index: 50; 
+            display: flex; justify-content: center; align-items: center; font-size: 14px;
+        }
         
-        .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px rgba(10, 200, 185, 0.2); border-radius: 4px; color: #ddd; text-align: center; }
+        /* MODALLAR */
+        .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { 
+            background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; 
+            outline: 2px solid var(--ruined-green); outline-offset: -2px; 
+            box-shadow: 0 0 40px rgba(10, 200, 185, 0.2); border-radius: 4px; 
+            color: #ddd; text-align: center; 
+        }
         
         .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } 
         .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
-
         .level-badge { display: none !important; }
 
-        #restart-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; padding: 30px; z-index: 3000; display: none; font-family: 'Cinzel', serif; }
-        #restart-modal h3 { color: var(--hp-red); font-size: 1.5rem; margin: 0 0 15px 0; text-shadow: 0 0 10px red; border-bottom: 1px solid #444; padding-bottom: 10px;}
-        .modal-btn-container { display: flex; justify-content: center; gap: 20px; }
-        .modal-btn { padding: 12px 25px; border: 2px solid; background: rgba(0,0,0,0.6); font-family: 'Cinzel'; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; }
-        .btn-confirm { border-color: var(--hp-red); color: var(--hp-red); } 
-        .btn-cancel { border-color: var(--ruined-green); color: var(--ruined-green); } 
+        /* HEADER CONTROLS */
+        .top-bar-controls { 
+            position: absolute; top: 10px; right: 10px; 
+            display: flex; flex-direction: column; gap: 5px; align-items: flex-end; 
+        }
+        .control-row { display: flex; gap: 5px; align-items: center; }
+        .control-btn-ui { 
+            background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; 
+            padding: 4px 8px; cursor: pointer; border-radius: 4px; font-size: 12px; font-family: 'Roboto', sans-serif; 
+        }
+        .volume-container { 
+            display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); 
+            padding: 3px; border-radius: 4px; border: 1px solid #555; 
+        }
+        .volume-label { font-size: 10px; color: var(--ruined-green); }
+        input[type=range] { width: 60px; cursor: pointer; }
+        .back-btn { 
+            position: absolute; top: 10px; left: 10px; z-index: 20; 
+            color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); 
+            padding: 4px 10px; background: rgba(0,0,0,0.8); font-weight: bold; font-size: 12px; 
+        }
 
-        #shop-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; padding: 20px; z-index: 2100; display: none; text-align: left; }
-        .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
-        .shop-item { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; position: relative; }
-        .shop-item:hover { border-color: var(--ruined-green); background: rgba(10, 200, 185, 0.1); }
-        .shop-item.owned-passive { border-color: var(--gold-color); }
-        .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
-        .item-desc { font-size: 0.75rem; color: #aaa; font-family: 'Roboto', sans-serif; }
-        .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; transition: 0.2s; }
-        body.sell-mode-active .buy-btn.sellable { background: var(--sell-color); color: white; border-color: #c0392b; }
-        #sell-mode-btn { margin-right: 10px; background: #333; color: #aaa; border: 1px solid #555; }
-        #sell-mode-btn.active { background: var(--sell-color); color: white; border-color: #c0392b; }
-        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; }
-
-        .game-wrapper { width: 95%; max-width: 800px; height: 650px; background: rgba(8, 10, 12, 0.95); border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; }
-        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 8px; }
-        #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
-        #overlay, #final-choice-overlay { background: rgba(0,0,0,0.9); display: none; }
-        .overlay-msg h2 { color: var(--ruined-green); font-size: 2.5rem; text-shadow: 0 0 10px var(--ruined-green); }
-        #cinematic-dialogue { display: none; justify-content: flex-end; padding-bottom: 50px; background: rgba(0,0,0,0.4); pointer-events: none; }
-        .dialogue-box { padding: 25px; width: 70%; pointer-events: auto; min-height: 100px; background: rgba(10,12,15,0.95); border: 2px solid var(--ruined-green); }
-        .start-btn, #cinematic-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 10px 30px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; font-size: 1.2rem; margin: 5px; }
-        .choice-btn { padding: 20px 40px; margin: 10px; font-size: 1.2rem; border: 2px solid; cursor: pointer; font-family: 'Cinzel', serif; width: 300px; transition: 0.3s; background: rgba(0,0,0,0.8); }
-        .btn-attack { border-color: #c0392b; color: #c0392b; } 
-        .btn-surrender { border-color: #2ecc71; color: #2ecc71; } 
-
-        .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
-        
-        .character-box { 
-            width: 250px; 
-            text-align: center; 
+        /* --- SAVAŞ ALANI (BATTLE SCENE) --- */
+        .battle-scene { 
+            flex-grow: 1; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
             position: relative; 
-            transition: transform 0.2s; 
-            z-index: 2; 
-            top: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100%; 
+            width: 100%;
+            overflow: hidden; /* Taşmaları gizle */
         }
         
+        /* KARAKTER KUTULARI */
+        .character-box { 
+            width: 40%; /* Ekranın %40'ı */
+            max-width: 300px;
+            text-align: center; 
+            position: relative; 
+            z-index: 2; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        /* KARAKTER RESİMLERİ (Responsive) */
         .character-img { 
-            width: 200px; height: 200px; 
-            object-fit: cover; 
-            object-position: center top; 
-            border-radius: 50%; 
-            border: 4px solid #444; 
+            width: 20vh; height: 20vh; /* Ekran yüksekliğine göre boyutlan */
+            max-width: 200px; max-height: 200px;
+            min-width: 100px; min-height: 100px;
+            object-fit: cover; object-position: center top; 
+            border-radius: 50%; border: 3px solid #444; 
             box-shadow: 0 0 20px rgba(0,0,0,0.5); 
             transition: all 0.2s; 
         }
         
-        .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
-        .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
-        .attacking { animation: attack-motion 0.3s ease-in-out; }
-        @keyframes attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(30px); } 100% { transform: translateX(0); } }
-        #enemy-box.attacking { animation: enemy-attack-motion 0.3s ease-in-out; }
-        @keyframes enemy-attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(-30px); } 100% { transform: translateX(0); } }
-        .damaged .character-img { animation: shake 0.4s, flash-red 0.4s; }
-        @keyframes shake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, 0); } 80% { transform: translate(5px, 0); } }
-        @keyframes flash-red { 0%, 100% { filter: none; } 50% { filter: sepia(1) saturate(5) hue-rotate(-50deg); } }
-        .clone-active { opacity: 0.6; filter: grayscale(80%) blur(1px); border-color: #a29bfe; animation: pulseClone 1s infinite alternate; }
+        .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
+        .enemy-glow { border-color: #d63031; box-shadow: 0 0 20px rgba(214, 48, 49, 0.3); }
+        
+        /* İSİMLER */
+        .character-box h2 { font-size: 1.5rem; margin: 5px 0; text-shadow: 2px 2px 0 #000; }
 
-        .stat-bar { width: 100%; height: 18px; background: #222; margin-top: 10px; border: 1px solid #444; position: relative; }
-        .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); } .shield-fill { background-color: #95a5a6; position: absolute; height: 100%; opacity: 0.7; }
-        .bar-text { font-size: 13px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; line-height: 18px; }
-        /* Gold Display CSS silindi */
-
-        #inventory-frame { position: fixed; top: 80px; left: 20px; width: 70px; background: rgba(10, 12, 15, 0.95); border: 2px solid var(--ruined-green); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .inv-slot { width: 100%; height: 60px; background: #222; border: 1px solid #444; border-radius: 4px; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; }
-        .inv-slot:hover { border-color: var(--ruined-green); background: #333; } .inv-slot.empty { opacity: 0.5; filter: grayscale(100%); }
-        .inv-count { position: absolute; bottom: 2px; right: 2px; font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; }
-        #equipped-container { position: absolute; top: 50px; left: -60px; width: 50px; display: flex; flex-direction: column; gap: 8px; z-index: 50; }
-        .eq-item { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--gold-color); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; position: relative; cursor: help; }
-        .eq-lvl { position: absolute; bottom: -2px; right: -2px; background: var(--gold-color); color: black; font-size: 9px; padding: 1px 3px; font-weight: bold; border-radius: 2px; }
-
-        #inv-tooltip { 
-            position: fixed; 
-            background: rgba(10, 12, 15, 0.98); 
-            border: 1px solid var(--ruined-green); 
-            box-shadow: 0 0 20px rgba(0,0,0,0.8); 
-            padding: 12px; 
-            font-size: 12px; 
-            z-index: 4000; 
-            display: none; 
-            font-family: 'Roboto', sans-serif; 
-            max-width: 250px; 
-            border-radius: 4px;
-            pointer-events: none; 
+        /* CAN BARLARI */
+        .stat-bar { 
+            width: 90%; height: 14px; background: #222; margin-top: 5px; 
+            border: 1px solid #444; position: relative; border-radius: 2px;
         }
-        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 4px; } 
-        .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
+        .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } 
+        .shield-fill { background-color: #95a5a6; position: absolute; height: 100%; opacity: 0.7; }
+        .bar-text { font-size: 10px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; line-height: 14px; }
 
-        .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; } .hidden-ui { opacity: 0; pointer-events: none; }
-        .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-        .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px; }
-        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; } .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(100%); }
-        .skill-name { font-weight: bold; font-size: 0.75rem; } .skill-cost { font-size: 0.65rem; color: #2ecc71; } .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
-        .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; color: #ccc; font-family: 'Roboto', sans-serif; overflow-y: auto; display: flex; flex-direction: column-reverse; }
-        .speech-bubble { position: absolute; top: -80px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 15px; border-radius: 10px; font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: bold; width: 220px; text-align: center; z-index: 150; opacity: 0; pointer-events: none; transition: 0.5s; border: 2px solid var(--ruined-green); } .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+        /* VS YAZISI */
+        #vs-text { font-size: 2rem; color: #444; font-weight: bold; }
 
-        .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
-        .control-row { display: flex; gap: 10px; align-items: center; }
-        .control-btn-ui, .volume-slider { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; transition: 0.2s; }
-        .volume-container { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 4px; border: 1px solid #555; }
-        .volume-label { font-size: 12px; color: var(--ruined-green); }
-        input[type=range] { width: 80px; cursor: pointer; }
-        .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
+        /* ENVANTER */
+        #inventory-frame { 
+            position: absolute; top: 50px; left: 10px; width: 50px; 
+            background: rgba(10, 12, 15, 0.8); border: 1px solid var(--ruined-green); 
+            border-radius: 4px; padding: 5px; display: flex; flex-direction: column; gap: 8px; 
+        }
+        .inv-slot { 
+            width: 100%; height: 40px; background: #222; border: 1px solid #444; 
+            border-radius: 2px; position: relative; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center; font-size: 20px; 
+        }
+        .inv-slot:hover { border-color: var(--ruined-green); background: #333; } .inv-slot.empty { opacity: 0.5; filter: grayscale(100%); }
+        .inv-count { position: absolute; bottom: 1px; right: 1px; font-size: 9px; font-weight: bold; background: rgba(0,0,0,0.8); padding: 0 3px; border-radius: 2px; }
+        #equipped-container { position: absolute; top: 0; left: 55px; width: 100px; display: flex; flex-wrap: wrap; gap: 4px; z-index: 50; }
+        .eq-item { width: 30px; height: 30px; background: rgba(0,0,0,0.8); border: 1px solid var(--gold-color); border-radius: 2px; display: flex; justify-content: center; align-items: center; font-size: 16px; position: relative; cursor: help; }
 
-        .float-text { position: absolute; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; font-family: 'Cinzel'; } @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
-        .text-crit { color: var(--crit-color); font-size: 36px; } .text-heal { color: var(--heal-color); } .text-enemy-dmg { color: #e74c3c; } .text-special { color: #0ac8b9; } .text-weakness { color: #ff00ff; }
+        /* KONTROLLER (Alt Panel) */
+        .controls { 
+            height: auto; min-height: 140px; 
+            border-top: 1px solid #444; 
+            display: grid; grid-template-columns: 2fr 1fr; gap: 10px; 
+            padding: 10px; background: rgba(0,0,0,0.3);
+        }
+        .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; }
+        .skill-btn { 
+            background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; 
+            cursor: pointer; position: relative; transition: 0.2s; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            padding: 5px; min-height: 60px;
+        }
+        .skill-btn:active { transform: scale(0.95); }
+        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; }
+        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(100%); }
+        .skill-name { font-weight: bold; font-size: 0.65rem; text-align: center; } 
+        .skill-cost { font-size: 0.6rem; color: #2ecc71; margin-top: 2px; } .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .log-box { 
+            background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 5px; 
+            font-size: 0.75rem; color: #ccc; font-family: 'Roboto', sans-serif; 
+            overflow-y: auto; display: flex; flex-direction: column-reverse; max-height: 120px;
+        }
+
+        /* DİĞER MODALLAR */
+        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            text-align: center; padding: 20px;
+        }
+        #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
+        #overlay, #final-choice-overlay { background: rgba(0,0,0,0.9); display: none; }
+        .start-btn, #cinematic-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 10px 20px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 1rem; margin: 5px; }
+        .choice-btn { padding: 15px; margin: 10px; font-size: 1rem; border: 2px solid; cursor: pointer; font-family: 'Cinzel', serif; width: 80%; max-width: 300px; background: rgba(0,0,0,0.8); }
+        .btn-attack { border-color: #c0392b; color: #c0392b; } 
+        .btn-surrender { border-color: #2ecc71; color: #2ecc71; } 
+
+        /* SHOP MODAL */
+        #shop-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px; max-height: 80vh; padding: 15px; z-index: 2100; display: none; text-align: left; overflow: hidden; display: flex; flex-direction: column; }
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; padding-right: 5px; flex-grow: 1; }
+        .shop-item { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 4px 8px; font-size: 12px; cursor: pointer; }
+
+        /* TOOLTIP */
+        #inv-tooltip { 
+            position: fixed; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8); padding: 10px; font-size: 12px; z-index: 4000; 
+            display: none; font-family: 'Roboto', sans-serif; max-width: 200px; border-radius: 4px; pointer-events: none; 
+        }
+        .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 3px; }
+
+        /* ANİMASYONLAR */
+        .speech-bubble { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 5px 10px; border-radius: 8px; font-family: 'Roboto', sans-serif; font-size: 11px; font-weight: bold; width: 160px; text-align: center; z-index: 150; opacity: 0; pointer-events: none; transition: 0.5s; border: 2px solid var(--ruined-green); } .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+        .float-text { position: absolute; font-weight: bold; font-size: 20px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; font-family: 'Cinzel'; } @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
+        .text-crit { color: var(--crit-color); font-size: 30px; } .text-heal { color: var(--heal-color); } .text-enemy-dmg { color: #e74c3c; } .text-special { color: #0ac8b9; } .text-weakness { color: #ff00ff; }
+        .attacking { animation: attack-motion 0.2s ease-in-out; } @keyframes attack-motion { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .damaged .character-img { animation: shake 0.4s, flash-red 0.4s; } @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } } @keyframes flash-red { 0%, 100% { filter: none; } 50% { filter: sepia(1) saturate(5) hue-rotate(-50deg); } }
         #flash-effect { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; }
-        .ult-flash { animation: flash 1s linear; background: rgba(10, 200, 185, 0.5); } .stun-flash { animation: flash 0.5s linear; background: rgba(255, 255, 0, 0.3); } .void-flash { animation: flash 1s linear; background: rgba(160, 32, 240, 0.4); } @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+        .ult-flash { animation: flash 1s linear; background: rgba(10, 200, 185, 0.5); } @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
 
-        /* --- MOBİL UYUMLULUK (RESPONSIVE) --- */
+        /* --- MOBİL UYUMLULUK (MEDIA QUERIES) --- */
+        
+        /* PORTRAIT (Dikey) - Telefonlar */
         @media screen and (max-width: 768px) {
-            body { 
-                overflow-y: auto; 
-                height: auto; 
-                min-height: 100vh;
-                display: block; 
-                padding-bottom: 20px;
-            }
-
             .game-wrapper {
-                width: 95%;
-                height: auto; 
-                min-height: 80vh;
-                margin: 60px auto 20px auto; 
-                padding: 10px;
+                height: 100%; border: none; padding: 5px;
             }
-
+            
             .battle-scene {
-                flex-direction: column-reverse;
-                padding: 10px 0;
-                gap: 30px;
-            }
-
-            #vs-text {
-                font-size: 2rem;
-                margin: 10px 0;
-                transform: rotate(90deg);
-            }
-
-            .character-img {
-                width: 130px;
-                height: 130px;
-                border-width: 3px;
-            }
-
-            /* MOBİLDE KARAKTER KUTUSU AYARLARI (Masaüstünü ez) */
-            .character-box {
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                height: auto; /* Yüksekliği serbest bırak */
-                justify-content: flex-start; /* Varsayılan dikey hizalama */
-            }
-
-            .stat-bar {
-                width: 80%;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-                height: auto;
+                flex-direction: column-reverse; /* Oyuncu altta, düşman üstte */
+                justify-content: center;
                 gap: 15px;
             }
 
+            .character-box {
+                width: 100%;
+                height: auto; /* Esnek yükseklik */
+                justify-content: flex-end; /* İçeriği aşağı it */
+            }
+            #enemy-box { justify-content: flex-start; } /* Düşmanı yukarı it */
+
+            .character-img {
+                width: 140px; height: 140px; /* Sabit değil, responsive kalabilir ama boyutu sınırladık */
+                border-width: 2px;
+            }
+
+            .character-box h2 { font-size: 1.2rem; }
+
+            #vs-text { transform: rotate(90deg); margin: 5px 0; font-size: 1.5rem; }
+
+            .controls {
+                grid-template-columns: 1fr; /* Log aşağı iner */
+                min-height: auto;
+                gap: 5px;
+                padding: 5px;
+            }
+
             .skills {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
+                grid-template-columns: 1fr 1fr; /* 2x2 buton düzeni */
             }
 
-            .skill-btn {
-                padding: 15px 5px;
-            }
+            .skill-btn { min-height: 50px; }
 
-            .log-box {
-                height: 80px; 
-                font-size: 0.8rem;
-            }
+            .log-box { height: 60px; font-size: 0.7rem; }
 
-            .top-bar-controls {
-                top: 5px; right: 5px;
-                transform: scale(0.85);
-                transform-origin: top right;
-            }
-            .back-btn { top: 10px; left: 10px; font-size: 0.8rem; padding: 5px 10px; }
-
-            #shop-modal, #restart-modal {
-                width: 90% !important;
-                padding: 15px;
-            }
-            .shop-grid {
-                grid-template-columns: 1fr; 
-                max-height: 250px;
-            }
+            #inventory-frame { top: 40px; left: 5px; transform: scale(0.9); transform-origin: top left; }
+            .top-bar-controls { transform: scale(0.9); transform-origin: top right; }
             
-            .speech-bubble {
-                width: 180px;
-                font-size: 11px;
-                top: -60px;
-            }
+            /* Mobilde shop grid tek sütun */
+            .shop-grid { grid-template-columns: 1fr; }
+        }
 
-            #inventory-frame {
-                top: 60px; left: 5px;
-                transform: scale(0.8); transform-origin: top left;
+        /* LANDSCAPE (Yatay) - Telefonlar */
+        @media screen and (max-height: 600px) and (orientation: landscape) {
+            .game-wrapper { flex-direction: row; }
+            .battle-scene { flex-grow: 1; }
+            .controls { 
+                width: 180px; height: 100%; border-top: none; border-left: 1px solid #444; 
+                display: flex; flex-direction: column; 
             }
-            
-            .choice-btn {
-                width: 90%;
-                padding: 15px;
-                font-size: 1rem;
-            }
+            .skills { grid-template-columns: 1fr; }
+            .log-box { flex-grow: 1; }
+            .character-img { width: 120px; height: 120px; }
         }
     </style>
 </head>
@@ -305,19 +318,15 @@
     
     <div class="top-bar-controls">
         <div class="control-row">
-            <button class="control-btn-ui" id="btn-restart" onclick="showRestartModal()">🔄 Restart</button>
+            <button class="control-btn-ui" id="btn-restart" onclick="showRestartModal()">🔄</button>
             <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
-                <option value="en">English</option>
-                <option value="tr">Türkçe</option>
+                <option value="en">EN</option>
+                <option value="tr">TR</option>
             </select>
         </div>
         <div class="volume-container">
-            <span class="volume-label">🎵 Music</span>
+            <span class="volume-label">🎵</span>
             <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.15">
-        </div>
-        <div class="volume-container">
-            <span class="volume-label">🔊 SFX</span>
-            <input type="range" id="sfx-vol" min="0" max="1" step="0.05" value="0.3">
         </div>
     </div>
 
@@ -325,21 +334,21 @@
 
     <div id="inv-tooltip"></div>
 
-    <div id="restart-modal">
+    <div id="restart-modal" style="display:none;">
         <h3 id="restart-title">OYUNU SIFIRLA?</h3>
         <p id="restart-msg">Emin misin? Tüm ilerleme silinecek.</p>
         <div class="modal-btn-container">
-            <button id="btn-restart-confirm" class="modal-btn btn-confirm" onclick="confirmRestart()">EVET, SIFIRLA</button>
+            <button id="btn-restart-confirm" class="modal-btn btn-confirm" onclick="confirmRestart()">EVET</button>
             <button id="btn-restart-cancel" class="modal-btn btn-cancel" onclick="cancelRestart()">İPTAL</button>
         </div>
     </div>
 
-    <div id="shop-modal">
+    <div id="shop-modal" style="display:none;">
         <div class="shop-header">
             <h3 style="margin:0; color:var(--gold-color);" id="shop-title-text">RUINED SHOP</h3>
             <div>
-                <button id="sell-mode-btn" class="control-btn-ui" onclick="toggleSellMode()">SELL MODE: OFF</button>
-                <span id="shop-gold-display" style="margin-left:10px; font-weight:bold; color:var(--gold-color);">0 Gold</span>
+                <button id="sell-mode-btn" class="control-btn-ui" onclick="toggleSellMode()">SELL: OFF</button>
+                <span id="shop-gold-display" style="margin-left:10px; font-weight:bold; color:var(--gold-color);">0 G</span>
             </div>
         </div>
         <div class="shop-grid" id="shop-container"></div>
@@ -380,24 +389,18 @@
         <div class="battle-scene">
             <div class="character-box" id="player-box">
                 <button class="info-btn" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</button>
-                
                 <div class="speech-bubble" id="player-bubble">...</div>
-                <div class="level-badge" id="player-lvl">1</div>
-                
                 <div id="equipped-container"></div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
                 <div class="stat-bar hidden-ui" id="ui-hp-p"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
-                
-                </div>
+            </div>
 
-            <h1 style="color: #555; font-size: 3rem;" id="vs-text">VS</h1>
+            <h1 id="vs-text">VS</h1>
 
             <div class="character-box" id="enemy-box">
                 <button class="info-btn" onmouseover="showCharacterTooltip(this, 'enemy')" onmouseout="hideTooltip()">i</button>
-                
                 <div class="speech-bubble" id="enemy-bubble">...</div>
-                <div class="level-badge" id="enemy-lvl">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
                 <div class="stat-bar hidden-ui" id="ui-hp-e"><div class="shield-fill" id="enemy-shield-bar" style="width: 0%;"></div><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
@@ -419,51 +422,15 @@
 <script>
     // --- WEBGL SHADER KODLARI ---
     const bgMistFragmentShader = `#version 300 es
-    precision highp float;
-    uniform float time;
-    uniform vec2 vp;
-    uniform vec2 u_mouse;
-    in vec2 uv;
-    out vec4 fragColor;
+    precision highp float; uniform float time; uniform vec2 vp; uniform vec2 u_mouse; in vec2 uv; out vec4 fragColor;
     float rand(vec2 p) { return fract(sin(dot(p.xy, vec2(1., 300.))) * 43758.5453123); }
     float noise(vec2 p) { vec2 i = floor(p); vec2 f = fract(p); float a = rand(i); float b = rand(i + vec2(1.0, 0.0)); float c = rand(i + vec2(0.0, 1.0)); float d = rand(i + vec2(1.0, 1.0)); vec2 u = f * f * (3.0 - 2.0 * f); return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y; }
     #define OCTAVES 4
     float fbm(vec2 p) { float value = 0.; float amplitude = .5; for (int i = 0; i < OCTAVES; i++) { value += amplitude * noise(p); p *= 2.2; amplitude *= .45; } return value; }
-    void main() {
-        vec2 p = uv.xy; float aspect = vp.x / vp.y; p.x *= aspect;
-        float t = time * 0.1; vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2; vec2 fast = (p + flow) * 3.5;
-        float ns_a = fbm(fast + t); float ns_b = fbm(fast + ns_a - t * 0.5); float intensity = fbm(vec2(ns_a, ns_b));
-        vec3 darkMist = vec3(0.02, 0.05, 0.05); vec3 ruinedTeal = vec3(0.04, 0.78, 0.72);
-        vec3 color = mix(darkMist, ruinedTeal, intensity * intensity * 0.8);
-        float alpha = smoothstep(0.2, 0.9, intensity);
-        vec2 mousePosCorrected = u_mouse; mousePosCorrected.x *= aspect;
-        float dist = distance(p, mousePosCorrected);
-        float clearMask = smoothstep(0.15, 0.35, dist);
-        alpha *= clearMask;
-        fragColor = vec4(color, alpha);
-    } `;
+    void main() { vec2 p = uv.xy; float aspect = vp.x / vp.y; p.x *= aspect; float t = time * 0.1; vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2; vec2 fast = (p + flow) * 3.5; float ns_a = fbm(fast + t); float ns_b = fbm(fast + ns_a - t * 0.5); float intensity = fbm(vec2(ns_a, ns_b)); vec3 darkMist = vec3(0.02, 0.05, 0.05); vec3 ruinedTeal = vec3(0.04, 0.78, 0.72); vec3 color = mix(darkMist, ruinedTeal, intensity * intensity * 0.8); float alpha = smoothstep(0.2, 0.9, intensity); vec2 mousePosCorrected = u_mouse; mousePosCorrected.x *= aspect; float dist = distance(p, mousePosCorrected); float clearMask = smoothstep(0.15, 0.35, dist); alpha *= clearMask; fragColor = vec4(color, alpha); } `;
     const vertexShaderSource = `#version 300 es
-    precision mediump float;
-    const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
-    out vec2 uv;
-    void main() { uv = positions[gl_VertexID] * 0.5 + 0.5; gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0); }`;
-
-    class WebGLHandler {
-        constructor(canvas, fragmentSource) {
-            this.cn = canvas; this.gl = canvas.getContext("webgl2", { alpha: true }); this.startTime = Date.now();
-            this.resize(); window.addEventListener("resize", () => this.resize());
-            this.program = this.gl.createProgram();
-            this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER); this.compileShader(fragmentSource, this.gl.FRAGMENT_SHADER);
-            this.gl.linkProgram(this.program); this.gl.useProgram(this.program);
-            this.timeLocation = this.gl.getUniformLocation(this.program, "time"); this.resolutionLocation = this.gl.getUniformLocation(this.program, "vp");
-            this.mouseLocation = this.gl.getUniformLocation(this.program, "u_mouse"); this.mouseX = 0.5; this.mouseY = 0.5;
-            window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX / window.innerWidth; this.mouseY = 1.0 - (e.clientY / window.innerHeight); });
-            this.render();
-        }
-        resize() { this.cn.width = window.innerWidth; this.cn.height = window.innerHeight; this.gl.viewport(0, 0, this.cn.width, this.cn.height); }
-        compileShader(source, type) { const shader = this.gl.createShader(type); this.gl.shaderSource(shader, source); this.gl.compileShader(shader); this.gl.attachShader(this.program, shader); }
-        render = () => { this.gl.uniform1f(this.timeLocation, (Date.now() - this.startTime) / 1000); this.gl.uniform2fv(this.resolutionLocation, [this.cn.width, this.cn.height]); this.gl.uniform2fv(this.mouseLocation, [this.mouseX, this.mouseY]); this.gl.drawArrays(this.gl.TRIANGLES, 0, 6); requestAnimationFrame(this.render); };
-    }
+    precision mediump float; const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0)); out vec2 uv; void main() { uv = positions[gl_VertexID] * 0.5 + 0.5; gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0); }`;
+    class WebGLHandler { constructor(canvas, fragmentSource) { this.cn = canvas; this.gl = canvas.getContext("webgl2", { alpha: true }); this.startTime = Date.now(); this.resize(); window.addEventListener("resize", () => this.resize()); this.program = this.gl.createProgram(); this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER); this.compileShader(fragmentSource, this.gl.FRAGMENT_SHADER); this.gl.linkProgram(this.program); this.gl.useProgram(this.program); this.timeLocation = this.gl.getUniformLocation(this.program, "time"); this.resolutionLocation = this.gl.getUniformLocation(this.program, "vp"); this.mouseLocation = this.gl.getUniformLocation(this.program, "u_mouse"); this.mouseX = 0.5; this.mouseY = 0.5; window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX / window.innerWidth; this.mouseY = 1.0 - (e.clientY / window.innerHeight); }); this.render(); } resize() { this.cn.width = window.innerWidth; this.cn.height = window.innerHeight; this.gl.viewport(0, 0, this.cn.width, this.cn.height); } compileShader(source, type) { const shader = this.gl.createShader(type); this.gl.shaderSource(shader, source); this.gl.compileShader(shader); this.gl.attachShader(this.program, shader); } render = () => { this.gl.uniform1f(this.timeLocation, (Date.now() - this.startTime) / 1000); this.gl.uniform2fv(this.resolutionLocation, [this.cn.width, this.cn.height]); this.gl.uniform2fv(this.mouseLocation, [this.mouseX, this.mouseY]); this.gl.drawArrays(this.gl.TRIANGLES, 0, 6); requestAnimationFrame(this.render); }; }
     const bgCanvas = document.body.appendChild(document.createElement("canvas")); bgCanvas.id = "mist-canvas-bg"; new WebGLHandler(bgCanvas, bgMistFragmentShader);
 
     // --- OYUN JS KODLARI ---
@@ -672,7 +639,7 @@
             `;
             container.appendChild(div);
         });
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     }
 
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; document.body.classList.remove('sell-mode-active'); updateSellModeUI(); }
@@ -774,11 +741,16 @@
         
         // Konumlandırma
         const rect = el.getBoundingClientRect();
-        tooltip.style.top = (rect.bottom + 10) + 'px'; 
-        tooltip.style.left = (rect.left - 100) + 'px'; // Biraz sola kaydır ki ortalansın
+        let top = rect.bottom + 10;
+        let left = rect.left - 80;
         
-        // Mobilde ekran dışına taşmayı engelle (Basit kontrol)
-        if (rect.left < 100) tooltip.style.left = '10px';
+        // Ekran dışına taşma kontrolü
+        if (left < 10) left = 10;
+        if (left + 200 > window.innerWidth) left = window.innerWidth - 210;
+        if (top + tooltip.offsetHeight > window.innerHeight) top = rect.top - tooltip.offsetHeight - 10;
+
+        tooltip.style.top = top + 'px'; 
+        tooltip.style.left = left + 'px'; 
     }
 
     // Envanter ve itemlar için
@@ -791,8 +763,8 @@
             tooltip.style.display = 'block';
             
             const rect = el.getBoundingClientRect();
-            tooltip.style.top = rect.bottom + 'px';
-            tooltip.style.left = (rect.left + 50) + 'px';
+            tooltip.style.top = (rect.bottom + 5) + 'px';
+            tooltip.style.left = (rect.left + 20) + 'px';
         }
     }
 
