@@ -54,7 +54,7 @@
         .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
         
         /* Satış Modu Stilleri */
-        body.sell-mode-active .shop-item.owned-passive { border-color: var(--sell-color); background: rgba(231, 76, 60, 0.1); }
+        body.sell-mode-active .shop-item.owned-passive, body.sell-mode-active .shop-item.owned-consumable { border-color: var(--sell-color); background: rgba(231, 76, 60, 0.1); }
         body.sell-mode-active .buy-btn.sellable { background: var(--sell-color); color: white; border-color: #c0392b; }
         body.sell-mode-active .buy-btn.sellable:hover { background: #c0392b; }
         #sell-mode-btn { margin-right: 10px; background: #333; color: #aaa; border: 1px solid #555; }
@@ -120,8 +120,9 @@
 
         /* TOP BAR & AUDIO CONTROLS */
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
-        .control-row { display: flex; gap: 10px; }
-        .control-btn-ui, .volume-slider { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px; cursor: pointer; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; }
+        .control-row { display: flex; gap: 10px; align-items: center; }
+        .control-btn-ui, .volume-slider { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px; cursor: pointer; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; transition: 0.2s; }
+        .control-btn-ui:hover { background: var(--ruined-green); color: black; border-color: var(--ruined-green); }
         .volume-container { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 4px; border: 1px solid #555; }
         .volume-label { font-size: 12px; color: var(--ruined-green); }
         input[type=range] { width: 80px; cursor: pointer; }
@@ -150,6 +151,7 @@
     
     <div class="top-bar-controls">
         <div class="control-row">
+            <button class="control-btn-ui" id="btn-restart" onclick="restartGameAction()">🔄 Restart</button>
             <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
                 <option value="en">English</option>
                 <option value="tr">Türkçe</option>
@@ -261,6 +263,15 @@
     const musicSlider = document.getElementById('music-vol');
     const sfxSlider = document.getElementById('sfx-vol');
 
+    // --- YENİ RESTART FONKSİYONU ---
+    function restartGameAction() {
+        if (confirm(currentLang === 'en' ? "Are you sure you want to restart? All progress will be lost." : "Yeniden başlamak istediğine emin misin? Tüm ilerleme silinecek.")) {
+            // Sadece oyun kaydını sil, ayarları silme
+            localStorage.removeItem('viegoRPG_save');
+            location.reload();
+        }
+    }
+
     // --- SES AYARLARI KAYIT SİSTEMİ ---
     function saveSettings() {
         localStorage.setItem('viegoRPG_settings', JSON.stringify({ mVol: musicVolume, sVol: sfxVolume }));
@@ -290,11 +301,12 @@
         } catch(e){} 
     }
 
+    // --- OYUNCU VERİ YAPISI GÜNCELLENDİ (Geliştirme kaldırıldı) ---
     let player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
         gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0,
-        items: { sword: { level: 0, icon: '⚔️' }, armor: { level: 0, icon: '🛡️' }, cloak: { level: 0, icon: '🧥' } },
+        // 'items' nesnesi kaldırıldı, artık sadece ownedPassives var.
         ownedPassives: [] 
     };
     let currentEnemyIndex = 0;
@@ -311,23 +323,31 @@
             const data = JSON.parse(saved);
             player = data.player;
             currentEnemyIndex = data.enemyIndex;
+            // Eski kayıt yapısından geçiş için güvenlik kontrolü
+            if (!player.ownedPassives) player.ownedPassives = [];
+            if (player.items) delete player.items; 
+
             recalculateStats();
             updateInventoryUI(); updateEquippedUI(); updateUI();
             console.log("Game Loaded!");
         }
     }
+
+    // --- STAT HESAPLAMA GÜNCELLENDİ (Sabit değerler) ---
     function recalculateStats() {
-        player.baseDmgBonus = player.items.sword.level * 30;
-        player.armor = player.items.armor.level * 15;
-        player.critChance = 0.2 + (player.items.cloak.level * 0.05);
+        player.baseDmgBonus = player.ownedPassives.includes('sword') ? 40 : 0;
+        player.armor = player.ownedPassives.includes('armor') ? 20 : 0;
+        player.critChance = 0.2 + (player.ownedPassives.includes('cloak') ? 0.15 : 0);
     }
 
+    // --- MAĞAZA EŞYALARI GÜNCELLENDİ (Hepsi satılabilir ve pasif) ---
     const shopItems = [
-        { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪' },
-        { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡' },
-        { id: 'sword', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 30, icon: '⚔️' },
-        { id: 'armor', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 15, icon: '🛡️' },
-        { id: 'cloak', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 0.05, icon: '🧥' },
+        { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪', sellable: true },
+        { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡', sellable: true },
+        // Geliştirilebilir eşyalar 'passive' yapıldı ve fiyatları sabitlendi
+        { id: 'sword', basePrice: 250, type: 'passive', icon: '⚔️', sellable: true },
+        { id: 'armor', basePrice: 250, type: 'passive', icon: '🛡️', sellable: true },
+        { id: 'cloak', basePrice: 250, type: 'passive', icon: '🧥', sellable: true },
         { id: 'vampScepter', basePrice: 400, type: 'passive', icon: '🩸', sellable: true },
         { id: 'thornmail', basePrice: 500, type: 'passive', icon: '🌵', sellable: true }
     ];
@@ -365,17 +385,17 @@
 
     let currentLang = 'en'; let t = {};
     const translations = {
-        en: { title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY", victory: "VICTORY", levelUp: "LEVEL UP!", continue: "CONTINUE", defeat: "DEFEAT...", skillBasic: "Blade of the King", skillQ: "Blade of the Ruined King (Q)", skillQDesc: "7% Enemy HP Steal", skillW: "Spectral Maw (W)", skillR: "HEARTBREAKER (R)", finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN", choiceSurrender: "SURRENDER TO LOVE", menu: "← Menu",
+        en: { title1: "THE RUINED KING'S", title2: "REVENGE", sub: "\"It is all... for her.\"", startBtn: "START STORY", victory: "VICTORY", levelUp: "LEVEL UP!", continue: "CONTINUE", defeat: "DEFEAT...", skillBasic: "Blade of the King", skillQ: "Blade of the Ruined King (Q)", skillQDesc: "7% Enemy HP Steal", skillW: "Spectral Maw (W)", skillR: "HEARTBREAKER (R)", finalChoiceTitle: "MAKE YOUR CHOICE", choiceAttack: "STRIKE HER DOWN", choiceSurrender: "SURRENDER TO LOVE", menu: "← Menu", restart: "🔄 Restart",
             logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!", leblancClone: "LeBlanc vanishes!", decoy: "DECOY!", leblancEnraged: "LeBlanc returns empowered! (100% Mimic)" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
-            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", upgrade: "UPGRADE", max: "MAX", sold: "OWNED", sellModeOn: "SELL MODE: ON", sellModeOff: "SELL MODE: OFF", sell: "SELL",
+            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", buy: "BUY", owned: "OWNED", sellModeOn: "SELL MODE: ON", sellModeOff: "SELL MODE: OFF", sell: "SELL",
                 items: {
                     potion: { name: "Mist Potion", desc: "Restores 10% Missing HP", stat: "Heal" },
                     elixir: { name: "Wrath Elixir", desc: "Restores Power", stat: "+40 PWR" },
-                    sword: { name: "Ruined Shard", desc: "+30 Base Damage/Lvl", stat: "Damage" },
-                    armor: { name: "Spectral Armor", desc: "+15% Dmg Reduction/Lvl", stat: "Armor" },
-                    cloak: { name: "Crit Cloak", desc: "+5% Crit Chance/Lvl", stat: "Crit" },
+                    sword: { name: "Ruined Blade", desc: "PASSIVE: +40 Base Damage.", stat: "Damage" },
+                    armor: { name: "Spectral Armor", desc: "PASSIVE: +20% Damage Reduction.", stat: "Armor" },
+                    cloak: { name: "Crit Cloak", desc: "PASSIVE: +15% Crit Chance.", stat: "Crit" },
                     vampScepter: { name: "Vampiric Scepter", desc: "PASSIVE: Basic attacks heal 10 HP.", stat: "Lifesteal" },
                     thornmail: { name: "Thornmail", desc: "PASSIVE: Reflects 15 magic damage when hit.", stat: "Reflect" }
                 }
@@ -399,17 +419,17 @@
                 { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
             ]
         },
-        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü",
+        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü", restart: "🔄 Yeniden Başla",
             logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
             isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", upgrade: "GELİŞTİR", max: "MAKS", sold: "SAHİPSİN", sellModeOn: "SATIŞ MODU: AÇIK", sellModeOff: "SATIŞ MODU: KAPALI", sell: "SAT",
+            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", buy: "SATIN AL", owned: "SAHİPSİN", sellModeOn: "SATIŞ MODU: AÇIK", sellModeOff: "SATIŞ MODU: KAPALI", sell: "SAT",
                 items: {
                     potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
                     elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
-                    sword: { name: "Mahvolmuş Parça", desc: "+30 Taban Hasar/Seviye", stat: "Hasar" },
-                    armor: { name: "Hayalet Zırh", desc: "%15 Hasar Azaltma/Seviye", stat: "Zırh" },
-                    cloak: { name: "Kritik Pelerini", desc: "+%5 Kritik Şansı/Seviye", stat: "Kritik" },
+                    sword: { name: "Mahvolmuş Kılıç", desc: "PASİF: +40 Taban Hasar.", stat: "Hasar" },
+                    armor: { name: "Hayalet Zırh", desc: "PASİF: %20 Hasar Azaltma.", stat: "Zırh" },
+                    cloak: { name: "Kritik Pelerini", desc: "PASİF: +%15 Kritik Şansı.", stat: "Kritik" },
                     vampScepter: { name: "Vampir Asası", desc: "PASİF: Düz vuruşlar 10 Can iyileştirir.", stat: "Can Çalma" },
                     thornmail: { name: "Çivili Zırh", desc: "PASİF: Hasar alınca 15 büyü hasarı yansıtır.", stat: "Yansıtma" }
                 }
@@ -451,6 +471,7 @@
         document.getElementById('overlay-title').innerText = t.victory; document.getElementById('level-up-text').innerText = t.levelUp; document.getElementById('next-btn').innerText = t.continue;
         document.getElementById('skill-basic-name').innerText = t.skillBasic; document.getElementById('skill-q-name').innerText = t.skillQ; document.getElementById('skill-q-desc').innerText = t.skillQDesc; document.getElementById('skill-w-name').innerText = t.skillW; document.getElementById('skill-r-name').innerText = t.skillR;
         document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
+        document.getElementById('btn-restart').innerText = t.restart; // Restart butonu çevirisi
         
         document.getElementById('shop-title-text').innerText = t.shop.title;
         document.getElementById('shop-close-btn').innerText = t.shop.close;
@@ -464,7 +485,7 @@
     
     function forcePlayMusic() { bgMusic.volume = musicVolume; bgMusic.play().catch(e => {}); }
 
-    // --- SHOP LOGIC & SELLING ---
+    // --- MAĞAZA MANTIĞI (GÜNCELLENDİ: Sadece Satın Alma ve Satış) ---
     function toggleSellMode() {
         isSellMode = !isSellMode;
         document.body.classList.toggle('sell-mode-active', isSellMode);
@@ -489,38 +510,36 @@
             const div = document.createElement('div');
             div.className = 'shop-item';
             
-            let btnText = `${item.basePrice} G`;
+            let btnText = "";
             let disabled = false;
             let isOwnedPassive = player.ownedPassives.includes(item.id);
+            let hasConsumable = (item.id === 'potion' && player.potions > 0) || (item.id === 'elixir' && player.elixirs > 0);
 
             if (isSellMode) {
-                 if (item.sellable && isOwnedPassive) {
+                 // SATIŞ MODU: Hepsi satılabilir
+                 if ((item.type === 'passive' && isOwnedPassive) || (item.type === 'consumable' && hasConsumable)) {
                      btnText = `${t.shop.sell} (${Math.floor(item.basePrice / 2)} G)`;
-                     div.classList.add('owned-passive');
+                     div.classList.add(item.type === 'passive' ? 'owned-passive' : 'owned-consumable');
                  } else {
                      btnText = "-"; disabled = true;
                  }
             } else {
-                // Buy Mode
-                if (item.type === 'upgradable') {
-                    const currentLevel = player.items[item.id].level;
-                    if (currentLevel >= item.maxLevel) { btnText = t.shop.max; disabled = true; } 
+                // SATIN ALMA MODU (Geliştirme yok)
+                if (item.type === 'passive') {
+                    if (isOwnedPassive) { btnText = t.shop.owned; disabled = true; div.classList.add('owned-passive'); }
                     else {
-                        const price = item.basePrice * (currentLevel + 1);
-                        btnText = `${t.shop.upgrade} (${price} G)`;
-                        if (player.gold < price) disabled = true;
+                         btnText = `${t.shop.buy} (${item.basePrice} G)`;
+                         if (player.gold < item.basePrice) disabled = true;
                     }
-                } else if (item.type === 'passive') {
-                    if (isOwnedPassive) { btnText = t.shop.sold; disabled = true; div.classList.add('owned-passive'); }
-                    else if (player.gold < item.basePrice) disabled = true;
                 } else { // consumable
+                     btnText = `${t.shop.buy} (${item.basePrice} G)`;
                      if (player.gold < item.basePrice) disabled = true;
                 }
             }
 
             div.innerHTML = `
                 <div class="item-info"><span class="item-name">${item.icon} ${itemTrans.name}</span><span class="item-desc">${itemTrans.desc}</span></div>
-                <button class="buy-btn ${isSellMode && item.sellable && isOwnedPassive ? 'sellable' : ''}" onclick="handleShopAction('${item.id}')" ${disabled ? 'disabled' : ''}>${btnText}</button>
+                <button class="buy-btn ${isSellMode ? 'sellable' : ''}" onclick="handleShopAction('${item.id}')" ${disabled ? 'disabled' : ''}>${btnText}</button>
             `;
             container.appendChild(div);
         });
@@ -533,21 +552,15 @@
         if (isSellMode) sellItem(id); else buyItem(id);
     }
 
+    // --- SATIN ALMA MANTIĞI (GÜNCELLENDİ: Geliştirme kaldırıldı) ---
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
-        let price = item.basePrice;
-        if (item.type === 'upgradable') {
-            if (player.items[id].level >= item.maxLevel) return;
-            price = item.basePrice * (player.items[id].level + 1);
-        } else if (item.type === 'passive' && player.ownedPassives.includes(id)) return;
+        if (item.type === 'passive' && player.ownedPassives.includes(id)) return;
 
-        if (player.gold >= price) {
-            player.gold -= price;
+        if (player.gold >= item.basePrice) {
+            player.gold -= item.basePrice;
             if (item.type === 'consumable') {
                 if (id === 'potion') player.potions++; else if (id === 'elixir') player.elixirs++;
-            } else if (item.type === 'upgradable') {
-                player.items[id].level++;
-                recalculateStats();
             } else if (item.type === 'passive') {
                 player.ownedPassives.push(id);
             }
@@ -555,16 +568,26 @@
         }
     }
 
+    // --- SATIŞ MANTIĞI (GÜNCELLENDİ: Her şey satılabilir) ---
     function sellItem(id) {
         const item = shopItems.find(i => i.id === id);
-        if (item.sellable && player.ownedPassives.includes(id)) {
-            player.gold += Math.floor(item.basePrice / 2);
+        let sold = false;
+
+        if (item.type === 'passive' && player.ownedPassives.includes(id)) {
             player.ownedPassives = player.ownedPassives.filter(pId => pId !== id);
-            saveGame(); openShop(); updateUI(); updateEquippedUI();
+            sold = true;
+        } else if (item.type === 'consumable') {
+            if (id === 'potion' && player.potions > 0) { player.potions--; sold = true; }
+            else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; sold = true; }
+        }
+
+        if (sold) {
+            player.gold += Math.floor(item.basePrice / 2);
+            saveGame(); openShop(); updateUI(); updateInventoryUI(); updateEquippedUI();
         }
     }
 
-    // --- INVENTORY & EQUIPPED UI ---
+    // --- INVENTORY & EQUIPPED UI GÜNCELLENDİ ---
     function updateInventoryUI() {
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
@@ -575,28 +598,21 @@
     function updateEquippedUI() {
         const container = document.getElementById('equipped-container');
         container.innerHTML = "";
-        // Upgradables
-        for (const [key, value] of Object.entries(player.items)) {
-            if (value.level > 0) createEquippedIcon(container, key, value.icon, value.level);
-        }
-        // Passives
+        // Sadece ownedPassives listesini dönüyoruz
         player.ownedPassives.forEach(pId => {
             const item = shopItems.find(i => i.id === pId);
-            createEquippedIcon(container, pId, item.icon, null);
+            if(item) createEquippedIcon(container, pId, item.icon);
         });
     }
-    function createEquippedIcon(container, id, icon, level) {
+    function createEquippedIcon(container, id, icon) {
         const div = document.createElement('div'); div.className = 'eq-item';
-        div.innerHTML = `${icon} ${level !== null ? `<span class="eq-lvl">+${level}</span>` : ''}`;
+        // Level göstergesi kaldırıldı
+        div.innerHTML = `${icon}`;
         div.onmouseover = function() { 
             const itemTrans = t.shop.items[id];
             const tooltip = document.getElementById('inv-tooltip');
             tooltip.style.display = 'block'; tooltip.style.top = this.offsetTop + 50 + 'px'; tooltip.style.left = '60px';
-            let statText = itemTrans.stat;
-            if(id==='sword') statText = `Total: +${player.baseDmgBonus} Damage`;
-            if(id==='armor') statText = `Total: +${player.armor}% Armor`;
-            if(id==='cloak') statText = `Total: +${Math.round((player.critChance-0.2)*100)}% Crit`;
-            tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-stat">${statText}</span>`;
+            tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-desc">${itemTrans.desc}</span><span class="tooltip-stat">${itemTrans.stat}</span>`;
         };
         div.onmouseout = hideTooltip;
         container.appendChild(div);
