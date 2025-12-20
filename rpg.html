@@ -103,7 +103,7 @@
             padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; 
         }
         .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: black; }
-        .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+        .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; border-color: #555; color: #777; background: #222; }
 
         /* --- OYUN ALANI --- */
         .game-wrapper { 
@@ -391,7 +391,7 @@
     const player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
-        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0
+        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0, ownedItems: []
     };
     
     // --- MAĞAZA EŞYALARI (Logic) ---
@@ -399,14 +399,15 @@
     const shopItems = [
         { id: 'potion', price: 50, type: 'consumable' },
         { id: 'elixir', price: 50, type: 'consumable' },
-        { id: 'sword', price: 200, type: 'permanent', effect: () => { player.baseDmgBonus += 30; } },
-        { id: 'armor', price: 200, type: 'permanent', effect: () => { player.armor += 15; } },
-        { id: 'cloak', price: 300, type: 'permanent', effect: () => { player.critChance += 0.25; } }
+        { id: 'sword', price: 250, type: 'permanent', effect: () => { player.baseDmgBonus += 30; } },
+        { id: 'armor', price: 250, type: 'permanent', effect: () => { player.armor += 15; } },
+        { id: 'cloak', price: 250, type: 'permanent', effect: () => { player.critChance += 0.05; } }
     ];
 
     let bossState = { isPlayerStunned: false, threshStacks: 0, threshVulnerable: false, belvethForm: 1, mordeRealmTriggered: false, mordeRealmActive: false, turnCount: 0, leblancClone: false, leblancHidden: false, leblancBuffTurns: 0 };
     const musicTracks = { tier1: "Tier1.mp3", tier2: "Tier2.mp3", tier3: "tier3.mp3", morde: "morde.mp3", isolde: "isolde.mp3", thresh: "thresh.mp3", leblanc: "leblanc.mp3" };
     
+    // --- THRESH NERF (1050 HP) ---
     const enemiesBase = [
         { id: "gangplank", level: 2, maxHp: 200, hp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 4, maxHp: 250, hp: 250, damage: 18, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
@@ -421,14 +422,14 @@
         { id: "kalista", level: 22, maxHp: 850, hp: 850, damage: 45, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
         { id: "ledros", level: 24, maxHp: 950, hp: 950, damage: 50, img: "https://wiki.leagueoflegends.com/en-us/images/01SI033-full.png?b1aad" },
         { id: "leblanc", level: 26, maxHp: 1000, hp: 1000, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
-        { id: "thresh", level: 28, maxHp: 1200, hp: 1200, damage: 65, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" },
+        { id: "thresh", level: 28, maxHp: 1050, hp: 1050, damage: 65, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" }, // Thresh HP Nerf
         { id: "belveth", level: 30, maxHp: 1400, hp: 1400, damage: 75, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" },
         { id: "mordekaiser", level: 35, maxHp: 2000, hp: 2000, damage: 90, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
 
     const mechanicsInfo = {
         player: `<span class='info-weak'>Q - Kralın Kılıcı:</span> Rakibin canından çalar (%7).<br><br><span class='info-weak'>W - Hortlağın Pençesi:</span> Sonraki saldırı KRİTİK olur. Thresh gardını kırar!<br><br><span class='info-strong'>R - ULTİ:</span> Eksik cana göre vurur. W+R kombosu kritik vurur!`,
-        thresh: `<span class='info-strong'>GÜÇ:</span> Her tur zırh ve hasar kazanır. 12 Ruh'ta bir STUN atar. Blokladığı hasarın %30'u ile iyileşir.<br><br><span class='info-weak'>ZAYIFLIK:</span> Viego'nun <b>W (Hortlağın Pençesi)</b> yeteneği gardını kırar ve sonraki hasarı 2 katına çıkarır.`,
+        thresh: `<span class='info-strong'>GÜÇ:</span> Her tur zırh ve hasar kazanır. 12 Ruh'ta bir STUN atar. Blokladığı hasarın %5'i ile iyileşir.<br><br><span class='info-weak'>ZAYIFLIK:</span> Viego'nun <b>W (Hortlağın Pençesi)</b> yeteneği gardını kırar ve sonraki hasarı 2 katına çıkarır.`,
         leblanc: `<span class='info-strong'>GÜÇ:</span> Hilekar! %40 şansla büyüyü taklit eder (Çift vuruş). Canı azaldığında GÖRÜNMEZ olur ve sonraki 2 tur <b>%100 ÇİFT VURUŞ</b> yapar.<br><br><span class='info-weak'>ZAYIFLIK:</span> Canı azdır. Kopyasına vurmamaya dikkat et.`,
         belveth: `<span class='info-strong'>GÜÇ:</span> Asla tek seferde ölmez. Canı bittiğinde GERÇEK FORMUNA dönüşür ve canını yeniler.<br><br><span class='info-weak'>ZAYIFLIK:</span> İlk formu zayıftır.`,
         mordekaiser: `<span class='info-strong'>GÜÇ:</span> Canı %35 altına inince ÖLÜLER ALEMİNE çeker (Statları artar).<br><br><span class='info-weak'>ZAYIFLIK:</span> Sadece bir kez olur.`,
@@ -441,13 +442,13 @@
             logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!", leblancClone: "LeBlanc vanishes!", decoy: "DECOY!", leblancEnraged: "LeBlanc returns empowered! (100% Mimic)" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
-            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP",
+            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", sold: "SOLD",
                 items: {
                     potion: { name: "Mist Potion", desc: "Restores 10% Missing HP", stat: "Heal" },
                     elixir: { name: "Wrath Elixir", desc: "Restores Power", stat: "+40 PWR" },
                     sword: { name: "Ruined Shard", desc: "+30 Base Damage", stat: "Damage" },
                     armor: { name: "Spectral Armor", desc: "+15% Damage Reduction", stat: "Armor" },
-                    cloak: { name: "Crit Cloak", desc: "+25% Crit Chance", stat: "Crit" }
+                    cloak: { name: "Crit Cloak", desc: "+5% Crit Chance", stat: "Crit" }
                 }
             },
             enemies: [
@@ -473,13 +474,13 @@
             logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
             isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA",
+            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", sold: "SATILDI",
                 items: {
                     potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
                     elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
                     sword: { name: "Mahvolmuş Parça", desc: "+30 Taban Hasar", stat: "Hasar" },
                     armor: { name: "Hayalet Zırh", desc: "%15 Hasar Azaltma", stat: "Zırh" },
-                    cloak: { name: "Kritik Pelerini", desc: "+%25 Kritik Şansı", stat: "Kritik" }
+                    cloak: { name: "Kritik Pelerini", desc: "+%5 Kritik Şansı", stat: "Kritik" }
                 }
             },
             enemies: [
@@ -542,7 +543,9 @@
         
         container.innerHTML = "";
         shopItems.forEach(item => {
-            const itemTrans = t.shop.items[item.id]; // Çeviriden çek
+            const itemTrans = t.shop.items[item.id]; 
+            const isOwned = player.ownedItems.includes(item.id);
+            const priceText = isOwned ? t.shop.sold : `${item.price} G`;
             const div = document.createElement('div');
             div.className = 'shop-item';
             div.innerHTML = `
@@ -550,7 +553,7 @@
                     <span class="item-name">${itemTrans.name}</span>
                     <span class="item-desc">${itemTrans.desc}</span>
                 </div>
-                <button class="buy-btn" onclick="buyItem('${item.id}')" ${player.gold < item.price ? 'disabled' : ''}>${item.price} G</button>
+                <button class="buy-btn" onclick="buyItem('${item.id}')" ${isOwned || player.gold < item.price ? 'disabled' : ''}>${priceText}</button>
             `;
             container.appendChild(div);
         });
@@ -562,14 +565,21 @@
 
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
+
+        // Zaten alınmış mı kontrol (Kalıcılar için)
+        if (item.type === 'permanent' && player.ownedItems.includes(id)) return;
+
         if (player.gold >= item.price) {
             player.gold -= item.price;
+            
             if (item.type === 'consumable') {
                 if (id === 'potion') player.potions++;
                 else if (id === 'elixir') player.elixirs++;
             } else {
                 item.effect();
+                player.ownedItems.push(id); // Satıldı olarak işaretle
             }
+            
             openShop(); 
             updateUI();
             updateInventoryUI();
@@ -618,7 +628,7 @@
         tooltip.style.display = 'block';
         tooltip.style.top = el.offsetTop + 'px'; 
         
-        const itemTrans = t.shop.items[type]; // Çeviriden çek
+        const itemTrans = t.shop.items[type]; 
         if (itemTrans) {
             tooltip.innerHTML = `
                 <span class="tooltip-title">${itemTrans.name}</span>
@@ -652,7 +662,7 @@
         const enemyData = enemiesBase[index];
         const enemyTrans = t.enemies[index];
         
-        if (enemyData.id === 'mordekaiser') changeMusic('morde'); else if (enemyData.id === 'thresh') changeMusic('thresh'); else if (enemyData.id === 'leblanc') changeMusic('leblanc'); else if (index < 5) changeMusic('tier1'); else if (index < 12) changeMusic('tier2'); else changeMusic('tier3');
+        if (enemyData.id === 'mordekaiser') changeMusic('morde'); else if (enemyData.id === 'thresh') changeMusic('thresh'); else if (index < 5) changeMusic('tier1'); else if (index < 12) changeMusic('tier2'); else changeMusic('tier3');
 
         document.getElementById('enemy-name').innerText = enemyData.id.toUpperCase();
         document.getElementById('enemy-img').src = enemyData.img;
@@ -755,11 +765,11 @@
 
         // BOSS DEFENSE
         if (enemyData.id === 'thresh') { 
-            let reduction = 20 + (bossState.threshStacks * 4);
+            let reduction = 15 + (bossState.threshStacks * 3);
             if(bossState.threshVulnerable && damage > 0) { damage *= 2; showFloatingText(document.getElementById('enemy-box'), "CRITICAL BREAK!", "text-weakness"); bossState.threshVulnerable = false; }
             let blocked = Math.min(damage, reduction);
             if(damage < reduction) damage = 0; else damage -= reduction;
-            if(blocked > 0) { let heal = Math.floor(blocked * 0.3); enemyData.hp += heal; if(enemyData.hp > enemyData.maxHp) enemyData.hp = enemyData.maxHp; showFloatingText(document.getElementById('enemy-box'), `+${heal}`, 'heal'); }
+            if(blocked > 0) { let heal = Math.floor(blocked * 0.05); enemyData.hp += heal; if(enemyData.hp > enemyData.maxHp) enemyData.hp = enemyData.maxHp; showFloatingText(document.getElementById('enemy-box'), `+${heal}`, 'heal'); }
         }
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) damage = Math.floor(damage * 0.7);
 
