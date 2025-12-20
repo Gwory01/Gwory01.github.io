@@ -59,7 +59,7 @@
         }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
 
-        /* --- PENCERELER --- */
+        /* --- PENCERELER (MODAL, DIALOG, VICTORY) --- */
         .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal {
             background: rgba(10, 12, 15, 0.98);
             border: 2px solid #1a1a1a;
@@ -103,7 +103,7 @@
             padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; 
         }
         .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: black; }
-        .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+        .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; border-color: #555; color: #777; background: #222; }
 
         /* --- OYUN ALANI --- */
         .game-wrapper { 
@@ -144,14 +144,27 @@
 
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
         .character-box { width: 250px; text-align: center; position: relative; }
-        .character-img { width: 200px; height: 200px; object-fit: cover; object-position: center 20%; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
+        
+        .character-img { 
+            width: 200px; height: 200px; object-fit: cover; 
+            object-position: center 20%; 
+            border-radius: 50%; border: 4px solid #444; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; 
+        }
+        
+        /* LeBlanc Kopya Efekti */
+        .character-img.clone-active {
+            opacity: 0.6;
+            filter: grayscale(80%) blur(1px);
+            border-color: #a29bfe;
+            animation: pulseClone 1s infinite alternate;
+        }
+        @keyframes pulseClone { from { box-shadow: 0 0 10px #a29bfe; } to { box-shadow: 0 0 30px #a29bfe; } }
+
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         .shake { animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-        /* LeBlanc Kopya */
-        .character-img.clone-active { opacity: 0.6; filter: grayscale(80%) blur(1px); border-color: #a29bfe; animation: pulseClone 1s infinite alternate; }
-        @keyframes pulseClone { from { box-shadow: 0 0 10px #a29bfe; } to { box-shadow: 0 0 30px #a29bfe; } }
 
         .stat-bar { width: 100%; height: 18px; background: #222; margin-top: 10px; border: 1px solid #444; position: relative; }
         .fill { height: 100%; transition: width 0.5s ease-out; }
@@ -163,35 +176,27 @@
         /* GOLD & INVENTORY UI */
         .gold-display { position: absolute; top: -30px; right: 0; color: var(--gold-color); font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 5px; }
 
-        /* SOL ÜST ENVANTER VE EQUIPPED ITEMS */
         #inventory-frame {
             position: fixed; top: 80px; left: 20px; width: 70px;
             background: rgba(10, 12, 15, 0.95); border: 2px solid var(--ruined-green);
             border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 15px;
             z-index: 1000; box-shadow: 0 0 15px rgba(10, 200, 185, 0.3);
         }
-        .inv-slot { width: 100%; height: 60px; background: #222; border: 1px solid #444; border-radius: 4px; position: relative; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; font-size: 28px; }
+
+        .inv-slot {
+            width: 100%; height: 60px; background: #222; border: 1px solid #444;
+            border-radius: 4px; position: relative; cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: center; align-items: center; font-size: 28px;
+        }
         .inv-slot:hover { border-color: var(--ruined-green); background: #333; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
         .inv-slot:active { transform: scale(0.95); }
         .inv-slot.empty { opacity: 0.5; cursor: default; filter: grayscale(100%); }
-        .inv-count { position: absolute; bottom: 2px; right: 2px; font-size: 11px; font-weight: bold; color: white; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; font-family: sans-serif; border: 1px solid #555; }
 
-        /* KARAKTER ÜZERİNDEKİ İKONLAR (YENİ) */
-        #equipped-container {
-            position: absolute; top: 50px; left: -60px; 
-            width: 50px; display: flex; flex-direction: column; gap: 8px;
-            z-index: 50;
-        }
-        .eq-item {
-            width: 40px; height: 40px; background: rgba(0,0,0,0.8);
-            border: 1px solid var(--gold-color); border-radius: 4px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 20px; position: relative; cursor: help;
-        }
-        .eq-lvl {
-            position: absolute; bottom: -2px; right: -2px;
-            background: var(--gold-color); color: black;
-            font-size: 9px; padding: 1px 3px; font-weight: bold; border-radius: 2px;
+        .inv-count {
+            position: absolute; bottom: 2px; right: 2px;
+            font-size: 11px; font-weight: bold; color: white;
+            background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px;
+            font-family: sans-serif; border: 1px solid #555;
         }
 
         #inv-tooltip {
@@ -205,6 +210,7 @@
         .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 3px; }
         .tooltip-desc { color: #aaa; }
         .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
+
 
         .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; position: relative; }
         .hidden-ui { opacity: 0; pointer-events: none; }
@@ -323,9 +329,6 @@
                 <div class="gold-display">
                     <span id="player-gold">0</span> <span style="font-size:12px;">🪙</span>
                 </div>
-                <div id="equipped-container">
-                    </div>
-
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
                 <div class="stat-bar hidden-ui" id="ui-hp-p">
@@ -382,32 +385,29 @@
 
 <script>
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
-    sounds.basic1.volume = 0.3; sounds.basic2.volume = 0.3; sounds.w.volume = 0.25;
+    sounds.basic1.volume = 0.5; sounds.basic2.volume = 0.5; sounds.w.volume = 0.5;
     function playSkillSound(type) { try { if(type==='basic'){if(Math.random()>0.5)sounds.basic1.play();else sounds.basic2.play();} if(type==='w')sounds.w.play(); } catch(e){} }
 
     const player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
-        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0,
-        items: {
-            sword: { level: 0, icon: '⚔️' },
-            armor: { level: 0, icon: '🛡️' },
-            cloak: { level: 0, icon: '🧥' }
-        }
+        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0, ownedItems: []
     };
     
-    // --- MAĞAZA EŞYALARI (YÜKSELTİLEBİLİR) ---
+    // --- MAĞAZA EŞYALARI (Logic) ---
+    // Not: İsimler ve Açıklamalar artık translations nesnesinden çekilecek.
     const shopItems = [
-        { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪' },
-        { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡' },
-        { id: 'sword', basePrice: 250, type: 'permanent', maxLevel: 5, statPerLevel: 30, icon: '⚔️' },
-        { id: 'armor', basePrice: 250, type: 'permanent', maxLevel: 5, statPerLevel: 15, icon: '🛡️' },
-        { id: 'cloak', basePrice: 250, type: 'permanent', maxLevel: 5, statPerLevel: 0.05, icon: '🧥' }
+        { id: 'potion', price: 50, type: 'consumable' },
+        { id: 'elixir', price: 50, type: 'consumable' },
+        { id: 'sword', price: 250, type: 'permanent', effect: () => { player.baseDmgBonus += 30; } },
+        { id: 'armor', price: 250, type: 'permanent', effect: () => { player.armor += 15; } },
+        { id: 'cloak', price: 250, type: 'permanent', effect: () => { player.critChance += 0.05; } }
     ];
 
     let bossState = { isPlayerStunned: false, threshStacks: 0, threshVulnerable: false, belvethForm: 1, mordeRealmTriggered: false, mordeRealmActive: false, turnCount: 0, leblancClone: false, leblancHidden: false, leblancBuffTurns: 0 };
     const musicTracks = { tier1: "Tier1.mp3", tier2: "Tier2.mp3", tier3: "tier3.mp3", morde: "morde.mp3", isolde: "isolde.mp3", thresh: "thresh.mp3", leblanc: "leblanc.mp3" };
     
+    // --- THRESH NERF (1050 HP) ---
     const enemiesBase = [
         { id: "gangplank", level: 2, maxHp: 200, hp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 4, maxHp: 250, hp: 250, damage: 18, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
@@ -422,7 +422,7 @@
         { id: "kalista", level: 22, maxHp: 850, hp: 850, damage: 45, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
         { id: "ledros", level: 24, maxHp: 950, hp: 950, damage: 50, img: "https://wiki.leagueoflegends.com/en-us/images/01SI033-full.png?b1aad" },
         { id: "leblanc", level: 26, maxHp: 1000, hp: 1000, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
-        { id: "thresh", level: 28, maxHp: 1050, hp: 1050, damage: 65, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" }, 
+        { id: "thresh", level: 28, maxHp: 1050, hp: 1050, damage: 65, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" }, // Thresh HP Nerf
         { id: "belveth", level: 30, maxHp: 1400, hp: 1400, damage: 75, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" },
         { id: "mordekaiser", level: 35, maxHp: 2000, hp: 2000, damage: 90, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
@@ -442,7 +442,7 @@
             logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!", leblancClone: "LeBlanc vanishes!", decoy: "DECOY!", leblancEnraged: "LeBlanc returns empowered! (100% Mimic)" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
-            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", upgrade: "UPGRADE", max: "MAX", sold: "SOLD",
+            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", sold: "SOLD",
                 items: {
                     potion: { name: "Mist Potion", desc: "Restores 10% Missing HP", stat: "Heal" },
                     elixir: { name: "Wrath Elixir", desc: "Restores Power", stat: "+40 PWR" },
@@ -474,7 +474,7 @@
             logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
             isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", upgrade: "GELİŞTİR", max: "MAKS", sold: "SATILDI",
+            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", sold: "SATILDI",
                 items: {
                     potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
                     elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
@@ -509,7 +509,7 @@
 
     function changeMusic(trackName) {
         if (currentTrack === trackName) return; currentTrack = trackName;
-        bgMusic.src = musicTracks[trackName]; bgMusic.volume = 0.15;
+        bgMusic.src = musicTracks[trackName]; bgMusic.volume = 0.4;
         bgMusic.play().catch(e => {}); updateMusicBtnText();
     }
 
@@ -520,6 +520,7 @@
         document.getElementById('skill-basic-name').innerText = t.skillBasic; document.getElementById('skill-q-name').innerText = t.skillQ; document.getElementById('skill-q-desc').innerText = t.skillQDesc; document.getElementById('skill-w-name').innerText = t.skillW; document.getElementById('skill-r-name').innerText = t.skillR;
         document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
         
+        // MAĞAZA VE ENVANTER DİL GÜNCELLEMESİ
         document.getElementById('shop-title-text').innerText = t.shop.title;
         document.getElementById('shop-close-btn').innerText = t.shop.close;
         document.getElementById('btn-open-shop').innerText = t.shop.btnShop;
@@ -531,7 +532,7 @@
     }
 
     function updateMusicBtnText() { document.getElementById('btn-music').innerText = !bgMusic.paused ? "🎵 Music: ON" : "🎵 Music: OFF"; }
-    function forcePlayMusic() { bgMusic.volume = 0.15; bgMusic.play().then(_ => updateMusicBtnText()).catch(e => {}); }
+    function forcePlayMusic() { bgMusic.volume = 0.4; bgMusic.play().then(_ => updateMusicBtnText()).catch(e => {}); }
     function toggleMusic() { if(bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updateMusicBtnText(); }
 
     // --- SHOP LOGIC ---
@@ -543,32 +544,16 @@
         container.innerHTML = "";
         shopItems.forEach(item => {
             const itemTrans = t.shop.items[item.id]; 
+            const isOwned = player.ownedItems.includes(item.id);
+            const priceText = isOwned ? t.shop.sold : `${item.price} G`;
             const div = document.createElement('div');
             div.className = 'shop-item';
-            
-            let btnText = `${item.basePrice} G`;
-            let disabled = player.gold < item.basePrice;
-            
-            if (item.type === 'permanent') {
-                const currentLevel = player.items[item.id].level;
-                if (currentLevel >= item.maxLevel) {
-                    btnText = t.shop.max;
-                    disabled = true;
-                } else {
-                    const price = item.basePrice * (currentLevel + 1);
-                    btnText = `${t.shop.upgrade} (${price} G)`;
-                    if (player.gold < price) disabled = true;
-                }
-            } else {
-                 if (player.gold < item.basePrice) disabled = true;
-            }
-
             div.innerHTML = `
                 <div class="item-info">
-                    <span class="item-name">${item.icon} ${itemTrans.name}</span>
+                    <span class="item-name">${itemTrans.name}</span>
                     <span class="item-desc">${itemTrans.desc}</span>
                 </div>
-                <button class="buy-btn" onclick="buyItem('${item.id}')" ${disabled ? 'disabled' : ''}>${btnText}</button>
+                <button class="buy-btn" onclick="buyItem('${item.id}')" ${isOwned || player.gold < item.price ? 'disabled' : ''}>${priceText}</button>
             `;
             container.appendChild(div);
         });
@@ -580,29 +565,24 @@
 
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
-        let price = item.basePrice;
 
-        if (item.type === 'permanent') {
-            const currentLevel = player.items[id].level;
-            if (currentLevel >= item.maxLevel) return;
-            price = item.basePrice * (currentLevel + 1);
-        }
+        // Zaten alınmış mı kontrol (Kalıcılar için)
+        if (item.type === 'permanent' && player.ownedItems.includes(id)) return;
 
-        if (player.gold >= price) {
-            player.gold -= price;
+        if (player.gold >= item.price) {
+            player.gold -= item.price;
             
             if (item.type === 'consumable') {
                 if (id === 'potion') player.potions++;
                 else if (id === 'elixir') player.elixirs++;
             } else {
                 item.effect();
-                player.items[id].level++;
+                player.ownedItems.push(id); // Satıldı olarak işaretle
             }
             
             openShop(); 
             updateUI();
             updateInventoryUI();
-            updateEquippedUI();
         }
     }
 
@@ -612,42 +592,6 @@
         document.getElementById('count-elixir').innerText = player.elixirs;
         document.querySelector('.inv-slot:nth-child(1)').classList.toggle('empty', player.potions === 0);
         document.querySelector('.inv-slot:nth-child(2)').classList.toggle('empty', player.elixirs === 0);
-    }
-
-    function updateEquippedUI() {
-        const container = document.getElementById('equipped-container');
-        container.innerHTML = "";
-        
-        for (const [key, value] of Object.entries(player.items)) {
-            if (value.level > 0) {
-                const div = document.createElement('div');
-                div.className = 'eq-item';
-                div.innerHTML = `${value.icon} <span class="eq-lvl">+${value.level}</span>`;
-                
-                // Hover Tooltip logic for equipped items
-                div.onmouseover = function() { 
-                    const itemData = shopItems.find(i => i.id === key);
-                    const itemTrans = t.shop.items[key];
-                    const tooltip = document.getElementById('inv-tooltip');
-                    tooltip.style.display = 'block';
-                    tooltip.style.top = this.offsetTop + 50 + 'px'; // Adjust position
-                    tooltip.style.left = '60px';
-                    
-                    let statVal = 0;
-                    if (key === 'sword') statVal = player.baseDmgBonus;
-                    if (key === 'armor') statVal = player.armor + '%';
-                    if (key === 'cloak') statVal = (player.critChance - 0.2).toFixed(2) * 100 + '%'; // Base 0.2
-
-                    tooltip.innerHTML = `
-                        <span class="tooltip-title">${itemTrans.name} (+${value.level})</span>
-                        <span class="tooltip-stat">Total: +${statVal} ${itemTrans.stat}</span>
-                    `;
-                };
-                div.onmouseout = hideTooltip;
-                
-                container.appendChild(div);
-            }
-        }
     }
 
     function useInventoryItem(type) {
@@ -683,7 +627,6 @@
         const tooltip = document.getElementById('inv-tooltip');
         tooltip.style.display = 'block';
         tooltip.style.top = el.offsetTop + 'px'; 
-        tooltip.style.left = '85px';
         
         const itemTrans = t.shop.items[type]; 
         if (itemTrans) {
