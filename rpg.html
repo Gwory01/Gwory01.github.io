@@ -22,7 +22,7 @@
         body {
             background-color: var(--dark-bg);
             /* Arka plan görseli */
-            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,10,10,0.8)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,10,10,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -32,70 +32,18 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- YENİ KARA SİS (ADVANCED FOG SYSTEM) --- */
-        .viego-fog-container {
+        /* --- WEBGL CANVAS STİLİ --- */
+        #mist-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 1; /* Arka planın üstünde, UI'ın altında */
-            overflow: hidden;
-            /* Viego'nun sisinin yeşilimsi/mavi tonu */
-            filter: hue-rotate(160deg) contrast(1.2) brightness(0.8);
-            pointer-events: none;
+            pointer-events: none; /* Tıklamaların arkaya geçmesini sağlar */
+            mix-blend-mode: screen; /* Sisin arka planla güzel karışması için */
+            opacity: 0.8;
         }
-
-        .fog-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 200%; /* Kesintisiz döngü için ekranın iki katı */
-            height: 100%;
-            background-repeat: repeat-x;
-            background-size: 50% 100%;
-            opacity: 0.7;
-        }
-
-        /* Sis Dokusu (CSS Gradient ile) */
-        .fog-layer::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 30% 40%, rgba(10, 80, 80, 0.4) 0%, transparent 60%),
-                radial-gradient(circle at 70% 60%, rgba(20, 60, 50, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 50% 20%, rgba(50, 100, 120, 0.2) 0%, transparent 70%),
-                linear-gradient(to right, rgba(5, 25, 25, 0.1), rgba(5, 35, 45, 0.2));
-            filter: blur(30px);
-        }
-
-        /* Katman 1: En arkada, yavaş */
-        .layer-1 { animation: fogFlow 60s linear infinite; opacity: 0.4; z-index: 1; }
-        .layer-1::after { transform: scale(1.2) rotate(5deg); }
-
-        /* Katman 2: Ortada, dalgalı */
-        .layer-2 { animation: fogFlow 35s linear infinite, fogWiggle 15s ease-in-out infinite alternate; opacity: 0.5; z-index: 2; }
-        .layer-2::after { filter: blur(20px) brightness(1.2); }
-
-        /* Katman 3: En önde, hızlı */
-        .layer-3 { animation: fogFlow 20s linear infinite; opacity: 0.3; z-index: 3; top: 20%; height: 80%; }
-        .layer-3::after { background: radial-gradient(circle at 50% 50%, rgba(100, 200, 200, 0.3) 0%, transparent 60%); filter: blur(40px); }
-
-        /* Animasyonlar */
-        @keyframes fogFlow {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        @keyframes fogWiggle {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(0.5deg); }
-            100% { transform: translateY(0) rotate(0deg); }
-        }
-        /* --- SİS BİTİŞ --- */
 
         /* --- UI ELEMENTLERİ (Z-Index: 10 ve üzeri) --- */
         .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #info-modal, #shop-modal, #restart-modal { position: relative; z-index: 10; }
@@ -217,12 +165,6 @@
 </head>
 <body>
     
-    <div class="viego-fog-container">
-        <div class="fog-layer layer-1"></div>
-        <div class="fog-layer layer-2"></div>
-        <div class="fog-layer layer-3"></div>
-    </div>
-
     <a href="index.html" class="back-btn" id="btn-menu">← Menu</a>
     <div id="flash-effect"></div>
     
@@ -353,31 +295,151 @@
     </div>
 
 <script>
+    // --- WEBGL SHADER KODLARI ---
+    const mistFragmentShader = `#version 300 es
+    precision highp float;
+
+    uniform float time;
+    uniform vec2 vp;
+
+    in vec2 uv;
+    out vec4 fragColor;
+
+    float rand(vec2 p) {
+        return fract(sin(dot(p.xy, vec2(1., 300.))) * 43758.5453123);
+    }
+
+    float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        float a = rand(i);
+        float b = rand(i + vec2(1.0, 0.0));
+        float c = rand(i + vec2(0.0, 1.0));
+        float d = rand(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+    }
+
+    #define OCTAVES 4
+    float fbm(vec2 p) {
+        float value = 0.;
+        float amplitude = .5;
+        for (int i = 0; i < OCTAVES; i++) {
+            value += amplitude * noise(p);
+            p *= 2.2;
+            amplitude *= .45;
+        }
+        return value;
+    }
+
+    void main() {
+        vec2 p = uv.xy;
+        p.x *= vp.x / vp.y;
+
+        // "Etrafa dağılan" girdaplı hareket için domain warping
+        // Sabit bir yön (y ekseni) yerine zamana bağlı dairesel ve kaotik değişim
+        float t = time * 0.1;
+        vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2;
+        
+        vec2 fast = (p + flow) * 3.5; // Scale düşürülerek daha "duman" görüntüsü verildi
+        
+        float ns_a = fbm(fast + t);
+        float ns_b = fbm(fast + ns_a - t * 0.5);
+        float intensity = fbm(vec2(ns_a, ns_b));
+
+        // Viego Renk Paleti (Koyu Siyah/Yeşil -> Parlak Mahvolmuş Teal)
+        vec3 darkMist = vec3(0.02, 0.05, 0.05); // Çok koyu zemin
+        vec3 ruinedTeal = vec3(0.04, 0.78, 0.72); // Viego yeşili
+        
+        // Karışım: Siyah sisin içinden parlayan yeşil ruhlar gibi
+        vec3 color = mix(darkMist, ruinedTeal, intensity * intensity * 0.8);
+
+        // Alpha kanalı: Sadece sisin yoğun olduğu yerler görünsün, arkadaki splash art ölmesin
+        float alpha = smoothstep(0.2, 0.9, intensity);
+
+        fragColor = vec4(color, alpha);
+    }
+    `;
+
+    class WebGLHandler {
+        vertexShaderSource = `#version 300 es
+            precision mediump float;
+            const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
+            out vec2 uv;
+            void main() {
+                uv = positions[gl_VertexID];
+                gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0);
+            }`;
+
+        constructor(canvas, fragmentShaderSource) {
+            this.cn = canvas;
+            this.gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: false }); // Alpha desteği açıldı
+            this.startTime = Date.now();
+            this.resize();
+            window.addEventListener("resize", () => this.resize());
+            this.program = this.gl.createProgram();
+            this.compileShader(this.vertexShaderSource, this.gl.VERTEX_SHADER);
+            this.compileShader(fragmentShaderSource, this.gl.FRAGMENT_SHADER);
+            this.gl.linkProgram(this.program);
+            this.gl.useProgram(this.program);
+            this.timeLocation = this.gl.getUniformLocation(this.program, "time");
+            this.resolutionLocation = this.gl.getUniformLocation(this.program, "vp");
+            this.render();
+        }
+
+        resize() {
+            this.cn.width = window.innerWidth;
+            this.cn.height = window.innerHeight;
+            this.gl.viewport(0, 0, this.cn.width, this.cn.height);
+        }
+
+        compileShader(source, type) {
+            const shader = this.gl.createShader(type);
+            this.gl.shaderSource(shader, source);
+            this.gl.compileShader(shader);
+            if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+                console.error(this.gl.getShaderInfoLog(shader));
+                this.gl.deleteShader(shader);
+                return null;
+            }
+            return this.gl.attachShader(this.program, shader);
+        }
+
+        render = () => {
+            this.gl.uniform1f(this.timeLocation, (Date.now() - this.startTime) / 1000);
+            this.gl.uniform2fv(this.resolutionLocation, [this.cn.width, this.cn.height]);
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+            window.requestAnimationFrame(this.render);
+        };
+    }
+
+    // Canvas'ı oluştur ve başlat
+    const mistCanvas = document.body.appendChild(document.createElement("canvas"));
+    mistCanvas.id = "mist-canvas";
+    const webGL = new WebGLHandler(mistCanvas, mistFragmentShader);
+
+
+    // --- OYUN JS KODLARI (MEVCUT KODLAR) ---
     let musicVolume = 0.15; let sfxVolume = 0.3;
     const bgMusic = document.getElementById('bgMusic');
     const musicSlider = document.getElementById('music-vol');
     const sfxSlider = document.getElementById('sfx-vol');
 
-    // --- RESTART MODAL LOGIC ---
     function showRestartModal() { document.getElementById('restart-modal').style.display = 'block'; }
     function confirmRestart() { localStorage.removeItem('viegoRPG_save'); location.reload(); }
     function cancelRestart() { document.getElementById('restart-modal').style.display = 'none'; }
 
-    // --- DEFEAT EKRANI LOGIC ---
     function showDefeatScreen() {
         const overlay = document.getElementById('overlay');
         document.getElementById('overlay-title').innerText = currentLang === 'en' ? "DEFEAT" : "YENİLGİ";
         document.getElementById('overlay-title').style.color = "#c0392b";
         document.getElementById('overlay-quote').innerText = currentLang === 'en' ? "The Mist fades..." : "Sis dağılıyor...";
         document.getElementById('level-up-text').style.display = 'none';
-        
         const btnContainer = document.getElementById('overlay-buttons');
         btnContainer.innerHTML = `<button class="start-btn" onclick="confirmRestart()" style="border-color:#c0392b; color:#c0392b;">${currentLang === 'en' ? "TRY AGAIN" : "TEKRAR DENE"}</button>`;
-        
         overlay.style.display = 'flex';
     }
 
-    // --- SETTINGS ---
     function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify({ mVol: musicVolume, sVol: sfxVolume })); }
     function loadSettings() {
         const savedSet = localStorage.getItem('viegoRPG_settings');
@@ -543,7 +605,6 @@
         document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
         document.getElementById('btn-restart').innerText = t.restart;
         
-        // Yeni Restart Modal Çevirileri
         document.getElementById('restart-title').innerText = t.restartTitle;
         document.getElementById('restart-msg').innerText = t.restartMsg;
         document.getElementById('btn-restart-confirm').innerText = t.restartConfirm;
@@ -561,12 +622,11 @@
     
     function forcePlayMusic() { bgMusic.volume = musicVolume; bgMusic.play().catch(e => {}); }
 
-    // --- MAĞAZA MANTIĞI ---
     function toggleSellMode() {
         isSellMode = !isSellMode;
         document.body.classList.toggle('sell-mode-active', isSellMode);
         updateSellModeUI();
-        openShop(); // Refresh UI
+        openShop(); 
     }
 
     function updateSellModeUI() {
@@ -605,7 +665,7 @@
                          btnText = `${t.shop.buy} (${item.basePrice} G)`;
                          if (player.gold < item.basePrice) disabled = true;
                     }
-                } else { // consumable
+                } else { 
                       btnText = `${t.shop.buy} (${item.basePrice} G)`;
                       if (player.gold < item.basePrice) disabled = true;
                 }
@@ -626,7 +686,6 @@
         if (isSellMode) sellItem(id); else buyItem(id);
     }
 
-    // --- SATIN ALMA MANTIĞI ---
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
         if (item.type === 'passive' && player.ownedPassives.includes(id)) return;
@@ -642,7 +701,6 @@
         }
     }
 
-    // --- SATIŞ MANTIĞI ---
     function sellItem(id) {
         const item = shopItems.find(i => i.id === id);
         let sold = false;
@@ -661,7 +719,6 @@
         }
     }
 
-    // --- INVENTORY & EQUIPPED UI ---
     function updateInventoryUI() {
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
@@ -777,7 +834,6 @@
     function showSpeech(who, text) { const bubble = document.getElementById(who + '-bubble'); bubble.innerText = text; bubble.classList.add('speech-visible'); }
     function clearBubbles() { document.getElementById('player-bubble').classList.remove('speech-visible'); document.getElementById('enemy-bubble').classList.remove('speech-visible'); }
 
-    // --- OYUNCU HAMLESİ ---
     function useSkill(type) {
         if (turn !== "player") return;
         if (bossState.isPlayerStunned) { log(t.bossLogs.stunned); bossState.isPlayerStunned = false; turn = "enemy"; setTimeout(enemyTurn, 1000); return; }
