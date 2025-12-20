@@ -21,8 +21,8 @@
 
         body {
             background-color: var(--dark-bg);
-            /* Arka plan görseli */
-            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,10,10,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
+            /* Arka plan görseli biraz daha koyulaştırıldı ki sis daha net görünsün */
+            background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,10,10,0.95)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -32,17 +32,17 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- WEBGL CANVAS STİLİ --- */
-        #mist-canvas {
+        /* --- ANA ARKA PLAN SİSİ --- */
+        #mist-canvas-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1; /* Arka planın üstünde, UI'ın altında */
-            pointer-events: none; /* Tıklamaların arkaya geçmesini sağlar */
-            mix-blend-mode: screen; /* Sisin arka planla güzel karışması için */
-            opacity: 0.8;
+            z-index: 0; /* Arka planın hemen üstü */
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0.7;
         }
 
         /* --- UI ELEMENTLERİ (Z-Index: 10 ve üzeri) --- */
@@ -86,7 +86,7 @@
         #sell-mode-btn { margin-right: 10px; background: #333; color: #aaa; border: 1px solid #555; }
         #sell-mode-btn.active { background: var(--sell-color); color: white; border-color: #c0392b; }
 
-        .game-wrapper { width: 95%; max-width: 800px; height: 650px; background: rgba(8, 10, 12, 0.95); border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; }
+        .game-wrapper { width: 95%; max-width: 800px; height: 650px; background: rgba(8, 10, 12, 0.8); border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; backdrop-filter: blur(5px); }
         #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 8px; }
         #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
         #overlay, #final-choice-overlay { background: rgba(0,0,0,0.9); display: none; }
@@ -101,17 +101,43 @@
         .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
 
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
-        .character-box { width: 250px; text-align: center; position: relative; transition: transform 0.2s; }
+        
+        /* --- KART KUTULARI VE SİS ARKA PLANI --- */
+        .character-box { 
+            width: 250px; text-align: center; position: relative; transition: transform 0.2s; 
+            /* Kartın içeriğinin sisin üzerinde kalmasını sağla */
+            z-index: 2;
+            /* Köşeleri yuvarlat, böylece içindeki canvas da yuvarlak olur */
+            border-radius: 12px; 
+            padding: 15px;
+            /* Hafif bir arka plan rengi, sis yüklenmezse diye */
+            background: rgba(0,0,0,0.3); 
+            overflow: hidden; /* Taşmaları gizle */
+        }
+
+        /* KART İÇİ SİS CANVAS STİLİ */
+        .card-mist-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* İçeriğin arkasında */
+            opacity: 0.6; /* Biraz daha saydam */
+            mix-blend-mode: screen;
+            pointer-events: none; /* Fare olaylarını engelle, bunu JS ile çözeceğiz */
+        }
         
         /* --- RESİM DÜZENLEMESİ BURADA --- */
         .character-img { 
-            width: 200px; height: 200px; 
+            width: 180px; height: 180px; 
             object-fit: cover; 
             object-position: center top; 
             border-radius: 50%; 
             border: 4px solid #444; 
             box-shadow: 0 0 20px rgba(0,0,0,0.5); 
             transition: all 0.2s; 
+            position: relative; z-index: 5; /* Resim önde */
         }
         
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
@@ -125,7 +151,7 @@
         @keyframes flash-red { 0%, 100% { filter: none; } 50% { filter: sepia(1) saturate(5) hue-rotate(-50deg); } }
         .clone-active { opacity: 0.6; filter: grayscale(80%) blur(1px); border-color: #a29bfe; animation: pulseClone 1s infinite alternate; }
 
-        .stat-bar { width: 100%; height: 18px; background: #222; margin-top: 10px; border: 1px solid #444; position: relative; }
+        .stat-bar { width: 100%; height: 18px; background: #222; margin-top: 10px; border: 1px solid #444; position: relative; z-index: 5; }
         .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); } .shield-fill { background-color: #95a5a6; position: absolute; height: 100%; opacity: 0.7; }
         .bar-text { font-size: 13px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; line-height: 18px; }
         .gold-display { position: absolute; top: -30px; right: 0; color: var(--gold-color); font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 5px; }
@@ -259,6 +285,8 @@
 
         <div class="battle-scene">
             <div class="character-box" id="player-box">
+                <canvas class="card-mist-background" id="player-mist-canvas"></canvas>
+
                 <button class="info-btn" onclick="showInfo('player')">i</button>
                 <div class="speech-bubble" id="player-bubble">...</div>
                 <div class="level-badge" id="player-lvl">1</div>
@@ -273,6 +301,8 @@
             <h1 style="color: #555; font-size: 3rem;" id="vs-text">VS</h1>
 
             <div class="character-box" id="enemy-box">
+                <canvas class="card-mist-background" id="enemy-mist-canvas"></canvas>
+
                 <button class="info-btn" onclick="showInfo('enemy')">i</button>
                 <div class="speech-bubble" id="enemy-bubble">...</div>
                 <div class="level-badge" id="enemy-lvl">1</div>
@@ -295,129 +325,184 @@
     </div>
 
 <script>
-    // --- WEBGL SHADER KODLARI ---
-    const mistFragmentShader = `#version 300 es
+    // --- WEBGL SHADER KODLARI (ARKA PLAN) ---
+    const bgMistFragmentShader = `#version 300 es
     precision highp float;
-
     uniform float time;
     uniform vec2 vp;
-
     in vec2 uv;
     out vec4 fragColor;
-
-    float rand(vec2 p) {
-        return fract(sin(dot(p.xy, vec2(1., 300.))) * 43758.5453123);
-    }
-
+    float rand(vec2 p) { return fract(sin(dot(p.xy, vec2(1., 300.))) * 43758.5453123); }
     float noise(vec2 p) {
-        vec2 i = floor(p);
-        vec2 f = fract(p);
-        float a = rand(i);
-        float b = rand(i + vec2(1.0, 0.0));
-        float c = rand(i + vec2(0.0, 1.0));
-        float d = rand(i + vec2(1.0, 1.0));
+        vec2 i = floor(p); vec2 f = fract(p);
+        float a = rand(i); float b = rand(i + vec2(1.0, 0.0)); float c = rand(i + vec2(0.0, 1.0)); float d = rand(i + vec2(1.0, 1.0));
         vec2 u = f * f * (3.0 - 2.0 * f);
         return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
     }
-
     #define OCTAVES 4
     float fbm(vec2 p) {
-        float value = 0.;
-        float amplitude = .5;
-        for (int i = 0; i < OCTAVES; i++) {
-            value += amplitude * noise(p);
-            p *= 2.2;
-            amplitude *= .45;
-        }
+        float value = 0.; float amplitude = .5;
+        for (int i = 0; i < OCTAVES; i++) { value += amplitude * noise(p); p *= 2.2; amplitude *= .45; }
         return value;
     }
-
     void main() {
-        vec2 p = uv.xy;
-        p.x *= vp.x / vp.y;
-
-        // "Etrafa dağılan" girdaplı hareket için domain warping
-        // Sabit bir yön (y ekseni) yerine zamana bağlı dairesel ve kaotik değişim
-        float t = time * 0.1;
-        vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2;
-        
-        vec2 fast = (p + flow) * 3.5; // Scale düşürülerek daha "duman" görüntüsü verildi
-        
-        float ns_a = fbm(fast + t);
-        float ns_b = fbm(fast + ns_a - t * 0.5);
-        float intensity = fbm(vec2(ns_a, ns_b));
-
-        // Viego Renk Paleti (Koyu Siyah/Yeşil -> Parlak Mahvolmuş Teal)
-        vec3 darkMist = vec3(0.02, 0.05, 0.05); // Çok koyu zemin
-        vec3 ruinedTeal = vec3(0.04, 0.78, 0.72); // Viego yeşili
-        
-        // Karışım: Siyah sisin içinden parlayan yeşil ruhlar gibi
+        vec2 p = uv.xy; p.x *= vp.x / vp.y;
+        float t = time * 0.1; vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2;
+        vec2 fast = (p + flow) * 3.5;
+        float ns_a = fbm(fast + t); float ns_b = fbm(fast + ns_a - t * 0.5); float intensity = fbm(vec2(ns_a, ns_b));
+        vec3 darkMist = vec3(0.02, 0.05, 0.05); vec3 ruinedTeal = vec3(0.04, 0.78, 0.72);
         vec3 color = mix(darkMist, ruinedTeal, intensity * intensity * 0.8);
-
-        // Alpha kanalı: Sadece sisin yoğun olduğu yerler görünsün, arkadaki splash art ölmesin
         float alpha = smoothstep(0.2, 0.9, intensity);
+        fragColor = vec4(color, alpha);
+    }
+    `;
+
+    // --- WEBGL SHADER KODLARI (KARTLAR İÇİN - FARE ETKİLEŞİMLİ) ---
+    const cardMistFragmentShader = `#version 300 es
+    precision highp float;
+    uniform float time;
+    uniform vec2 vp;
+    uniform vec2 u_mouse; // Fare pozisyonu (0.0 - 1.0 arası normalize edilmiş)
+    in vec2 uv;
+    out vec4 fragColor;
+    // (Gürültü fonksiyonları arka planla aynı)
+    float rand(vec2 p) { return fract(sin(dot(p.xy, vec2(1., 300.))) * 43758.5453123); }
+    float noise(vec2 p) {
+        vec2 i = floor(p); vec2 f = fract(p);
+        float a = rand(i); float b = rand(i + vec2(1.0, 0.0)); float c = rand(i + vec2(0.0, 1.0)); float d = rand(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+    }
+    #define OCTAVES 3 // Kartlar küçük olduğu için oktavı düşürdük, performans artışı sağlar
+    float fbm(vec2 p) {
+        float value = 0.; float amplitude = .5;
+        for (int i = 0; i < OCTAVES; i++) { value += amplitude * noise(p); p *= 2.2; amplitude *= .45; }
+        return value;
+    }
+    void main() {
+        // Kartların en boy oranı genelde dikey olduğu için düzeltme faktörünü ters çeviriyoruz
+        vec2 p = uv.xy; p.y *= vp.y / vp.x; 
+
+        float t = time * 0.15; // Kart içinde sis biraz daha hızlı hareket etsin
+        vec2 flow = vec2(sin(t * 0.6), cos(t * 0.4)) * 0.15;
+        vec2 fast = (p + flow) * 2.5; // Ölçeği büyüt (sayıyı küçült) ki küçük alanda daha detaylı görünsün
+
+        float ns_a = fbm(fast + t); float ns_b = fbm(fast + ns_a - t * 0.5); float intensity = fbm(vec2(ns_a, ns_b));
+        
+        vec3 darkMist = vec3(0.01, 0.03, 0.03); 
+        vec3 ruinedTeal = vec3(0.04, 0.85, 0.78); // Biraz daha parlak teal
+        vec3 color = mix(darkMist, ruinedTeal, intensity * intensity * 1.2);
+        float alpha = smoothstep(0.15, 0.85, intensity);
+
+        // --- FARE ETKİLEŞİMİ ---
+        // Pikselin fareye olan uzaklığını hesapla.
+        // u_mouse 0-1 arasında, uv de 0-1 arasında (vertex shader'dan geliyor).
+        float mouseDist = distance(uv, u_mouse);
+        
+        // Fare merkezinde 0, dışarı doğru 1 olan bir maske oluştur.
+        // 0.2: Dağılma dairesinin iç yarıçapı (tamamen şeffaf)
+        // 0.4: Dağılma dairesinin dış yarıçapı (yumuşak geçişin bittiği yer)
+        float mouseMask = smoothstep(0.2, 0.4, mouseDist);
+
+        // Mevcut sisin alpha değerini maske ile çarp. Fare yakınsa alpha 0'a yaklaşır.
+        alpha *= mouseMask;
 
         fragColor = vec4(color, alpha);
     }
     `;
 
-    class WebGLHandler {
-        vertexShaderSource = `#version 300 es
-            precision mediump float;
-            const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
-            out vec2 uv;
-            void main() {
-                uv = positions[gl_VertexID];
-                gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0);
-            }`;
+    const vertexShaderSource = `#version 300 es
+        precision mediump float;
+        const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
+        out vec2 uv;
+        void main() {
+            // Pozisyonları [0,1] aralığına normalize et, doku koordinatı olarak kullan
+            uv = positions[gl_VertexID] * 0.5 + 0.5;
+            gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0);
+        }`;
 
-        constructor(canvas, fragmentShaderSource) {
+    class WebGLHandler {
+        constructor(canvas, fragmentSource) {
             this.cn = canvas;
-            this.gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: false }); // Alpha desteği açıldı
+            this.gl = canvas.getContext("webgl2", { alpha: true });
             this.startTime = Date.now();
             this.resize();
-            window.addEventListener("resize", () => this.resize());
+            // Arka plan için sadece pencere yeniden boyutlandırmayı dinle
+            if (canvas.id === 'mist-canvas-bg') window.addEventListener("resize", () => this.resize());
+            
             this.program = this.gl.createProgram();
-            this.compileShader(this.vertexShaderSource, this.gl.VERTEX_SHADER);
-            this.compileShader(fragmentShaderSource, this.gl.FRAGMENT_SHADER);
+            this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER);
+            this.compileShader(fragmentSource, this.gl.FRAGMENT_SHADER);
             this.gl.linkProgram(this.program);
             this.gl.useProgram(this.program);
             this.timeLocation = this.gl.getUniformLocation(this.program, "time");
             this.resolutionLocation = this.gl.getUniformLocation(this.program, "vp");
+            
             this.render();
         }
-
         resize() {
-            this.cn.width = window.innerWidth;
-            this.cn.height = window.innerHeight;
+            // Eğer canvas bir kutunun içindeyse onun boyutunu al, yoksa pencere boyutunu al
+            const parent = this.cn.parentElement;
+            if (parent && parent.id !== 'mist-canvas-bg') {
+                this.cn.width = parent.clientWidth;
+                this.cn.height = parent.clientHeight;
+            } else {
+                this.cn.width = window.innerWidth;
+                this.cn.height = window.innerHeight;
+            }
             this.gl.viewport(0, 0, this.cn.width, this.cn.height);
         }
-
         compileShader(source, type) {
             const shader = this.gl.createShader(type);
             this.gl.shaderSource(shader, source);
             this.gl.compileShader(shader);
-            if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-                console.error(this.gl.getShaderInfoLog(shader));
-                this.gl.deleteShader(shader);
-                return null;
-            }
-            return this.gl.attachShader(this.program, shader);
+            if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) console.error(this.gl.getShaderInfoLog(shader));
+            this.gl.attachShader(this.program, shader);
         }
-
         render = () => {
             this.gl.uniform1f(this.timeLocation, (Date.now() - this.startTime) / 1000);
             this.gl.uniform2fv(this.resolutionLocation, [this.cn.width, this.cn.height]);
             this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
-            window.requestAnimationFrame(this.render);
+            requestAnimationFrame(this.render);
         };
     }
 
-    // Canvas'ı oluştur ve başlat
-    const mistCanvas = document.body.appendChild(document.createElement("canvas"));
-    mistCanvas.id = "mist-canvas";
-    const webGL = new WebGLHandler(mistCanvas, mistFragmentShader);
+    // Kartlar için özel WebGL İşleyicisi (Fare etkileşimli)
+    class CardMistHandler extends WebGLHandler {
+        constructor(canvas, fragmentSource, boxId) {
+            super(canvas, fragmentSource);
+            this.mouseLocation = this.gl.getUniformLocation(this.program, "u_mouse");
+            // Başlangıçta fare etkisini ekran dışına al
+            this.gl.uniform2fv(this.mouseLocation, [-1.0, -1.0]); 
 
+            const box = document.getElementById(boxId);
+            
+            // Fare kutunun üzerine geldiğinde
+            box.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                // Fare pozisyonunu canvas içinde [0, 1] aralığına normalize et
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = 1.0 - (e.clientY - rect.top) / rect.height; // WebGL'de Y ekseni ters
+                this.gl.uniform2fv(this.mouseLocation, [x, y]);
+            });
+
+            // Fare kutudan çıktığında
+            box.addEventListener('mouseleave', () => {
+                // Etkiyi kaybetmek için pozisyonu tekrar ekran dışına al
+                this.gl.uniform2fv(this.mouseLocation, [-1.0, -1.0]);
+            });
+        }
+        // Render fonksiyonunu override etmeye gerek yok, üst sınıfınki çalışacak ve mouse uniform'u güncel kalacak.
+    }
+
+    // --- WEBGL BAŞLATMA ---
+    // 1. Ana Arka Plan Sisi
+    const bgCanvas = document.body.appendChild(document.createElement("canvas"));
+    bgCanvas.id = "mist-canvas-bg";
+    new WebGLHandler(bgCanvas, bgMistFragmentShader);
+
+    // 2. Kart Sisleri (Oyuncu ve Düşman Kutuları yüklendikten sonra başlatılmalı)
+    // Bu yüzden window.onload içinde başlatacağız.
 
     // --- OYUN JS KODLARI (MEVCUT KODLAR) ---
     let musicVolume = 0.15; let sfxVolume = 0.3;
@@ -544,42 +629,7 @@
                 { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god has no power here.\"", intro: ["Illaoi: \"You are stagnant. You are stuck in the past.\"", "Viego: \"My love is timeless!\"", "Illaoi: \"Motion is life. You are dead inside.\""], quotes: ["Motion is life."] },
                 { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer! You let her die!\"", intro: ["Kalista: \"Viego... please. End this madness.\"", "Viego: \"You swore to protect me! You failed her!\"", "Kalista: \"I swore to the truth. You are lost.\""], quotes: ["Vengeance!"] },
                 { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Smoke and mirrors."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern, wretch.\"", intro: ["Thresh: \"Oh, the exquisite agony you spread.\"", "Viego: \"Do not mock me, Thresh. You are but a servant.\"", "Thresh: \"Servants eventually become masters, don't they?\""], quotes: ["Scream."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Love conquered the Void.\"", intro: ["Bel'Veth: \"I will consume your world, King.\"", "Viego: \"My world is Isolde. You cannot touch her.\"", "Bel'Veth: \"I will remake everything. Including your grief.\""], quotes: ["The end."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
-            ]
-        },
-        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü", restart: "🔄 Yeniden Başla",
-            restartTitle: "OYUNU SIFIRLA?", restartMsg: "Emin misin? Tüm ilerleme silinecek.", restartConfirm: "EVET, SIFIRLA", restartCancel: "İPTAL",
-            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
-            bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
-            isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", buy: "SATIN AL", owned: "SAHİPSİN", sellModeOn: "SATIŞ MODU: AÇIK", sellModeOff: "SATIŞ MODU: KAPALI", sell: "SAT",
-                items: {
-                    potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
-                    elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
-                    sword: { name: "Mahvolmuş Kılıç", desc: "PASİF: +40 Taban Hasar.", stat: "Hasar" },
-                    armor: { name: "Hayalet Zırh", desc: "PASİF: %20 Hasar Azaltma.", stat: "Zırh" },
-                    cloak: { name: "Kritik Pelerini", desc: "PASİF: +%15 Kritik Şansı.", stat: "Kritik" },
-                    vampScepter: { name: "Vampir Asası", desc: "PASİF: Düz vuruşlar 10 Can iyileştirir.", stat: "Can Çalma" },
-                    thornmail: { name: "Çivili Zırh", desc: "PASİF: Hasar alınca 15 büyü hasarı yansıtır.", stat: "Yansıtma" }
-                }
-            },
-            enemies: [
-                { id: "gangplank", name: "Gangplank", win: "Viego: \"Burası benim şehrim.\"", intro: ["Gangplank: \"Gemimden defol hayalet! Bu şehir benim!\"", "Viego: \"Sisin dokunduğu her şey bana aittir.\"", "Gangplank: \"Kalbini söküp alacağım!\"", "Viego: \"Kırılacak bir kalbim kalmadı.\""], quotes: ["Fıçı!", "Yak onları!"] },
-                { id: "yorick", name: "Yorick", win: "Viego: \"Mezarını kaz.\"", intro: ["Yorick: \"Sis temizlenmeli. Durdurulmalısın.\"", "Viego: \"Sis BENİM. Kaçınılmaz olandan kaçamazsın.\"", "Yorick: \"Ben yaşayanlar için savaşıyorum. Sen bir ceset için.\""], quotes: ["Mezara gir."] },
-                { id: "akshan", name: "Akshan", win: "Viego: \"Diriliş yok.\"", intro: ["Akshan: \"Güzel yüz, çirkin ruh. Hadi düzeltelim.\"", "Viego: \"Sen sadece can sıkıcı bir böceksin.\"", "Akshan: \"Sen de mızmız bir kralsın.\""], quotes: ["Bum!"] },
-                { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"O'nun gülüşünü hatırlıyorum... Bunu istemezdi!\"", "Viego: \"Kes sesini! Sen sadece onun gölgesisin!\"", "Gwen: \"Seni durduracağım ve herkesi kurtaracağım!\""], quotes: ["Kesip biçerim!"] },
-                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Aşkınız zayıf.\"", intro: ["Lucian: \"Burada bitiyor Viego! İncittiğin herkes için!\"", "Viego: \"Sen karını kurtardın Lucian. Ben neden kurtaramayayım?!\"", "Senna: \"Çünkü o gitti Viego! Bir hayali kovalıyorsun!\""], quotes: ["Işık adına!", "Birlikte!"] },
-                { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Yaşam sularını zehirledin!\"", "Viego: \"Onları sonsuz kıldım. Bana teşekkür etmelisin.\"", "Maokai: \"Seni toprağa gömeceğim!\""], quotes: ["Doğa affetmez."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım bir kralın ruhuna aç.\"", "Viego: \"Ben yemek değilim. Ben ölümün kendisiyim.\"", "Elise: \"Göreceğiz.\""], quotes: ["Yaklaş..."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"Ah, Viego. Hala masalların peşinde misin?\"", "Viego: \"Sözlerine dikkat et amca. Yoksa dilini koparırım.\"", "Vladimir: \"Çok dramatiksin. Hadi yeri kırmızıya boyayalım.\""], quotes: ["Kanın kokusu..."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"Savaş bitti süvari.\"", intro: ["Hecarim: \"Savaş! Sonsuz savaş! Bize liderlik et Kralım!\"", "Viego: \"Sen sadece kör bir silahsın Hecarim. İtaat et.\"", "Hecarim: \"Ben sadece katliama itaat ederim!\""], quotes: ["Ezip geçin!"] },
-                { id: "illaoi", name: "Illaoi", win: "Viego: \"Tanrın sessiz kaldı.\"", intro: ["Illaoi: \"Sen durgunsun. Geçmişe saplanmışsın.\"", "Viego: \"Aşkım zamansızdır!\"", "Illaoi: \"Hareket hayattır. Sen içten ölüsün.\""], quotes: ["Hareket hayattır."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Hain! Onu ölüme terk ettin!\"", intro: ["Kalista: \"Viego... yalvarırım. Bu deliliğe son ver.\"", "Viego: \"Beni korumaya yemin etmiştin! Onu kurtaramadın!\"", "Kalista: \"Ben gerçeğe yemin ettim. Sen kayboldun.\""], quotes: ["İntikam!"] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Uyu artık eski dostum.\"", intro: ["Ledros: \"Yüzyıllardır seni kurtarmaya çalıştım Kralım.\"", "Viego: \"Öyleyse neden yolumdasın Ledros?\"", "Ledros: \"Çünkü hizmet ettiğim adam öldü. Geriye sadece canavar kaldı.\""], quotes: ["Düşemem."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Yalanların bitti, Hilekar.\"", intro: ["Viego: \"O nerede?! Bir şeyler bildiğini biliyorum!\"", "LeBlanc: \"Çok şey biliyorum. Ama gerçeği kaldırabilir misin?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
+                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
                 { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Yaydıgın bu acı... Ne kadar lezzetli.\"", "Viego: \"Benimle alay etme Thresh. Sen sadece bir hizmetkarsın.\"", "Thresh: \"Hizmetkarlar sonunda efendi olur, değil mi?\""], quotes: ["Çığlık at."] },
                 { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
                 { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
@@ -949,6 +999,12 @@
         changeLanguage(savedLang);
         loadSettings(); // ÖNCE AYARLARI YÜKLE
         loadGame(); // SONRA OYUNU YÜKLE
+
+        // --- KART SİSLERİNİ BAŞLAT ---
+        // Kutular DOM'da olduğu için artık başlatabiliriz.
+        // Yeni CardMistHandler sınıfını kullanarak her kutu için bir tane oluşturuyoruz.
+        new CardMistHandler(document.getElementById('player-mist-canvas'), cardMistFragmentShader, 'player-box');
+        new CardMistHandler(document.getElementById('enemy-mist-canvas'), cardMistFragmentShader, 'enemy-box');
     };
 </script>
 </body>
