@@ -21,6 +21,7 @@
 
         body {
             background-color: var(--dark-bg);
+            /* Arka plan görseli */
             background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,10,10,0.8)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
@@ -31,25 +32,72 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- KARA SİS (BLACK MIST) --- */
-        #mist-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1; overflow: hidden;
+        /* --- YENİ KARA SİS (ADVANCED FOG SYSTEM) --- */
+        .viego-fog-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Arka planın üstünde, UI'ın altında */
+            overflow: hidden;
+            /* Viego'nun sisinin yeşilimsi/mavi tonu */
+            filter: hue-rotate(160deg) contrast(1.2) brightness(0.8);
+            pointer-events: none;
         }
-        .mist {
-            position: absolute;
-            background: radial-gradient(ellipse at center, rgba(10, 200, 185, 0.4) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%; filter: blur(60px); opacity: 0.6;
-            animation-timing-function: ease-in-out; animation-iteration-count: infinite;
-        }
-        .mist-1 { bottom: -20%; left: -20%; width: 80vw; height: 80vh; animation: mistMove1 20s infinite alternate; }
-        .mist-2 { top: -20%; right: -20%; width: 70vw; height: 70vh; background: radial-gradient(ellipse at center, rgba(5, 100, 100, 0.5) 0%, rgba(0,0,0,0) 70%); animation: mistMove2 25s infinite alternate; }
-        .mist-3 { top: 50%; left: 50%; width: 50vw; height: 50vh; background: radial-gradient(ellipse at center, rgba(10, 200, 185, 0.15) 0%, rgba(0,0,0,0) 60%); transform: translate(-50%, -50%); animation: mistPulse 10s infinite; }
-        @keyframes mistMove1 { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(10%, -10%) scale(1.1); opacity: 0.7; } }
-        @keyframes mistMove2 { 0% { transform: translate(0, 0) scale(1); opacity: 0.4; } 100% { transform: translate(-10%, 10%) scale(1.2); opacity: 0.6; } }
-        @keyframes mistPulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; } 50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.4; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; } }
 
-        /* --- UI ELEMENTLERİ (Z-Index: 10) --- */
+        .fog-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%; /* Kesintisiz döngü için ekranın iki katı */
+            height: 100%;
+            background-repeat: repeat-x;
+            background-size: 50% 100%;
+            opacity: 0.7;
+        }
+
+        /* Sis Dokusu (CSS Gradient ile) */
+        .fog-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(10, 80, 80, 0.4) 0%, transparent 60%),
+                radial-gradient(circle at 70% 60%, rgba(20, 60, 50, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(50, 100, 120, 0.2) 0%, transparent 70%),
+                linear-gradient(to right, rgba(5, 25, 25, 0.1), rgba(5, 35, 45, 0.2));
+            filter: blur(30px);
+        }
+
+        /* Katman 1: En arkada, yavaş */
+        .layer-1 { animation: fogFlow 60s linear infinite; opacity: 0.4; z-index: 1; }
+        .layer-1::after { transform: scale(1.2) rotate(5deg); }
+
+        /* Katman 2: Ortada, dalgalı */
+        .layer-2 { animation: fogFlow 35s linear infinite, fogWiggle 15s ease-in-out infinite alternate; opacity: 0.5; z-index: 2; }
+        .layer-2::after { filter: blur(20px) brightness(1.2); }
+
+        /* Katman 3: En önde, hızlı */
+        .layer-3 { animation: fogFlow 20s linear infinite; opacity: 0.3; z-index: 3; top: 20%; height: 80%; }
+        .layer-3::after { background: radial-gradient(circle at 50% 50%, rgba(100, 200, 200, 0.3) 0%, transparent 60%); filter: blur(40px); }
+
+        /* Animasyonlar */
+        @keyframes fogFlow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes fogWiggle {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(0.5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        /* --- SİS BİTİŞ --- */
+
+        /* --- UI ELEMENTLERİ (Z-Index: 10 ve üzeri) --- */
         .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #info-modal, #shop-modal, #restart-modal { position: relative; z-index: 10; }
 
         .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
@@ -111,7 +159,7 @@
         .character-img { 
             width: 200px; height: 200px; 
             object-fit: cover; 
-            object-position: center top; /* YÜZLERİN GÖZÜKMESİ İÇİN DÜZELTİLDİ */
+            object-position: center top; 
             border-radius: 50%; 
             border: 4px solid #444; 
             box-shadow: 0 0 20px rgba(0,0,0,0.5); 
@@ -169,10 +217,10 @@
 </head>
 <body>
     
-    <div id="mist-container">
-        <div class="mist mist-1"></div>
-        <div class="mist mist-2"></div>
-        <div class="mist mist-3"></div>
+    <div class="viego-fog-container">
+        <div class="fog-layer layer-1"></div>
+        <div class="fog-layer layer-2"></div>
+        <div class="fog-layer layer-3"></div>
     </div>
 
     <a href="index.html" class="back-btn" id="btn-menu">← Menu</a>
@@ -545,10 +593,10 @@
 
             if (isSellMode) {
                  if ((item.type === 'passive' && isOwnedPassive) || (item.type === 'consumable' && hasConsumable)) {
-                     btnText = `${t.shop.sell} (${Math.floor(item.basePrice / 2)} G)`;
-                     div.classList.add(item.type === 'passive' ? 'owned-passive' : 'owned-consumable');
+                      btnText = `${t.shop.sell} (${Math.floor(item.basePrice / 2)} G)`;
+                      div.classList.add(item.type === 'passive' ? 'owned-passive' : 'owned-consumable');
                  } else {
-                     btnText = "-"; disabled = true;
+                      btnText = "-"; disabled = true;
                  }
             } else {
                 if (item.type === 'passive') {
@@ -558,8 +606,8 @@
                          if (player.gold < item.basePrice) disabled = true;
                     }
                 } else { // consumable
-                     btnText = `${t.shop.buy} (${item.basePrice} G)`;
-                     if (player.gold < item.basePrice) disabled = true;
+                      btnText = `${t.shop.buy} (${item.basePrice} G)`;
+                      if (player.gold < item.basePrice) disabled = true;
                 }
             }
 
