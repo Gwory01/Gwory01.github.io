@@ -42,7 +42,6 @@
         /* --- UI ELEMENTLERİ --- */
         .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #shop-modal, #restart-modal { position: relative; z-index: 10; }
 
-        /* YENİ INFO BUTON STİLİ */
         .info-btn { 
             position: absolute; top: 0; left: 0; 
             width: 25px; height: 25px; 
@@ -57,10 +56,8 @@
         }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
         
-        /* ORTAK MODAL STİLLERİ (Shop, Restart vb.) */
         .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px rgba(10, 200, 185, 0.2); border-radius: 4px; color: #ddd; text-align: center; }
         
-        /* TEXT STİLLERİ */
         .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } 
         .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
 
@@ -102,7 +99,20 @@
 
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
         
-        .character-box { width: 250px; text-align: center; position: relative; transition: transform 0.2s; z-index: 2; top: 0; }
+        /* --- KARAKTER HİZALAMA DÜZELTMESİ --- */
+        .character-box { 
+            width: 250px; 
+            text-align: center; 
+            position: relative; 
+            transition: transform 0.2s; 
+            z-index: 2; 
+            top: 0;
+            /* Dikey ortalama için yeni kurallar */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%; /* Battle-scene yüksekliğine yayıl */
+        }
         
         .character-img { 
             width: 200px; height: 200px; 
@@ -138,20 +148,19 @@
         .eq-item { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--gold-color); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; position: relative; cursor: help; }
         .eq-lvl { position: absolute; bottom: -2px; right: -2px; background: var(--gold-color); color: black; font-size: 9px; padding: 1px 3px; font-weight: bold; border-radius: 2px; }
 
-        /* --- GENEL TOOLTIP STİLİ (HEM ENVANTER HEM INFO İÇİN) --- */
         #inv-tooltip { 
-            position: fixed; /* Mobilde kayma olmasın diye fixed */
+            position: fixed; 
             background: rgba(10, 12, 15, 0.98); 
             border: 1px solid var(--ruined-green); 
             box-shadow: 0 0 20px rgba(0,0,0,0.8); 
             padding: 12px; 
             font-size: 12px; 
-            z-index: 4000; /* En üstte */
+            z-index: 4000; 
             display: none; 
             font-family: 'Roboto', sans-serif; 
-            max-width: 250px; /* Çok geniş olmasın */
+            max-width: 250px; 
             border-radius: 4px;
-            pointer-events: none; /* Mouse ile etkileşime girmesin */
+            pointer-events: none; 
         }
         .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 4px; } 
         .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
@@ -213,11 +222,14 @@
                 border-width: 3px;
             }
 
+            /* MOBİLDE KARAKTER KUTUSU AYARLARI (Masaüstünü ez) */
             .character-box {
                 width: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                height: auto; /* Yüksekliği serbest bırak */
+                justify-content: flex-start; /* Varsayılan dikey hizalama */
             }
 
             .stat-bar {
