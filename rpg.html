@@ -6,6 +6,7 @@
     <title>Viego: The Ruined King RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'); /* Tooltipler için daha okunaklı font */
 
         :root {
             --ruined-green: #0ac8b9;
@@ -14,230 +15,123 @@
             --hp-red: #c0392b;
             --crit-color: #ffcc00;
             --heal-color: #2ecc71;
-            --morde-realm: #2c3e50;
             --gold-color: #f39c12;
+            --sell-color: #e74c3c;
         }
 
         body {
             background-color: var(--dark-bg);
             background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: #e0e0e0;
-            font-family: 'Cinzel', serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            user-select: none;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: #e0e0e0; font-family: 'Cinzel', serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; margin: 0; overflow: hidden; user-select: none;
             transition: filter 1s ease, box-shadow 1s ease;
         }
+        body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        body.death-realm-active {
-            filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1);
-            box-shadow: inset 0 0 150px #0ac8b9;
-        }
-
-        /* --- INFO BUTTONS --- */
-        .info-btn {
-            position: absolute;
-            top: 5px; left: 5px;
-            width: 25px; height: 25px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid var(--ruined-green);
-            color: var(--ruined-green);
-            border-radius: 50%;
-            font-weight: bold; font-family: sans-serif; font-size: 14px;
-            cursor: pointer; z-index: 100;
-            display: flex; justify-content: center; align-items: center;
-            transition: 0.3s;
-            box-shadow: 0 0 10px rgba(10, 200, 185, 0.5);
-        }
+        /* --- UI ELEMENTLERİ --- */
+        .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
-
-        /* --- PENCERELER (MODAL, DIALOG, VICTORY) --- */
-        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal {
-            background: rgba(10, 12, 15, 0.98);
-            border: 2px solid #1a1a1a;
-            outline: 2px solid var(--ruined-green);
-            outline-offset: -2px;
-            box-shadow: 0 0 30px rgba(10, 200, 185, 0.3), inset 0 0 50px rgba(0,0,0,0.9);
-            border-radius: 4px;
-            color: #ddd;
-            text-align: center;
-        }
-
-        .info-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 320px; padding: 20px; z-index: 2000; display: none;
-            text-align: left; font-family: sans-serif; font-size: 13px; line-height: 1.6;
-        }
+        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); border-radius: 4px; color: #ddd; text-align: center; }
+        .info-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; padding: 20px; z-index: 2000; display: none; text-align: left; font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.6; }
         .info-modal h3 { color: var(--ruined-green); margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-family: 'Cinzel', serif; }
-        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; }
-        .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
-        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
-        .info-close:hover { background: var(--ruined-green); color: black; }
+        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
+        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } .info-close:hover { background: var(--ruined-green); color: black; }
 
-        /* --- SHOP MODAL --- */
-        #shop-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 600px; padding: 20px; z-index: 2100; display: none;
-            text-align: left;
-        }
+        /* --- SHOP MODAL & SELL MODE --- */
+        #shop-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; padding: 20px; z-index: 2100; display: none; text-align: left; }
         .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .shop-item { 
-            background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 10px; 
-            display: flex; justify-content: space-between; align-items: center; transition: 0.2s; 
-        }
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .shop-item { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; position: relative; }
         .shop-item:hover { border-color: var(--ruined-green); background: rgba(10, 200, 185, 0.1); }
+        .shop-item.owned-passive { border-color: var(--gold-color); }
         .item-info { display: flex; flex-direction: column; }
         .item-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
-        .item-desc { font-size: 0.75rem; color: #aaa; }
-        .buy-btn { 
-            background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); 
-            padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; 
-        }
+        .item-desc { font-size: 0.75rem; color: #aaa; font-family: 'Roboto', sans-serif; }
+        .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; cursor: pointer; font-weight: bold; font-family: 'Cinzel'; transition: 0.2s; }
         .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: black; }
-        .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; border-color: #555; color: #777; background: #222; }
-
-        /* --- OYUN ALANI --- */
-        .game-wrapper { 
-            width: 95%; max-width: 800px; height: 650px;
-            background: rgba(8, 10, 12, 0.95); 
-            border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px;
-            box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4), 0 0 0 8px #05080a, inset 0 0 80px rgba(0,0,0, 1);
-            padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; 
-        }
-
-        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-            border-radius: 8px;
-        }
+        .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
         
+        /* Satış Modu Stilleri */
+        body.sell-mode-active .shop-item.owned-passive { border-color: var(--sell-color); background: rgba(231, 76, 60, 0.1); }
+        body.sell-mode-active .buy-btn.sellable { background: var(--sell-color); color: white; border-color: #c0392b; }
+        body.sell-mode-active .buy-btn.sellable:hover { background: #c0392b; }
+        #sell-mode-btn { margin-right: 10px; background: #333; color: #aaa; border: 1px solid #555; }
+        #sell-mode-btn.active { background: var(--sell-color); color: white; border-color: #c0392b; }
+
+        /* --- GAMEPLAY --- */
+        .game-wrapper { width: 95%; max-width: 800px; height: 650px; background: rgba(8, 10, 12, 0.95); border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; }
+        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 8px; }
         #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
-        #overlay { background: rgba(0,0,0,0.8); display: none; }
-        #final-choice-overlay { background: rgba(0,0,0,0.95); display: none; }
-        
-        .overlay-msg { padding: 40px; min-width: 300px; }
-        .overlay-msg h2 { color: var(--ruined-green); font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 10px var(--ruined-green); }
-
+        #overlay, #final-choice-overlay { background: rgba(0,0,0,0.9); display: none; }
+        .overlay-msg h2 { color: var(--ruined-green); font-size: 2.5rem; text-shadow: 0 0 10px var(--ruined-green); }
         #cinematic-dialogue { display: none; justify-content: flex-end; padding-bottom: 50px; background: rgba(0,0,0,0.4); pointer-events: none; }
-        .dialogue-box { padding: 25px; width: 70%; pointer-events: auto; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #cinematic-text { font-size: 1.3rem; color: #fff; margin-bottom: 20px; font-style: italic; text-shadow: 1px 1px 2px black; }
-        #cinematic-btn { background: transparent; border: 1px solid var(--ruined-green); color: var(--ruined-green); padding: 5px 25px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; font-size: 1rem; }
-        #cinematic-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 15px var(--ruined-green); }
-
-        .start-btn { padding: 15px 40px; font-size: 1.5rem; background: transparent; color: var(--ruined-green); border: 2px solid var(--ruined-green); font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 30px var(--ruined-green); }
-
+        .dialogue-box { padding: 25px; width: 70%; pointer-events: auto; min-height: 100px; background: rgba(10,12,15,0.95); border: 2px solid var(--ruined-green); }
+        #cinematic-text { font-size: 1.3rem; color: #fff; font-style: italic; }
+        .start-btn, #cinematic-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 10px 30px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.3s; font-size: 1.2rem; margin: 5px; }
+        .start-btn:hover, #cinematic-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 20px var(--ruined-green); }
         .choice-btn { padding: 20px 40px; margin: 10px; font-size: 1.2rem; border: 2px solid; cursor: pointer; font-family: 'Cinzel', serif; width: 300px; transition: 0.3s; background: rgba(0,0,0,0.8); }
-        .btn-attack { border-color: #c0392b; color: #c0392b; }
-        .btn-attack:hover { background: #c0392b; color: white; }
-        .btn-surrender { border-color: #2ecc71; color: #2ecc71; }
-        .btn-surrender:hover { background: #2ecc71; color: white; }
+        .btn-attack { border-color: #c0392b; color: #c0392b; } .btn-attack:hover { background: #c0392b; color: white; }
+        .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
 
+        /* --- BATTLE SCENE & ANIMATIONS --- */
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
-        .character-box { width: 250px; text-align: center; position: relative; }
-        
-        .character-img { 
-            width: 200px; height: 200px; object-fit: cover; 
-            object-position: center 20%; 
-            border-radius: 50%; border: 4px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.2s; 
-        }
-        
-        /* LeBlanc Kopya Efekti */
-        .character-img.clone-active {
-            opacity: 0.6;
-            filter: grayscale(80%) blur(1px);
-            border-color: #a29bfe;
-            animation: pulseClone 1s infinite alternate;
-        }
-        @keyframes pulseClone { from { box-shadow: 0 0 10px #a29bfe; } to { box-shadow: 0 0 30px #a29bfe; } }
-
+        .character-box { width: 250px; text-align: center; position: relative; transition: transform 0.2s; }
+        .character-img { width: 200px; height: 200px; object-fit: cover; object-position: center 20%; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
-        .shake { animation: shake 0.5s; }
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        
+        /* Yeni Savaş Animasyonları */
+        .attacking { animation: attack-motion 0.3s ease-in-out; }
+        @keyframes attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(30px); } 100% { transform: translateX(0); } }
+        #enemy-box.attacking { animation: enemy-attack-motion 0.3s ease-in-out; }
+        @keyframes enemy-attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(-30px); } 100% { transform: translateX(0); } }
+        
+        .damaged .character-img { animation: shake 0.4s, flash-red 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, 0); } 80% { transform: translate(5px, 0); } }
+        @keyframes flash-red { 0%, 100% { filter: none; } 50% { filter: sepia(1) saturate(5) hue-rotate(-50deg); } }
+        .clone-active { opacity: 0.6; filter: grayscale(80%) blur(1px); border-color: #a29bfe; animation: pulseClone 1s infinite alternate; }
 
         .stat-bar { width: 100%; height: 18px; background: #222; margin-top: 10px; border: 1px solid #444; position: relative; }
-        .fill { height: 100%; transition: width 0.5s ease-out; }
-        .hp-fill { background-color: var(--hp-red); }
-        .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); }
-        .shield-fill { background-color: #95a5a6; position: absolute; top: 0; left: 0; height: 100%; width: 0%; opacity: 0.7; }
-        .bar-text { font-size: 13px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; z-index: 10; line-height: 18px; }
-
-        /* GOLD & INVENTORY UI */
+        .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 10px var(--power-yellow); } .shield-fill { background-color: #95a5a6; position: absolute; height: 100%; opacity: 0.7; }
+        .bar-text { font-size: 13px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; line-height: 18px; }
         .gold-display { position: absolute; top: -30px; right: 0; color: var(--gold-color); font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 5px; }
 
-        #inventory-frame {
-            position: fixed; top: 80px; left: 20px; width: 70px;
-            background: rgba(10, 12, 15, 0.95); border: 2px solid var(--ruined-green);
-            border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 15px;
-            z-index: 1000; box-shadow: 0 0 15px rgba(10, 200, 185, 0.3);
-        }
+        /* INVENTORY & EQUIPPED */
+        #inventory-frame { position: fixed; top: 80px; left: 20px; width: 70px; background: rgba(10, 12, 15, 0.95); border: 2px solid var(--ruined-green); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+        .inv-slot { width: 100%; height: 60px; background: #222; border: 1px solid #444; border-radius: 4px; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; }
+        .inv-slot:hover { border-color: var(--ruined-green); background: #333; } .inv-slot.empty { opacity: 0.5; filter: grayscale(100%); }
+        .inv-count { position: absolute; bottom: 2px; right: 2px; font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; }
+        #equipped-container { position: absolute; top: 50px; left: -60px; width: 50px; display: flex; flex-direction: column; gap: 8px; z-index: 50; }
+        .eq-item { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--gold-color); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; position: relative; cursor: help; }
+        .eq-lvl { position: absolute; bottom: -2px; right: -2px; background: var(--gold-color); color: black; font-size: 9px; padding: 1px 3px; font-weight: bold; border-radius: 2px; }
+        #inv-tooltip { position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); box-shadow: 0 0 20px rgba(0,0,0,0.8); padding: 12px; font-size: 12px; z-index: 1500; display: none; font-family: 'Roboto', sans-serif; }
+        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; } .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
 
-        .inv-slot {
-            width: 100%; height: 60px; background: #222; border: 1px solid #444;
-            border-radius: 4px; position: relative; cursor: pointer; transition: 0.2s;
-            display: flex; justify-content: center; align-items: center; font-size: 28px;
-        }
-        .inv-slot:hover { border-color: var(--ruined-green); background: #333; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
-        .inv-slot:active { transform: scale(0.95); }
-        .inv-slot.empty { opacity: 0.5; cursor: default; filter: grayscale(100%); }
-
-        .inv-count {
-            position: absolute; bottom: 2px; right: 2px;
-            font-size: 11px; font-weight: bold; color: white;
-            background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px;
-            font-family: sans-serif; border: 1px solid #555;
-        }
-
-        #inv-tooltip {
-            position: absolute; left: 85px; top: 0; width: 180px;
-            background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8); color: #ccc; padding: 12px; font-size: 12px;
-            pointer-events: none; opacity: 1; transition: opacity 0.2s;
-            z-index: 1500; text-align: left; font-family: sans-serif; border-radius: 4px;
-            display: none;
-        }
-        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 3px; }
-        .tooltip-desc { color: #aaa; }
-        .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
-
-
-        .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; position: relative; }
-        .hidden-ui { opacity: 0; pointer-events: none; }
+        /* CONTROLS & LOG */
+        .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; } .hidden-ui { opacity: 0; pointer-events: none; }
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px; }
-        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; box-shadow: 0 0 10px rgba(10, 200, 185, 0.2); }
-        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #222; color: #444; background: #000; filter: grayscale(100%); }
-        .skill-name { font-weight: bold; font-size: 0.75rem; text-align: center; margin-bottom: 3px; }
-        .skill-cost { font-size: 0.65rem; color: #2ecc71; margin-top: 2px; }
-        .skill-sub { font-size: 0.6rem; color: #aaa; margin-top: 2px; }
-        .cooldown-text { color: #e74c3c; font-size: 0.65rem; display:none; }
-        .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
-        .ult-btn:hover:not(:disabled) { background: var(--ruined-green); color: black; }
+        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: white; background: #1a1a1a; } .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(100%); }
+        .skill-name { font-weight: bold; font-size: 0.75rem; } .skill-cost { font-size: 0.65rem; color: #2ecc71; } .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; color: #ccc; font-family: 'Roboto', sans-serif; overflow-y: auto; display: flex; flex-direction: column-reverse; }
+        .speech-bubble { position: absolute; top: -80px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 15px; border-radius: 10px; font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: bold; width: 220px; text-align: center; z-index: 150; opacity: 0; pointer-events: none; transition: 0.5s; border: 2px solid var(--ruined-green); } .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
-        .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; color: #ccc; font-family: sans-serif; overflow-y: auto; display: flex; flex-direction: column-reverse; }
-        .speech-bubble { position: absolute; top: -80px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 15px; border-radius: 10px; font-family: sans-serif; font-size: 12px; font-weight: bold; width: 220px; text-align: center; z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.5s, transform 0.5s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid var(--ruined-green); line-height: 1.4; }
-        .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-        .float-text { position: absolute; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
-        .text-damage { color: #fff; } .text-crit { color: var(--crit-color); font-size: 36px; text-shadow: 0 0 15px red; } .text-heal { color: var(--heal-color); font-size: 28px; } .text-enemy-dmg { color: #e74c3c; } .text-special { color: #0ac8b9; font-size: 28px; text-shadow: 0 0 10px white; font-weight: bold; } .text-weakness { color: #ff00ff; font-size: 30px; text-shadow: 0 0 20px white; font-weight: bold; }
-        .damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.2s linear; } .ult-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 200, 185, 0.5); pointer-events: none; z-index: 50; animation: flash 1s linear; } .stun-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 0, 0.3); pointer-events: none; z-index: 50; animation: flash 0.5s linear; } .void-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(160, 32, 240, 0.4); pointer-events: none; z-index: 50; animation: flash 1s linear; } @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
-
-        .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; gap: 10px; }
-        .control-btn-ui { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; }
-        .control-btn-ui:hover { background: var(--ruined-green); color: black; }
-        select.control-btn-ui { outline: none; } select.control-btn-ui option { background: #000; color: white; }
+        /* TOP BAR & AUDIO CONTROLS */
+        .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        .control-row { display: flex; gap: 10px; }
+        .control-btn-ui, .volume-slider { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px; cursor: pointer; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; }
+        .volume-container { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 4px; border: 1px solid #555; }
+        .volume-label { font-size: 12px; color: var(--ruined-green); }
+        input[type=range] { width: 80px; cursor: pointer; }
         .back-btn { position: fixed; top: 20px; left: 20px; z-index: 200; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 5px 15px; background: rgba(0,0,0,0.8); font-weight: bold; }
+
+        /* FX */
+        .float-text { position: absolute; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; font-family: 'Cinzel'; } @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
+        .text-crit { color: var(--crit-color); font-size: 36px; } .text-heal { color: var(--heal-color); } .text-enemy-dmg { color: #e74c3c; } .text-special { color: #0ac8b9; } .text-weakness { color: #ff00ff; }
+        #flash-effect { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; }
+        .ult-flash { animation: flash 1s linear; background: rgba(10, 200, 185, 0.5); } .stun-flash { animation: flash 0.5s linear; background: rgba(255, 255, 0, 0.3); } .void-flash { animation: flash 1s linear; background: rgba(160, 32, 240, 0.4); } @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
     </style>
 </head>
 <body>
@@ -247,31 +141,33 @@
     
     <div id="inventory-frame">
         <div class="inv-slot" onclick="useInventoryItem('potion')" onmouseover="showTooltip(this, 'potion')" onmouseout="hideTooltip()">
-            🧪
-            <span class="inv-count" id="count-potion">0</span>
+            🧪 <span class="inv-count" id="count-potion">0</span>
         </div>
         <div class="inv-slot" onclick="useInventoryItem('elixir')" onmouseover="showTooltip(this, 'elixir')" onmouseout="hideTooltip()">
-            ⚡
-            <span class="inv-count" id="count-elixir">0</span>
-        </div>
-        <div id="inv-tooltip">
-            <span class="tooltip-title">ITEM NAME</span>
-            <span class="tooltip-desc">Description here...</span>
-            <span class="tooltip-stat">+Stat</span>
+            ⚡ <span class="inv-count" id="count-elixir">0</span>
         </div>
     </div>
     
     <div class="top-bar-controls">
-        <button class="control-btn-ui" onclick="toggleMusic()" id="btn-music">🎵 Music: OFF</button>
-        <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
-            <option value="en">English</option>
-            <option value="tr">Türkçe</option>
-        </select>
+        <div class="control-row">
+            <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+            </select>
+        </div>
+        <div class="volume-container">
+            <span class="volume-label">🎵 Music</span>
+            <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.15">
+        </div>
+        <div class="volume-container">
+            <span class="volume-label">🔊 SFX</span>
+            <input type="range" id="sfx-vol" min="0" max="1" step="0.05" value="0.3">
+        </div>
     </div>
 
-    <audio id="bgMusic" loop preload="auto">
-        <source src="" type="audio/mpeg">
-    </audio>
+    <audio id="bgMusic" loop preload="auto"><source src="" type="audio/mpeg"></audio>
+
+    <div id="inv-tooltip"></div>
 
     <div id="info-modal" class="info-modal">
         <h3 id="info-title">KARAKTER BİLGİSİ</h3>
@@ -282,10 +178,12 @@
     <div id="shop-modal">
         <div class="shop-header">
             <h3 style="margin:0; color:var(--gold-color);" id="shop-title-text">RUINED SHOP</h3>
-            <span id="shop-gold-display">0 Gold</span>
-        </div>
-        <div class="shop-grid" id="shop-container">
+            <div>
+                <button id="sell-mode-btn" class="control-btn-ui" onclick="toggleSellMode()">SELL MODE: OFF</button>
+                <span id="shop-gold-display" style="margin-left:10px; font-weight:bold; color:var(--gold-color);">0 Gold</span>
             </div>
+        </div>
+        <div class="shop-grid" id="shop-container"></div>
         <button class="info-close" id="shop-close-btn" onclick="closeShop()">CLOSE</button>
     </div>
 
@@ -295,7 +193,6 @@
             <h1 id="start-title-2">REVENGE</h1>
             <p style="color: #aaa; margin-top: 10px;" id="start-sub">"It is all... for her."</p>
             <button class="start-btn" onclick="startGame()" id="start-btn">START STORY</button>
-            <p style="font-size: 12px; color: #666; margin-top: 20px;" id="start-note">(Click Start to enable Audio)</p>
         </div>
 
         <div id="cinematic-dialogue">
@@ -326,19 +223,11 @@
                 <button class="info-btn" onclick="showInfo('player')">i</button>
                 <div class="speech-bubble" id="player-bubble">...</div>
                 <div class="level-badge" id="player-lvl">1</div>
-                <div class="gold-display">
-                    <span id="player-gold">0</span> <span style="font-size:12px;">🪙</span>
-                </div>
-                <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
+                <div class="gold-display"><span id="player-gold">0</span> 🪙</div>
+                <div id="equipped-container"></div> <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
-                <div class="stat-bar hidden-ui" id="ui-hp-p">
-                    <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
-                    <span class="bar-text" id="player-hp-text">150/150</span>
-                </div>
-                <div class="stat-bar hidden-ui" style="border-color:#b7950b;" id="ui-mp-p">
-                    <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
-                    <span class="bar-text" id="player-power-text" style="color:black; font-weight:bold; text-shadow:none;">0/100</span>
-                </div>
+                <div class="stat-bar hidden-ui" id="ui-hp-p"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
+                <div class="stat-bar hidden-ui" style="border-color:#b7950b;" id="ui-mp-p"><div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div><span class="bar-text" id="player-power-text" style="color:black;">0/100</span></div>
             </div>
 
             <h1 style="color: #555; font-size: 3rem;" id="vs-text">VS</h1>
@@ -349,65 +238,94 @@
                 <div class="level-badge" id="enemy-lvl" style="background: #d63031; color: white;">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 style="color: #d63031;" id="enemy-name">ENEMY</h2>
-                <div class="stat-bar hidden-ui" id="ui-hp-e">
-                    <div class="shield-fill" id="enemy-shield-bar" style="width: 0%;"></div>
-                    <div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div>
-                    <span class="bar-text" id="enemy-hp-text">100/100</span>
-                </div>
+                <div class="stat-bar hidden-ui" id="ui-hp-e"><div class="shield-fill" id="enemy-shield-bar" style="width: 0%;"></div><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
                 <div id="boss-status" style="color: #ccc; font-size: 12px; margin-top: 5px;"></div>
             </div>
         </div>
 
         <div class="controls hidden-ui" id="combat-controls">
             <div class="skills">
-                <button class="skill-btn" onclick="useSkill('basic')">
-                    <span class="skill-name" id="skill-basic-name">Blade of the King</span>
-                    <span class="skill-cost" style="color:#fff;" id="skill-basic-cost">15 Dmg | +Power</span>
-                </button>
-                <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
-                    <span class="skill-name" id="skill-q-name">Blade of the Ruined King (Q)</span>
-                    <span class="skill-cost" style="color:#2ecc71;" id="skill-q-cost">30 Dmg | 15 Power</span>
-                    <span class="skill-sub" id="skill-q-desc">7% Enemy HP Steal</span>
-                </button>
-                <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
-                    <span class="skill-name" id="skill-w-name">Spectral Maw (W)</span>
-                    <span class="skill-cost" id="skill-w-cost">40 Dmg | 25 Power</span>
-                    <span class="cooldown-text" id="cd-w">Cooldown: 2</span>
-                </button>
-                <button class="skill-btn ult-btn" id="btn-ult" onclick="useSkill('r')">
-                    <span class="skill-name" id="skill-r-name">HEARTBREAKER (R)</span>
-                    <span class="skill-cost" id="skill-r-cost">~200 Dmg | SINGLE</span>
-                </button>
+                <button class="skill-btn" onclick="useSkill('basic')"><span class="skill-name" id="skill-basic-name">Blade of the King</span><span class="skill-cost" style="color:#fff;" id="skill-basic-cost">15 Dmg | +Power</span></button>
+                <button class="skill-btn" id="btn-q" onclick="useSkill('q')"><span class="skill-name" id="skill-q-name">Blade of the Ruined King (Q)</span><span class="skill-cost" style="color:#2ecc71;" id="skill-q-cost">30 Dmg | 15 Power</span><span class="skill-sub" id="skill-q-desc">7% Enemy HP Steal</span></button>
+                <button class="skill-btn" id="btn-w" onclick="useSkill('w')"><span class="skill-name" id="skill-w-name">Spectral Maw (W)</span><span class="skill-cost" id="skill-w-cost">40 Dmg | 25 Power</span><span class="cooldown-text" id="cd-w">Cooldown: 2</span></button>
+                <button class="skill-btn ult-btn" id="btn-ult" onclick="useSkill('r')"><span class="skill-name" id="skill-r-name">HEARTBREAKER (R)</span><span class="skill-cost" id="skill-r-cost">~200 Dmg | SINGLE</span></button>
             </div>
             <div class="log-box" id="combat-log"></div>
         </div>
     </div>
 
 <script>
-    const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
-    sounds.basic1.volume = 0.5; sounds.basic2.volume = 0.5; sounds.w.volume = 0.5;
-    function playSkillSound(type) { try { if(type==='basic'){if(Math.random()>0.5)sounds.basic1.play();else sounds.basic2.play();} if(type==='w')sounds.w.play(); } catch(e){} }
+    // --- SES AYARLARI ---
+    let musicVolume = 0.15; let sfxVolume = 0.3;
+    const bgMusic = document.getElementById('bgMusic');
+    const musicSlider = document.getElementById('music-vol');
+    const sfxSlider = document.getElementById('sfx-vol');
 
-    const player = { 
+    musicSlider.addEventListener('input', (e) => { musicVolume = e.target.value; bgMusic.volume = musicVolume; });
+    sfxSlider.addEventListener('input', (e) => { sfxVolume = e.target.value; });
+
+    const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
+    function playSkillSound(type) { 
+        try { 
+            let s = null;
+            if(type==='basic') s = Math.random()>0.5 ? sounds.basic1 : sounds.basic2;
+            else if(type==='w') s = sounds.w; else if(type==='q') s = sounds.q; else if(type==='r') s = sounds.r;
+            if(s) { s.volume = sfxVolume; s.currentTime=0; s.play(); }
+        } catch(e){} 
+    }
+
+    // --- OYUNCU VERİSİ (KAYDEDİLECEK) ---
+    let player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
-        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0, ownedItems: []
+        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0,
+        items: { sword: { level: 0, icon: '⚔️' }, armor: { level: 0, icon: '🛡️' }, cloak: { level: 0, icon: '🧥' } },
+        ownedPassives: [] // Yeni pasif eşyalar için dizi
     };
-    
-    // --- MAĞAZA EŞYALARI (Logic) ---
-    // Not: İsimler ve Açıklamalar artık translations nesnesinden çekilecek.
+    let currentEnemyIndex = 0;
+
+    // --- KAYIT SİSTEMİ ---
+    function saveGame() {
+        const saveData = { player: player, enemyIndex: currentEnemyIndex };
+        localStorage.setItem('viegoRPG_save', JSON.stringify(saveData));
+        console.log("Game Saved!");
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem('viegoRPG_save');
+        if (saved) {
+            const data = JSON.parse(saved);
+            player = data.player; // Kayıtlı veriyi yükle
+            currentEnemyIndex = data.enemyIndex;
+            recalculateStats(); // Statları tekrar hesapla
+            updateInventoryUI(); updateEquippedUI(); updateUI();
+            console.log("Game Loaded!");
+        }
+    }
+    // Yüklemeden sonra statları düzelt
+    function recalculateStats() {
+        player.baseDmgBonus = player.items.sword.level * 30;
+        player.armor = player.items.armor.level * 15;
+        player.critChance = 0.2 + (player.items.cloak.level * 0.05);
+    }
+
+    // --- MAĞAZA EŞYALARI (YENİ PASİFLER EKLENDİ) ---
     const shopItems = [
-        { id: 'potion', price: 50, type: 'consumable' },
-        { id: 'elixir', price: 50, type: 'consumable' },
-        { id: 'sword', price: 250, type: 'permanent', effect: () => { player.baseDmgBonus += 30; } },
-        { id: 'armor', price: 250, type: 'permanent', effect: () => { player.armor += 15; } },
-        { id: 'cloak', price: 250, type: 'permanent', effect: () => { player.critChance += 0.05; } }
+        { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪' },
+        { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡' },
+        // Yükseltilebilirler
+        { id: 'sword', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 30, icon: '⚔️' },
+        { id: 'armor', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 15, icon: '🛡️' },
+        { id: 'cloak', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 0.05, icon: '🧥' },
+        // Yeni Pasifler
+        { id: 'vampScepter', basePrice: 400, type: 'passive', icon: '🩸', sellable: true },
+        { id: 'thornmail', basePrice: 500, type: 'passive', icon: '🌵', sellable: true }
     ];
 
     let bossState = { isPlayerStunned: false, threshStacks: 0, threshVulnerable: false, belvethForm: 1, mordeRealmTriggered: false, mordeRealmActive: false, turnCount: 0, leblancClone: false, leblancHidden: false, leblancBuffTurns: 0 };
     const musicTracks = { tier1: "Tier1.mp3", tier2: "Tier2.mp3", tier3: "tier3.mp3", morde: "morde.mp3", isolde: "isolde.mp3", thresh: "thresh.mp3", leblanc: "leblanc.mp3" };
     
-    // --- THRESH NERF (1050 HP) ---
+    // --- DÜŞMANLAR ---
     const enemiesBase = [
         { id: "gangplank", level: 2, maxHp: 200, hp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 4, maxHp: 250, hp: 250, damage: 18, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
@@ -422,7 +340,7 @@
         { id: "kalista", level: 22, maxHp: 850, hp: 850, damage: 45, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
         { id: "ledros", level: 24, maxHp: 950, hp: 950, damage: 50, img: "https://wiki.leagueoflegends.com/en-us/images/01SI033-full.png?b1aad" },
         { id: "leblanc", level: 26, maxHp: 1000, hp: 1000, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
-        { id: "thresh", level: 28, maxHp: 1050, hp: 1050, damage: 65, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" }, // Thresh HP Nerf
+        { id: "thresh", level: 28, maxHp: 1050, hp: 1050, damage: 65, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" }, 
         { id: "belveth", level: 30, maxHp: 1400, hp: 1400, damage: 75, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" },
         { id: "mordekaiser", level: 35, maxHp: 2000, hp: 2000, damage: 90, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
@@ -442,13 +360,15 @@
             logViegoBasic: "Viego strikes!", logViegoQ: "Viego used Q!", logViegoW: "Viego prepared W!", logViegoR: "VIEGO ULTI!", logCrit: " (CRIT!)", logDamage: " damage.", logEnemyAtk: " attacked! You took ", logNoPower: "Not enough Power!", logCooldown: "Cooldown!", logUltUsed: "Ulti used!", logStart: "Battle Start!", logPotion: "Used Potion (+HP)", logPotionErr: "No Potions!", logElixir: "Used Elixir (+40 Power)", logElixirErr: "No Elixirs!",
             bossLogs: { stunned: "YOU ARE STUNNED! CANNOT ACT.", threshStack: "Thresh absorbs souls!", leblancMimic: "LeBlanc MIMICS spell!", belvethTransform: "TRUE FORM REVEALED!", mordeRealm: "DEATH REALM!", leblancClone: "LeBlanc vanishes!", decoy: "DECOY!", leblancEnraged: "LeBlanc returns empowered! (100% Mimic)" },
             isolde: { intro: ["Viego: \"Isolde...\"", "Isolde: \"Let me go...\""], endingAttack: ["Viego: \"If I cannot have you...\"", "System: The End."], endingSurrender: ["Viego: \"I am yours.\"", "*Fade*"] },
-            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", sold: "SOLD",
+            shop: { title: "RUINED SHOP", gold: "Gold", close: "CLOSE", btnShop: "SHOP", upgrade: "UPGRADE", max: "MAX", sold: "OWNED", sellModeOn: "SELL MODE: ON", sellModeOff: "SELL MODE: OFF", sell: "SELL",
                 items: {
                     potion: { name: "Mist Potion", desc: "Restores 10% Missing HP", stat: "Heal" },
                     elixir: { name: "Wrath Elixir", desc: "Restores Power", stat: "+40 PWR" },
-                    sword: { name: "Ruined Shard", desc: "+30 Base Damage", stat: "Damage" },
-                    armor: { name: "Spectral Armor", desc: "+15% Damage Reduction", stat: "Armor" },
-                    cloak: { name: "Crit Cloak", desc: "+5% Crit Chance", stat: "Crit" }
+                    sword: { name: "Ruined Shard", desc: "+30 Base Damage/Lvl", stat: "Damage" },
+                    armor: { name: "Spectral Armor", desc: "+15% Dmg Reduction/Lvl", stat: "Armor" },
+                    cloak: { name: "Crit Cloak", desc: "+5% Crit Chance/Lvl", stat: "Crit" },
+                    vampScepter: { name: "Vampiric Scepter", desc: "PASSIVE: Basic attacks heal 10 HP.", stat: "Lifesteal" },
+                    thornmail: { name: "Thornmail", desc: "PASSIVE: Reflects 15 magic damage when hit.", stat: "Reflect" }
                 }
             },
             enemies: [
@@ -466,7 +386,7 @@
                 { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
                 { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"I want Isolde! Give her to me!\"", "LeBlanc: \"Catch me if you can, ruined boy.\""], quotes: ["Smoke and mirrors."] },
                 { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern, wretch.\"", intro: ["Thresh: \"Oh, the exquisite agony you spread.\"", "Viego: \"Do not mock me, Thresh. You are but a servant.\"", "Thresh: \"Servants eventually become masters, don't they?\""], quotes: ["Scream."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Even the Void bows to my love.\"", intro: ["Bel'Veth: \"I will consume your world, King.\"", "Viego: \"My world is Isolde. You cannot touch her.\"", "Bel'Veth: \"I will remake everything. Including your grief.\""], quotes: ["The end."] },
+                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
                 { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
             ]
         },
@@ -474,13 +394,15 @@
             logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
             bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
             isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", sold: "SATILDI",
+            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", upgrade: "GELİŞTİR", max: "MAKS", sold: "SAHİPSİN", sellModeOn: "SATIŞ MODU: AÇIK", sellModeOff: "SATIŞ MODU: KAPALI", sell: "SAT",
                 items: {
                     potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
                     elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
-                    sword: { name: "Mahvolmuş Parça", desc: "+30 Taban Hasar", stat: "Hasar" },
-                    armor: { name: "Hayalet Zırh", desc: "%15 Hasar Azaltma", stat: "Zırh" },
-                    cloak: { name: "Kritik Pelerini", desc: "+%5 Kritik Şansı", stat: "Kritik" }
+                    sword: { name: "Mahvolmuş Parça", desc: "+30 Taban Hasar/Seviye", stat: "Hasar" },
+                    armor: { name: "Hayalet Zırh", desc: "%15 Hasar Azaltma/Seviye", stat: "Zırh" },
+                    cloak: { name: "Kritik Pelerini", desc: "+%5 Kritik Şansı/Seviye", stat: "Kritik" },
+                    vampScepter: { name: "Vampir Asası", desc: "PASİF: Düz vuruşlar 10 Can iyileştirir.", stat: "Can Çalma" },
+                    thornmail: { name: "Çivili Zırh", desc: "PASİF: Hasar alınca 15 büyü hasarı yansıtır.", stat: "Yansıtma" }
                 }
             },
             enemies: [
@@ -504,13 +426,14 @@
         }
     };
 
-    let currentEnemyIndex = 0; let turn = "player"; const bgMusic = document.getElementById('bgMusic');
+    let turn = "player"; 
     let dialogueIndex = 0; let currentDialogues = []; let enemyTimeout = null; let isIsoldeScene = false; let currentTrack = "";
+    let isSellMode = false;
 
     function changeMusic(trackName) {
         if (currentTrack === trackName) return; currentTrack = trackName;
-        bgMusic.src = musicTracks[trackName]; bgMusic.volume = 0.4;
-        bgMusic.play().catch(e => {}); updateMusicBtnText();
+        bgMusic.src = musicTracks[trackName]; bgMusic.volume = musicVolume;
+        bgMusic.play().catch(e => {}); 
     }
 
     function changeLanguage(lang) {
@@ -520,22 +443,32 @@
         document.getElementById('skill-basic-name').innerText = t.skillBasic; document.getElementById('skill-q-name').innerText = t.skillQ; document.getElementById('skill-q-desc').innerText = t.skillQDesc; document.getElementById('skill-w-name').innerText = t.skillW; document.getElementById('skill-r-name').innerText = t.skillR;
         document.getElementById('choice-title').innerText = t.finalChoiceTitle; document.getElementById('btn-choice-attack').innerText = t.choiceAttack; document.getElementById('btn-choice-surrender').innerText = t.choiceSurrender;
         
-        // MAĞAZA VE ENVANTER DİL GÜNCELLEMESİ
         document.getElementById('shop-title-text').innerText = t.shop.title;
         document.getElementById('shop-close-btn').innerText = t.shop.close;
         document.getElementById('btn-open-shop').innerText = t.shop.btnShop;
+        updateSellModeUI();
         
-        updateMusicBtnText();
         if (!isIsoldeScene && document.getElementById('enemy-name').innerText !== "ENEMY" && document.getElementById('enemy-name').innerText !== "DÜŞMAN") {
              document.getElementById('enemy-name').innerText = t.enemies[currentEnemyIndex].name.toUpperCase();
         }
     }
+    
+    function forcePlayMusic() { bgMusic.volume = musicVolume; bgMusic.play().catch(e => {}); }
 
-    function updateMusicBtnText() { document.getElementById('btn-music').innerText = !bgMusic.paused ? "🎵 Music: ON" : "🎵 Music: OFF"; }
-    function forcePlayMusic() { bgMusic.volume = 0.4; bgMusic.play().then(_ => updateMusicBtnText()).catch(e => {}); }
-    function toggleMusic() { if(bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updateMusicBtnText(); }
+    // --- SHOP LOGIC & SELLING ---
+    function toggleSellMode() {
+        isSellMode = !isSellMode;
+        document.body.classList.toggle('sell-mode-active', isSellMode);
+        updateSellModeUI();
+        openShop(); // Refresh UI
+    }
 
-    // --- SHOP LOGIC ---
+    function updateSellModeUI() {
+        const btn = document.getElementById('sell-mode-btn');
+        btn.innerText = isSellMode ? t.shop.sellModeOn : t.shop.sellModeOff;
+        btn.classList.toggle('active', isSellMode);
+    }
+
     function openShop() {
         const modal = document.getElementById('shop-modal');
         const container = document.getElementById('shop-container');
@@ -544,49 +477,85 @@
         container.innerHTML = "";
         shopItems.forEach(item => {
             const itemTrans = t.shop.items[item.id]; 
-            const isOwned = player.ownedItems.includes(item.id);
-            const priceText = isOwned ? t.shop.sold : `${item.price} G`;
             const div = document.createElement('div');
             div.className = 'shop-item';
+            
+            let btnText = `${item.basePrice} G`;
+            let disabled = false;
+            let isOwnedPassive = player.ownedPassives.includes(item.id);
+
+            if (isSellMode) {
+                 if (item.sellable && isOwnedPassive) {
+                     btnText = `${t.shop.sell} (${Math.floor(item.basePrice / 2)} G)`;
+                     div.classList.add('owned-passive');
+                 } else {
+                     btnText = "-"; disabled = true;
+                 }
+            } else {
+                // Buy Mode
+                if (item.type === 'upgradable') {
+                    const currentLevel = player.items[item.id].level;
+                    if (currentLevel >= item.maxLevel) { btnText = t.shop.max; disabled = true; } 
+                    else {
+                        const price = item.basePrice * (currentLevel + 1);
+                        btnText = `${t.shop.upgrade} (${price} G)`;
+                        if (player.gold < price) disabled = true;
+                    }
+                } else if (item.type === 'passive') {
+                    if (isOwnedPassive) { btnText = t.shop.sold; disabled = true; div.classList.add('owned-passive'); }
+                    else if (player.gold < item.basePrice) disabled = true;
+                } else { // consumable
+                     if (player.gold < item.basePrice) disabled = true;
+                }
+            }
+
             div.innerHTML = `
-                <div class="item-info">
-                    <span class="item-name">${itemTrans.name}</span>
-                    <span class="item-desc">${itemTrans.desc}</span>
-                </div>
-                <button class="buy-btn" onclick="buyItem('${item.id}')" ${isOwned || player.gold < item.price ? 'disabled' : ''}>${priceText}</button>
+                <div class="item-info"><span class="item-name">${item.icon} ${itemTrans.name}</span><span class="item-desc">${itemTrans.desc}</span></div>
+                <button class="buy-btn ${isSellMode && item.sellable && isOwnedPassive ? 'sellable' : ''}" onclick="handleShopAction('${item.id}')" ${disabled ? 'disabled' : ''}>${btnText}</button>
             `;
             container.appendChild(div);
         });
-        
         modal.style.display = 'block';
     }
 
-    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; document.body.classList.remove('sell-mode-active'); updateSellModeUI(); }
+
+    function handleShopAction(id) {
+        if (isSellMode) sellItem(id); else buyItem(id);
+    }
 
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
+        let price = item.basePrice;
+        if (item.type === 'upgradable') {
+            if (player.items[id].level >= item.maxLevel) return;
+            price = item.basePrice * (player.items[id].level + 1);
+        } else if (item.type === 'passive' && player.ownedPassives.includes(id)) return;
 
-        // Zaten alınmış mı kontrol (Kalıcılar için)
-        if (item.type === 'permanent' && player.ownedItems.includes(id)) return;
-
-        if (player.gold >= item.price) {
-            player.gold -= item.price;
-            
+        if (player.gold >= price) {
+            player.gold -= price;
             if (item.type === 'consumable') {
-                if (id === 'potion') player.potions++;
-                else if (id === 'elixir') player.elixirs++;
-            } else {
-                item.effect();
-                player.ownedItems.push(id); // Satıldı olarak işaretle
+                if (id === 'potion') player.potions++; else if (id === 'elixir') player.elixirs++;
+            } else if (item.type === 'upgradable') {
+                player.items[id].level++;
+                recalculateStats();
+            } else if (item.type === 'passive') {
+                player.ownedPassives.push(id);
             }
-            
-            openShop(); 
-            updateUI();
-            updateInventoryUI();
+            saveGame(); openShop(); updateUI(); updateInventoryUI(); updateEquippedUI();
         }
     }
 
-    // --- INVENTORY LOGIC ---
+    function sellItem(id) {
+        const item = shopItems.find(i => i.id === id);
+        if (item.sellable && player.ownedPassives.includes(id)) {
+            player.gold += Math.floor(item.basePrice / 2);
+            player.ownedPassives = player.ownedPassives.filter(pId => pId !== id);
+            saveGame(); openShop(); updateUI(); updateEquippedUI();
+        }
+    }
+
+    // --- INVENTORY & EQUIPPED UI ---
     function updateInventoryUI() {
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
@@ -594,52 +563,63 @@
         document.querySelector('.inv-slot:nth-child(2)').classList.toggle('empty', player.elixirs === 0);
     }
 
+    function updateEquippedUI() {
+        const container = document.getElementById('equipped-container');
+        container.innerHTML = "";
+        // Upgradables
+        for (const [key, value] of Object.entries(player.items)) {
+            if (value.level > 0) createEquippedIcon(container, key, value.icon, value.level);
+        }
+        // Passives
+        player.ownedPassives.forEach(pId => {
+            const item = shopItems.find(i => i.id === pId);
+            createEquippedIcon(container, pId, item.icon, null);
+        });
+    }
+    function createEquippedIcon(container, id, icon, level) {
+        const div = document.createElement('div'); div.className = 'eq-item';
+        div.innerHTML = `${icon} ${level !== null ? `<span class="eq-lvl">+${level}</span>` : ''}`;
+        div.onmouseover = function() { 
+            const itemTrans = t.shop.items[id];
+            const tooltip = document.getElementById('inv-tooltip');
+            tooltip.style.display = 'block'; tooltip.style.top = this.offsetTop + 50 + 'px'; tooltip.style.left = '60px';
+            let statText = itemTrans.stat;
+            if(id==='sword') statText = `Total: +${player.baseDmgBonus} Damage`;
+            if(id==='armor') statText = `Total: +${player.armor}% Armor`;
+            if(id==='cloak') statText = `Total: +${Math.round((player.critChance-0.2)*100)}% Crit`;
+            tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-stat">${statText}</span>`;
+        };
+        div.onmouseout = hideTooltip;
+        container.appendChild(div);
+    }
+
     function useInventoryItem(type) {
         if (turn !== 'player') return;
-
         if (type === 'potion') {
             if (player.potions > 0) {
                 player.potions--;
-                let missingHp = player.maxHp - player.hp;
-                let healAmount = Math.floor(missingHp * 0.10);
-                if (healAmount < 20) healAmount = 20; 
-
-                player.hp += healAmount; 
-                if(player.hp > player.maxHp) player.hp = player.maxHp;
-                
+                let healAmount = Math.max(20, Math.floor((player.maxHp - player.hp) * 0.10));
+                player.hp = Math.min(player.maxHp, player.hp + healAmount);
                 showFloatingText(document.getElementById('player-box'), `+${healAmount}`, "heal");
-                log(t.logPotion);
-                updateUI(); updateInventoryUI();
+                log(t.logPotion); updateUI(); updateInventoryUI(); saveGame();
             } else { log(t.logPotionErr); }
-        } 
-        else if (type === 'elixir') {
+        } else if (type === 'elixir') {
             if (player.elixirs > 0) {
                 player.elixirs--;
-                player.power += 40; if(player.power > player.maxPower) player.power = player.maxPower;
+                player.power = Math.min(player.maxPower, player.power + 40);
                 showFloatingText(document.getElementById('player-box'), "+40 Power", "heal");
-                log(t.logElixir);
-                updateUI(); updateInventoryUI();
+                log(t.logElixir); updateUI(); updateInventoryUI(); saveGame();
             } else { log(t.logElixirErr); }
         }
     }
 
     function showTooltip(el, type) {
         const tooltip = document.getElementById('inv-tooltip');
-        tooltip.style.display = 'block';
-        tooltip.style.top = el.offsetTop + 'px'; 
-        
+        tooltip.style.display = 'block'; tooltip.style.top = el.offsetTop + 'px'; tooltip.style.left = '85px';
         const itemTrans = t.shop.items[type]; 
-        if (itemTrans) {
-            tooltip.innerHTML = `
-                <span class="tooltip-title">${itemTrans.name}</span>
-                <span class="tooltip-desc">${itemTrans.desc}</span>
-                <span class="tooltip-stat">${itemTrans.stat}</span>
-            `;
-        }
+        if (itemTrans) tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-desc">${itemTrans.desc}</span><span class="tooltip-stat">${itemTrans.stat}</span>`;
     }
-
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
-
 
     function showInfo(target) {
         const modal = document.getElementById('info-modal'); const content = document.getElementById('info-content');
@@ -654,30 +634,22 @@
     function loadLevel(index) {
         if (enemyTimeout) clearTimeout(enemyTimeout);
         if (index >= enemiesBase.length) { startIsoldeScene(); return; }
-        
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('final-choice-overlay').style.display = 'none';
-        
         currentEnemyIndex = index;
         const enemyData = enemiesBase[index];
         const enemyTrans = t.enemies[index];
-        
         if (enemyData.id === 'mordekaiser') changeMusic('morde'); else if (enemyData.id === 'thresh') changeMusic('thresh'); else if (index < 5) changeMusic('tier1'); else if (index < 12) changeMusic('tier2'); else changeMusic('tier3');
-
         document.getElementById('enemy-name').innerText = enemyData.id.toUpperCase();
         document.getElementById('enemy-img').src = enemyData.img;
         document.getElementById('enemy-img').classList.remove('clone-active'); 
         document.getElementById('enemy-lvl').innerText = enemyData.level;
         enemyData.hp = enemyData.maxHp; 
-        
         bossState = { isPlayerStunned: false, threshStacks: 0, threshVulnerable: false, belvethForm: 1, mordeRealmTriggered: false, mordeRealmActive: false, turnCount: 0, leblancClone: false, leblancHidden: false, leblancBuffTurns: 0 };
         document.body.classList.remove('death-realm-active'); 
-
         if(enemyData.id === 'belveth') document.getElementById('enemy-img').src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg";
-
         player.ultUsed = false; player.power = 0; player.wCooldown = 0; player.nextHitCrit = false;
         turn = "player"; toggleBattleUI(false); 
-        
         startPreFightDialogue(enemyTrans);
     }
 
@@ -691,42 +663,20 @@
         document.getElementById('cinematic-dialogue').style.display = 'flex'; updateDialogueText();
     }
 
-    function startPreFightDialogue(enemyTrans) {
-        currentDialogues = enemyTrans.intro;
-        dialogueIndex = 0; 
-        document.getElementById('cinematic-dialogue').style.display = 'flex'; 
-        updateDialogueText();
-    }
-
-    function updateDialogueText() {
-        if(dialogueIndex < currentDialogues.length) { document.getElementById('cinematic-text').innerText = currentDialogues[dialogueIndex]; } else { endDialogue(); }
-    }
+    function startPreFightDialogue(enemyTrans) { currentDialogues = enemyTrans.intro; dialogueIndex = 0; document.getElementById('cinematic-dialogue').style.display = 'flex'; updateDialogueText(); }
+    function updateDialogueText() { if(dialogueIndex < currentDialogues.length) { document.getElementById('cinematic-text').innerText = currentDialogues[dialogueIndex]; } else { endDialogue(); } }
     function nextDialogue() { dialogueIndex++; updateDialogueText(); }
-    
-    function endDialogue() {
-        document.getElementById('cinematic-dialogue').style.display = 'none';
-        if (isIsoldeScene) { document.getElementById('final-choice-overlay').style.display = 'flex'; } else { toggleBattleUI(true); updateUI(); log(t.logStart); }
-    }
-
+    function endDialogue() { document.getElementById('cinematic-dialogue').style.display = 'none'; if (isIsoldeScene) { document.getElementById('final-choice-overlay').style.display = 'flex'; } else { toggleBattleUI(true); updateUI(); log(t.logStart); } }
     function makeFinalChoice(choice) {
         document.getElementById('final-choice-overlay').style.display = 'none';
         currentDialogues = choice === 'attack' ? t.isolde.endingAttack : t.isolde.endingSurrender;
         dialogueIndex = 0; isIsoldeScene = false; document.getElementById('cinematic-dialogue').style.display = 'flex';
-        window.nextDialogue = function() { dialogueIndex++; if (dialogueIndex < currentDialogues.length) document.getElementById('cinematic-text').innerText = currentDialogues[dialogueIndex]; else location.reload(); };
+        window.nextDialogue = function() { dialogueIndex++; if (dialogueIndex < currentDialogues.length) document.getElementById('cinematic-text').innerText = currentDialogues[dialogueIndex]; else { localStorage.removeItem('viegoRPG_save'); location.reload(); } };
         updateDialogueText();
     }
 
-    function toggleBattleUI(show) {
-        const elements = [document.getElementById('combat-controls'), document.getElementById('ui-hp-p'), document.getElementById('ui-mp-p'), document.getElementById('ui-hp-e')];
-        elements.forEach(el => { if(show) el.classList.remove('hidden-ui'); else el.classList.add('hidden-ui'); });
-    }
-
-    function triggerBanter(isPlayerTurn) {
-        if (Math.random() > 0.3) return;
-        if (isPlayerTurn) { const quotes = t.playerQuotes; showSpeech('player', quotes[Math.floor(Math.random() * quotes.length)]); } 
-        else { const quotes = t.enemies[currentEnemyIndex].quotes; showSpeech('enemy', quotes[Math.floor(Math.random() * quotes.length)]); }
-    }
-
+    function toggleBattleUI(show) { const elements = [document.getElementById('combat-controls'), document.getElementById('ui-hp-p'), document.getElementById('ui-mp-p'), document.getElementById('ui-hp-e')]; elements.forEach(el => { if(show) el.classList.remove('hidden-ui'); else el.classList.add('hidden-ui'); }); }
+    function triggerBanter(isPlayerTurn) { if (Math.random() > 0.3) return; if (isPlayerTurn) { const quotes = t.playerQuotes; if(quotes) showSpeech('player', quotes[Math.floor(Math.random() * quotes.length)]); } else { const quotes = t.enemies[currentEnemyIndex].quotes; showSpeech('enemy', quotes[Math.floor(Math.random() * quotes.length)]); } }
     function showSpeech(who, text) { const bubble = document.getElementById(who + '-bubble'); bubble.innerText = text; bubble.classList.add('speech-visible'); }
     function clearBubbles() { document.getElementById('player-bubble').classList.remove('speech-visible'); document.getElementById('enemy-bubble').classList.remove('speech-visible'); }
 
@@ -734,67 +684,46 @@
     function useSkill(type) {
         if (turn !== "player") return;
         if (bossState.isPlayerStunned) { log(t.bossLogs.stunned); bossState.isPlayerStunned = false; turn = "enemy"; setTimeout(enemyTurn, 1000); return; }
-
         const enemyData = enemiesBase[currentEnemyIndex];
         
-        // LEBLANC CLONE CHECK
         if (enemyData.id === 'leblanc' && bossState.leblancHidden) {
-            log(t.bossLogs.decoy);
-            showFloatingText(document.getElementById('enemy-box'), t.bossLogs.decoy, "text-special");
-            bossState.leblancHidden = false;
-            bossState.leblancBuffTurns = 2; // Güçlendirme başlasın
-            log(t.bossLogs.leblancEnraged);
-            document.getElementById('enemy-img').classList.remove('clone-active');
-            turn = "enemy"; setTimeout(enemyTurn, 1000); 
-            return;
+            log(t.bossLogs.decoy); showFloatingText(document.getElementById('enemy-box'), t.bossLogs.decoy, "text-special");
+            bossState.leblancHidden = false; bossState.leblancBuffTurns = 2; log(t.bossLogs.leblancEnraged);
+            document.getElementById('enemy-img').classList.remove('clone-active'); turn = "enemy"; setTimeout(enemyTurn, 1000); return;
         }
 
         let damage = 0; let logMsg = ""; let isCrit = false;
         if (player.nextHitCrit) { isCrit = true; player.nextHitCrit = false; } else { if (Math.random() < player.critChance) isCrit = true; }
 
-        if (type === 'basic') { playSkillSound('basic'); damage = 15 + player.baseDmgBonus + (player.level * 5); player.power += (isCrit ? 15 : 10); logMsg = t.logViegoBasic; } 
-        else if (type === 'q') { if (player.power < 15) { log(t.logNoPower); return; } playSkillSound('q'); player.power -= 15; damage = 30 + (player.level * 8); logMsg = t.logViegoQ; let heal = Math.floor(enemyData.hp * 0.07); if(heal < 5) heal = 5; player.hp += heal; if(player.hp > player.maxHp) player.hp = player.maxHp; showFloatingText(document.getElementById('player-box'), `+${heal}`, 'heal'); }
-        else if (type === 'w') { 
-            if (player.wCooldown > 0 || player.power < 25) { log(t.logCooldown); return; } playSkillSound('w'); player.power -= 25; damage = 40 + (player.level * 6); if(damage>80) damage=80; player.nextHitCrit = true; player.wCooldown = 3; logMsg = t.logViegoW;
-            if(enemyData.id === 'thresh') { bossState.threshVulnerable = true; showFloatingText(document.getElementById('enemy-box'), "GUARD BROKEN!", "text-weakness"); }
-        }
+        if (type === 'basic') { 
+            playSkillSound('basic'); damage = 15 + player.baseDmgBonus + (player.level * 5); player.power += (isCrit ? 15 : 10); logMsg = t.logViegoBasic; 
+            // Vampir Asası Pasifi
+            if(player.ownedPassives.includes('vampScepter')) {
+                player.hp = Math.min(player.maxHp, player.hp + 10);
+                showFloatingText(document.getElementById('player-box'), "+10", "heal");
+            }
+        } 
+        else if (type === 'q') { if (player.power < 15) { log(t.logNoPower); return; } playSkillSound('q'); player.power -= 15; damage = 30 + (player.level * 8); logMsg = t.logViegoQ; let heal = Math.max(5, Math.floor(enemyData.hp * 0.07)); player.hp = Math.min(player.maxHp, player.hp + heal); showFloatingText(document.getElementById('player-box'), `+${heal}`, 'heal'); }
+        else if (type === 'w') { if (player.wCooldown > 0 || player.power < 25) { log(t.logCooldown); return; } playSkillSound('w'); player.power -= 25; damage = Math.min(80, 40 + (player.level * 6)); player.nextHitCrit = true; player.wCooldown = 3; logMsg = t.logViegoW; if(enemyData.id === 'thresh') { bossState.threshVulnerable = true; showFloatingText(document.getElementById('enemy-box'), "GUARD BROKEN!", "text-weakness"); } }
         else if (type === 'r') { if (player.ultUsed) { log(t.logUltUsed); return; } playSkillSound('r'); player.ultUsed = true; damage = 60 + (player.level * 9) + Math.floor((enemyData.maxHp - enemyData.hp) * 0.12); triggerEffect('ult'); logMsg = t.logViegoR; }
 
         if (isCrit && type !== 'w') { damage = type === 'q' ? Math.floor(damage * 1.75) : damage * 2; logMsg += t.logCrit; }
-        if (player.power > player.maxPower) player.power = player.maxPower;
+        player.power = Math.min(player.maxPower, player.power);
 
-        // BOSS DEFENSE
-        if (enemyData.id === 'thresh') { 
-            let reduction = 15 + (bossState.threshStacks * 3);
-            if(bossState.threshVulnerable && damage > 0) { damage *= 2; showFloatingText(document.getElementById('enemy-box'), "CRITICAL BREAK!", "text-weakness"); bossState.threshVulnerable = false; }
-            let blocked = Math.min(damage, reduction);
-            if(damage < reduction) damage = 0; else damage -= reduction;
-            if(blocked > 0) { let heal = Math.floor(blocked * 0.05); enemyData.hp += heal; if(enemyData.hp > enemyData.maxHp) enemyData.hp = enemyData.maxHp; showFloatingText(document.getElementById('enemy-box'), `+${heal}`, 'heal'); }
-        }
+        if (enemyData.id === 'thresh') { let reduction = 15 + (bossState.threshStacks * 3); if(bossState.threshVulnerable && damage > 0) { damage *= 2; showFloatingText(document.getElementById('enemy-box'), "CRITICAL BREAK!", "text-weakness"); bossState.threshVulnerable = false; } let blocked = Math.min(damage, reduction); damage = Math.max(0, damage - reduction); if(blocked > 0) { let heal = Math.floor(blocked * 0.05); enemyData.hp = Math.min(enemyData.maxHp, enemyData.hp + heal); showFloatingText(document.getElementById('enemy-box'), `+${heal}`, 'heal'); } }
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) damage = Math.floor(damage * 0.7);
 
         enemyData.hp -= damage;
-        
-        // LEBLANC TRIGGER
-        if (enemyData.id === 'leblanc' && !bossState.leblancClone && (enemyData.hp / enemyData.maxHp) < 0.4) {
-            bossState.leblancClone = true;
-            bossState.leblancHidden = true;
-            log(t.bossLogs.leblancClone);
-            document.getElementById('enemy-img').classList.add('clone-active');
-        }
+        // Animasyon Tetikleme
+        document.getElementById('player-box').classList.add('attacking'); setTimeout(() => document.getElementById('player-box').classList.remove('attacking'), 300);
+        triggerDamageAnim('enemy-box');
 
-        if (enemyData.id === 'belveth' && enemyData.hp <= 0 && bossState.belvethForm === 1) {
-            enemyData.hp = 1200; bossState.belvethForm = 2; document.getElementById('enemy-img').src = "belveth2form.jpg"; 
-            log(t.bossLogs.belvethTransform); triggerEffect('void'); showFloatingText(document.getElementById('enemy-box'), "TRANSFORM!", "damage"); updateUI(); return; 
-        }
-        if (enemyData.id === 'mordekaiser' && !bossState.mordeRealmTriggered && (enemyData.hp / enemyData.maxHp) <= 0.35) {
-            bossState.mordeRealmTriggered = true; bossState.mordeRealmActive = true; document.body.classList.add('death-realm-active');
-            let missing = enemyData.maxHp - enemyData.hp; enemyData.hp += Math.floor(missing * 0.05); enemyData.maxHp = Math.floor(enemyData.maxHp * 1.25); enemyData.hp = Math.floor(enemyData.hp * 1.25);
-            log(t.bossLogs.mordeRealm); showFloatingText(document.getElementById('enemy-box'), "DEATH REALM!", "text-special");
-        }
+        if (enemyData.id === 'leblanc' && !bossState.leblancClone && (enemyData.hp / enemyData.maxHp) < 0.4) { bossState.leblancClone = true; bossState.leblancHidden = true; log(t.bossLogs.leblancClone); document.getElementById('enemy-img').classList.add('clone-active'); }
+        if (enemyData.id === 'belveth' && enemyData.hp <= 0 && bossState.belvethForm === 1) { enemyData.hp = 1200; bossState.belvethForm = 2; document.getElementById('enemy-img').src = "belveth2form.jpg"; log(t.bossLogs.belvethTransform); triggerEffect('void'); showFloatingText(document.getElementById('enemy-box'), "TRANSFORM!", "damage"); updateUI(); return; }
+        if (enemyData.id === 'mordekaiser' && !bossState.mordeRealmTriggered && (enemyData.hp / enemyData.maxHp) <= 0.35) { bossState.mordeRealmTriggered = true; bossState.mordeRealmActive = true; document.body.classList.add('death-realm-active'); let missing = enemyData.maxHp - enemyData.hp; enemyData.hp += Math.floor(missing * 0.05); enemyData.maxHp = Math.floor(enemyData.maxHp * 1.25); enemyData.hp = Math.floor(enemyData.hp * 1.25); log(t.bossLogs.mordeRealm); showFloatingText(document.getElementById('enemy-box'), "DEATH REALM!", "text-special"); }
 
-        if (enemyData.hp < 0) enemyData.hp = 0;
-        shakeElement(document.getElementById('enemy-img')); showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal'); log(`${logMsg} ${damage} ${t.logDamage}`); updateUI();
+        enemyData.hp = Math.max(0, enemyData.hp);
+        showFloatingText(document.getElementById('enemy-box'), damage, isCrit ? 'crit' : 'normal'); log(`${logMsg} ${damage} ${t.logDamage}`); updateUI();
 
         if (enemyData.hp <= 0) { winBattle(); return; }
         turn = "enemy"; enemyTimeout = setTimeout(enemyTurn, 1500);
@@ -802,92 +731,63 @@
 
     function enemyTurn() {
         clearBubbles(); triggerBanter(false);
-        const enemyData = enemiesBase[currentEnemyIndex];
-        const enemyTrans = t.enemies[currentEnemyIndex];
-        let dmg = enemyData.damage + Math.floor(Math.random() * 10);
-        bossState.turnCount++;
+        const enemyData = enemiesBase[currentEnemyIndex]; const enemyTrans = t.enemies[currentEnemyIndex];
+        let dmg = enemyData.damage + Math.floor(Math.random() * 10); bossState.turnCount++;
 
-        // LEBLANC LOGIC
-        if (enemyData.id === 'leblanc') {
-            let isMimic = false;
-            if (bossState.leblancBuffTurns > 0) {
-                isMimic = true;
-                bossState.leblancBuffTurns--;
-            } else if (Math.random() < 0.4) {
-                isMimic = true;
-            }
-
-            if (isMimic) {
-                log(t.bossLogs.leblancMimic);
-                dmg = Math.floor(dmg * 2.2);
-                showFloatingText(document.getElementById('enemy-box'), "MIMIC!", "text-special");
-            }
-        }
-
-        if (enemyData.id === 'thresh') { 
-            bossState.threshStacks += 3; dmg += (bossState.threshStacks * 2);
-            if (bossState.threshStacks % 12 === 0) { bossState.isPlayerStunned = true; triggerEffect('stun'); showFloatingText(document.getElementById('player-box'), "STUNNED", "text-special"); } 
-        }
+        if (enemyData.id === 'leblanc') { let isMimic = false; if (bossState.leblancBuffTurns > 0) { isMimic = true; bossState.leblancBuffTurns--; } else if (Math.random() < 0.4) { isMimic = true; } if (isMimic) { log(t.bossLogs.leblancMimic); dmg = Math.floor(dmg * 2.2); showFloatingText(document.getElementById('enemy-box'), "MIMIC!", "text-special"); } }
+        if (enemyData.id === 'thresh') { bossState.threshStacks += 3; dmg += (bossState.threshStacks * 2); if (bossState.threshStacks % 12 === 0) { bossState.isPlayerStunned = true; triggerEffect('stun'); showFloatingText(document.getElementById('player-box'), "STUNNED", "text-special"); } }
         if (enemyData.id === 'belveth') { dmg += 10 * bossState.belvethForm; }
-        if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) { dmg = Math.floor(dmg * 1.3); let ls = Math.floor(dmg * 0.75); enemyData.hp += ls; if(enemyData.hp > enemyData.maxHp) enemyData.hp = enemyData.maxHp; showFloatingText(document.getElementById('enemy-box'), `+${ls}`, 'heal'); }
+        if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) { dmg = Math.floor(dmg * 1.3); let ls = Math.floor(dmg * 0.75); enemyData.hp = Math.min(enemyData.maxHp, enemyData.hp + ls); showFloatingText(document.getElementById('enemy-box'), `+${ls}`, 'heal'); }
 
-        // --- ZIRH HESABI ---
-        if (player.armor > 0) {
-            let reduction = Math.floor(dmg * (player.armor / 100));
-            dmg -= reduction;
+        let reduction = Math.floor(dmg * (player.armor / 100)); dmg -= reduction;
+        player.hp = Math.max(0, player.hp - dmg);
+        if (player.wCooldown > 0) player.wCooldown--;
+
+        // Çivili Zırh Pasifi
+        if(player.ownedPassives.includes('thornmail') && dmg > 0) {
+            enemyData.hp = Math.max(0, enemyData.hp - 15);
+            showFloatingText(document.getElementById('enemy-box'), "15", "text-special");
+            log("Thornmail reflected 15 damage!");
         }
 
-        player.hp -= dmg; if (player.hp < 0) player.hp = 0;
-        if (player.wCooldown > 0) player.wCooldown--;
-        triggerEffect('damage'); shakeElement(document.getElementById('player-img')); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
+        // Animasyon Tetikleme
+        document.getElementById('enemy-box').classList.add('attacking'); setTimeout(() => document.getElementById('enemy-box').classList.remove('attacking'), 300);
+        triggerDamageAnim('player-box');
+        triggerEffect('damage'); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
         log(`${enemyTrans.name} ${t.logEnemyAtk} ${dmg}.`);
-        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert(t.defeat); location.reload(); }, 1000); return; }
+        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert(t.defeat); localStorage.removeItem('viegoRPG_save'); location.reload(); }, 1000); return; }
         turn = "player";
     }
 
     function winBattle() {
         if (enemyTimeout) clearTimeout(enemyTimeout);
         const enemyTrans = t.enemies[currentEnemyIndex];
-        document.getElementById('overlay-title').innerText = t.victory;
-        document.getElementById('overlay-quote').innerText = enemyTrans.win; 
-        
-        player.level++; player.maxHp += 50; player.hp = player.maxHp; 
-        player.gold += 100; 
-        
-        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`;
-        document.getElementById('level-up-text').style.display = 'block';
-        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('overlay-title').innerText = t.victory; document.getElementById('overlay-quote').innerText = enemyTrans.win; 
+        player.level++; player.maxHp += 50; player.hp = player.maxHp; player.gold += 100; 
+        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`; document.getElementById('level-up-text').style.display = 'block'; document.getElementById('overlay').style.display = 'flex';
+        saveGame(); // Oyunu Kaydet
     }
 
-    function nextLevel() { document.getElementById('overlay').style.display = 'none'; currentEnemyIndex++; loadLevel(currentEnemyIndex); }
+    function nextLevel() { document.getElementById('overlay').style.display = 'none'; currentEnemyIndex++; loadLevel(currentEnemyIndex); saveGame(); }
 
     function updateUI() {
         const enemyData = enemiesBase[currentEnemyIndex];
-        document.getElementById('player-hp-bar').style.width = (player.hp / player.maxHp) * 100 + '%';
-        document.getElementById('player-hp-text').innerText = `${Math.floor(player.hp)}/${player.maxHp}`;
-        document.getElementById('player-power-bar').style.width = (player.power / player.maxPower) * 100 + '%';
-        document.getElementById('player-power-text').innerText = `${player.power}/${player.maxPower}`;
+        document.getElementById('player-hp-bar').style.width = (player.hp / player.maxHp) * 100 + '%'; document.getElementById('player-hp-text').innerText = `${Math.floor(player.hp)}/${player.maxHp}`;
+        document.getElementById('player-power-bar').style.width = (player.power / player.maxPower) * 100 + '%'; document.getElementById('player-power-text').innerText = `${player.power}/${player.maxPower}`;
         document.getElementById('player-lvl').innerText = player.level;
-        document.getElementById('enemy-hp-bar').style.width = (enemyData.hp / enemyData.maxHp) * 100 + '%';
-        document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemyData.hp)}/${enemyData.maxHp}`;
-        
+        document.getElementById('enemy-hp-bar').style.width = (enemyData.hp / enemyData.maxHp) * 100 + '%'; document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemyData.hp)}/${enemyData.maxHp}`;
         document.getElementById('player-gold').innerText = player.gold;
-        
         let status = ""; if(enemyData.id==='thresh') status=`Souls: ${bossState.threshStacks}`; else if(enemyData.id==='belveth') status=`Form: ${bossState.belvethForm}`; else if(enemyData.id==='mordekaiser') status=bossState.mordeRealmActive?"DEATH REALM":"Iron";
         document.getElementById('boss-status').innerText = status;
-
-        document.getElementById('btn-q').disabled = player.power < 15;
-        document.getElementById('btn-w').disabled = (player.power < 25 || player.wCooldown > 0);
-        document.getElementById('btn-ult').disabled = player.ultUsed;
-        
+        document.getElementById('btn-q').disabled = player.power < 15; document.getElementById('btn-w').disabled = (player.power < 25 || player.wCooldown > 0); document.getElementById('btn-ult').disabled = player.ultUsed;
         let bDmg = 15 + player.baseDmgBonus + (player.level*5); document.getElementById('skill-basic-cost').innerText = `~${bDmg} Dmg | +Power`;
         let qDmg = 30 + (player.level*8); document.getElementById('skill-q-cost').innerText = `~${qDmg} Dmg | 15 Pwr`;
-        let wDmg = Math.min(40+(player.level*6), 80); document.getElementById('skill-w-cost').innerText = `~${wDmg} Dmg | 25 Pwr`;
+        let wDmg = Math.min(80, 40+(player.level*6)); document.getElementById('skill-w-cost').innerText = `~${wDmg} Dmg | 25 Pwr`;
         let rDmg = 60+(player.level*9)+Math.floor((enemyData.maxHp-enemyData.hp)*0.12); document.getElementById('skill-r-cost').innerText = `~${rDmg} Dmg | 1 Use`;
     }
 
     function log(msg) { const box = document.getElementById('combat-log'); box.innerHTML = `> ${msg}<br>` + box.innerHTML; }
-    function shakeElement(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+    function triggerDamageAnim(boxId) { const box = document.getElementById(boxId); box.classList.add('damaged'); setTimeout(() => box.classList.remove('damaged'), 400); }
     function triggerEffect(type) { const flash = document.getElementById('flash-effect'); flash.className = ''; if (type === 'damage') flash.classList.add('damage-flash'); if (type === 'ult') flash.classList.add('ult-flash'); if (type === 'stun') flash.classList.add('stun-flash'); if (type === 'void') flash.classList.add('void-flash'); setTimeout(() => flash.className = '', 500); }
     function showFloatingText(target, val, type) { const text = document.createElement('div'); text.className = 'float-text ' + (type === 'crit' ? 'text-crit' : (type === 'heal' ? 'text-heal' : (type === 'damage' ? 'text-enemy-dmg' : (type === 'text-special' ? 'text-special' : (type === 'text-weakness' ? 'text-weakness' : 'text-damage'))))); text.innerText = type === 'crit' ? val + "!" : val; const rect = target.getBoundingClientRect(); text.style.left = (rect.left + rect.width / 2) + 'px'; text.style.top = rect.top + 'px'; document.body.appendChild(text); setTimeout(() => text.remove(), 1200); }
 
@@ -895,8 +795,8 @@
         const savedLang = localStorage.getItem('rpgLang') || 'en';
         document.getElementById('lang-select').value = savedLang;
         changeLanguage(savedLang);
+        loadGame(); // OYUNU YÜKLE
     };
 </script>
-
 </body>
 </html>
