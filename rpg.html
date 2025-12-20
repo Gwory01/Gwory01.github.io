@@ -30,27 +30,39 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- UI ELEMENTLERİ --- */
+        /* --- BUTONLAR VE UI --- */
         .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
         
-        /* Genel Modal Stilleri (Restart modalı buraya eklendi) */
-        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); border-radius: 4px; color: #ddd; text-align: center; }
+        /* ORTAK PENCERE STİLİ (Tüm pencereler oyun temasına uygun) */
+        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { 
+            background: rgba(10, 12, 15, 0.98); 
+            border: 2px solid #1a1a1a; 
+            outline: 2px solid var(--ruined-green); 
+            outline-offset: -2px; 
+            box-shadow: 0 0 40px rgba(10, 200, 185, 0.2); 
+            border-radius: 4px; 
+            color: #ddd; 
+            text-align: center; 
+        }
         
         .info-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; padding: 20px; z-index: 2000; display: none; text-align: left; font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.6; }
         .info-modal h3 { color: var(--ruined-green); margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-family: 'Cinzel', serif; }
-        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
-        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } .info-close:hover { background: var(--ruined-green); color: black; }
+        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } 
+        .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
+        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } 
+        .info-close:hover { background: var(--ruined-green); color: black; }
 
-        /* --- RESTART MODAL ÖZEL STİLLERİ --- */
-        #restart-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; padding: 25px; z-index: 2600; display: none; font-family: 'Cinzel', serif; }
-        #restart-modal h3 { color: var(--hp-red); margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 15px; }
-        #restart-modal p { font-family: 'Roboto', sans-serif; color: #ccc; margin: 20px 0; }
-        .modal-btn-container { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
-        .modal-btn { padding: 10px 20px; border: 2px solid var(--ruined-green); background: rgba(0,0,0,0.8); color: var(--ruined-green); font-family: 'Cinzel'; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .modal-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 15px var(--ruined-green); }
-        .danger-btn { border-color: var(--hp-red); color: var(--hp-red); }
-        .danger-btn:hover { background: var(--hp-red); color: white; box-shadow: 0 0 15px var(--hp-red); }
+        /* --- ÖZEL RESTART PENCERESİ (Warning Bar Yerine) --- */
+        #restart-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; padding: 30px; z-index: 3000; display: none; font-family: 'Cinzel', serif; }
+        #restart-modal h3 { color: var(--hp-red); font-size: 1.5rem; margin: 0 0 15px 0; text-shadow: 0 0 10px red; border-bottom: 1px solid #444; padding-bottom: 10px;}
+        #restart-modal p { font-family: 'Roboto', sans-serif; color: #ccc; margin-bottom: 25px; font-size: 1rem; }
+        .modal-btn-container { display: flex; justify-content: center; gap: 20px; }
+        .modal-btn { padding: 12px 25px; border: 2px solid; background: rgba(0,0,0,0.6); font-family: 'Cinzel'; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; }
+        .btn-confirm { border-color: var(--hp-red); color: var(--hp-red); }
+        .btn-confirm:hover { background: var(--hp-red); color: white; box-shadow: 0 0 20px var(--hp-red); }
+        .btn-cancel { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .btn-cancel:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 20px var(--ruined-green); }
 
         /* --- SHOP MODAL & SELL MODE --- */
         #shop-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; padding: 20px; z-index: 2100; display: none; text-align: left; }
@@ -66,14 +78,14 @@
         .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: black; }
         .buy-btn:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
         
-        /* Satış Modu Stilleri */
+        /* Satış Modu */
         body.sell-mode-active .shop-item.owned-passive, body.sell-mode-active .shop-item.owned-consumable { border-color: var(--sell-color); background: rgba(231, 76, 60, 0.1); }
         body.sell-mode-active .buy-btn.sellable { background: var(--sell-color); color: white; border-color: #c0392b; }
         body.sell-mode-active .buy-btn.sellable:hover { background: #c0392b; }
         #sell-mode-btn { margin-right: 10px; background: #333; color: #aaa; border: 1px solid #555; }
         #sell-mode-btn.active { background: var(--sell-color); color: white; border-color: #c0392b; }
 
-        /* --- GAMEPLAY --- */
+        /* --- GAME WRAPPER --- */
         .game-wrapper { width: 95%; max-width: 800px; height: 650px; background: rgba(8, 10, 12, 0.95); border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; }
         #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 8px; }
         #start-screen { background: rgba(0,0,0,0.95); z-index: 200; }
@@ -88,19 +100,18 @@
         .btn-attack { border-color: #c0392b; color: #c0392b; } .btn-attack:hover { background: #c0392b; color: white; }
         .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
 
-        /* --- BATTLE SCENE & ANIMATIONS --- */
+        /* --- BATTLE SCENE --- */
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
         .character-box { width: 250px; text-align: center; position: relative; transition: transform 0.2s; }
         .character-img { width: 200px; height: 200px; object-fit: cover; object-position: center 20%; border-radius: 50%; border: 4px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         
-        /* Savaş Animasyonları */
+        /* Animasyonlar */
         .attacking { animation: attack-motion 0.3s ease-in-out; }
         @keyframes attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(30px); } 100% { transform: translateX(0); } }
         #enemy-box.attacking { animation: enemy-attack-motion 0.3s ease-in-out; }
         @keyframes enemy-attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(-30px); } 100% { transform: translateX(0); } }
-        
         .damaged .character-img { animation: shake 0.4s, flash-red 0.4s; }
         @keyframes shake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, 0); } 80% { transform: translate(5px, 0); } }
         @keyframes flash-red { 0%, 100% { filter: none; } 50% { filter: sepia(1) saturate(5) hue-rotate(-50deg); } }
@@ -111,7 +122,7 @@
         .bar-text { font-size: 13px; font-weight: bold; position: absolute; top: 0; right: 5px; color: #fff; text-shadow: 1px 1px 2px black; line-height: 18px; }
         .gold-display { position: absolute; top: -30px; right: 0; color: var(--gold-color); font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 5px; }
 
-        /* INVENTORY & EQUIPPED */
+        /* INVENTORY */
         #inventory-frame { position: fixed; top: 80px; left: 20px; width: 70px; background: rgba(10, 12, 15, 0.95); border: 2px solid var(--ruined-green); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .inv-slot { width: 100%; height: 60px; background: #222; border: 1px solid #444; border-radius: 4px; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; }
         .inv-slot:hover { border-color: var(--ruined-green); background: #333; } .inv-slot.empty { opacity: 0.5; filter: grayscale(100%); }
@@ -122,7 +133,7 @@
         #inv-tooltip { position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); box-shadow: 0 0 20px rgba(0,0,0,0.8); padding: 12px; font-size: 12px; z-index: 1500; display: none; font-family: 'Roboto', sans-serif; }
         .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; } .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
 
-        /* CONTROLS & LOG */
+        /* CONTROLS */
         .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; } .hidden-ui { opacity: 0; pointer-events: none; }
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         .skill-btn { background: #111; border: 1px solid #444; color: #aaa; font-family: 'Cinzel', serif; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px; }
@@ -131,10 +142,10 @@
         .log-box { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; font-size: 0.9rem; color: #ccc; font-family: 'Roboto', sans-serif; overflow-y: auto; display: flex; flex-direction: column-reverse; }
         .speech-bubble { position: absolute; top: -80px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 15px; border-radius: 10px; font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: bold; width: 220px; text-align: center; z-index: 150; opacity: 0; pointer-events: none; transition: 0.5s; border: 2px solid var(--ruined-green); } .speech-visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
-        /* TOP BAR & AUDIO CONTROLS */
+        /* TOP BAR */
         .top-bar-controls { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
         .control-row { display: flex; gap: 10px; align-items: center; }
-        .control-btn-ui, .volume-slider { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px; cursor: pointer; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; transition: 0.2s; }
+        .control-btn-ui, .volume-slider { background: rgba(0,0,0,0.5); color: white; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; transition: 0.2s; }
         .control-btn-ui:hover { background: var(--ruined-green); color: black; border-color: var(--ruined-green); }
         .volume-container { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 4px; border: 1px solid #555; }
         .volume-label { font-size: 12px; color: var(--ruined-green); }
@@ -188,8 +199,8 @@
         <h3 id="restart-title">OYUNU SIFIRLA?</h3>
         <p id="restart-msg">Emin misin? Tüm ilerleme silinecek.</p>
         <div class="modal-btn-container">
-            <button id="btn-restart-confirm" class="modal-btn danger-btn" onclick="confirmRestart()">EVET, SIFIRLA</button>
-            <button id="btn-restart-cancel" class="modal-btn" onclick="cancelRestart()">İPTAL</button>
+            <button id="btn-restart-confirm" class="modal-btn btn-confirm" onclick="confirmRestart()">EVET, SIFIRLA</button>
+            <button id="btn-restart-cancel" class="modal-btn btn-cancel" onclick="cancelRestart()">İPTAL</button>
         </div>
     </div>
 
@@ -230,7 +241,7 @@
             <h2 id="overlay-title">VICTORY</h2>
             <p id="overlay-quote">"..."</p>
             <div id="level-up-text" style="color: yellow; margin-bottom: 15px; display:none;">LEVEL UP!</div>
-            <div style="display:flex; justify-content:center; gap:10px;">
+            <div id="overlay-buttons" style="display:flex; justify-content:center; gap:10px;">
                 <button class="start-btn" id="btn-open-shop" onclick="openShop()">SHOP</button>
                 <button class="start-btn" id="next-btn" onclick="nextLevel()">CONTINUE</button>
             </div>
@@ -285,85 +296,59 @@
     const musicSlider = document.getElementById('music-vol');
     const sfxSlider = document.getElementById('sfx-vol');
 
-    // --- YENİ OYUN İÇİ RESTART MANTIĞI ---
-    function showRestartModal() {
-        document.getElementById('restart-modal').style.display = 'block';
-    }
-    function confirmRestart() {
-        localStorage.removeItem('viegoRPG_save');
-        location.reload();
-    }
-    function cancelRestart() {
-        document.getElementById('restart-modal').style.display = 'none';
+    // --- RESTART MODAL LOGIC ---
+    function showRestartModal() { document.getElementById('restart-modal').style.display = 'block'; }
+    function confirmRestart() { localStorage.removeItem('viegoRPG_save'); location.reload(); }
+    function cancelRestart() { document.getElementById('restart-modal').style.display = 'none'; }
+
+    // --- DEFEAT EKRANI LOGIC ---
+    function showDefeatScreen() {
+        const overlay = document.getElementById('overlay');
+        document.getElementById('overlay-title').innerText = currentLang === 'en' ? "DEFEAT" : "YENİLGİ";
+        document.getElementById('overlay-title').style.color = "#c0392b";
+        document.getElementById('overlay-quote').innerText = currentLang === 'en' ? "The Mist fades..." : "Sis dağılıyor...";
+        document.getElementById('level-up-text').style.display = 'none';
+        
+        // Butonları değiştir: Sadece Restart Göster
+        const btnContainer = document.getElementById('overlay-buttons');
+        btnContainer.innerHTML = `<button class="start-btn" onclick="confirmRestart()" style="border-color:#c0392b; color:#c0392b;">${currentLang === 'en' ? "TRY AGAIN" : "TEKRAR DENE"}</button>`;
+        
+        overlay.style.display = 'flex';
     }
 
-    // --- SES AYARLARI KAYIT SİSTEMİ ---
-    function saveSettings() {
-        localStorage.setItem('viegoRPG_settings', JSON.stringify({ mVol: musicVolume, sVol: sfxVolume }));
-    }
+    // --- SETTINGS ---
+    function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify({ mVol: musicVolume, sVol: sfxVolume })); }
     function loadSettings() {
         const savedSet = localStorage.getItem('viegoRPG_settings');
         if (savedSet) {
-            const data = JSON.parse(savedSet);
-            musicVolume = data.mVol;
-            sfxVolume = data.sVol;
-            musicSlider.value = musicVolume;
-            sfxSlider.value = sfxVolume;
-            bgMusic.volume = musicVolume;
+            const data = JSON.parse(savedSet); musicVolume = data.mVol; sfxVolume = data.sVol;
+            musicSlider.value = musicVolume; sfxSlider.value = sfxVolume; bgMusic.volume = musicVolume;
         }
     }
-
     musicSlider.addEventListener('input', (e) => { musicVolume = e.target.value; bgMusic.volume = musicVolume; saveSettings(); });
     sfxSlider.addEventListener('input', (e) => { sfxVolume = e.target.value; saveSettings(); });
 
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
-    function playSkillSound(type) { 
-        try { 
-            let s = null;
-            if(type==='basic') s = Math.random()>0.5 ? sounds.basic1 : sounds.basic2;
-            else if(type==='w') s = sounds.w; else if(type==='q') s = sounds.q; else if(type==='r') s = sounds.r;
-            if(s) { s.volume = sfxVolume; s.currentTime=0; s.play(); }
-        } catch(e){} 
-    }
+    function playSkillSound(type) { try { let s = null; if(type==='basic') s = Math.random()>0.5 ? sounds.basic1 : sounds.basic2; else if(type==='w') s = sounds.w; else if(type==='q') s = sounds.q; else if(type==='r') s = sounds.r; if(s) { s.volume = sfxVolume; s.currentTime=0; s.play(); } } catch(e){} }
 
-    // --- OYUNCU VERİ YAPISI ---
-    let player = { 
-        name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
-        ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
-        gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0,
-        ownedPassives: [] 
-    };
+    let player = { name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0, gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0, ownedPassives: [] };
     let currentEnemyIndex = 0;
 
-    function saveGame() {
-        const saveData = { player: player, enemyIndex: currentEnemyIndex };
-        localStorage.setItem('viegoRPG_save', JSON.stringify(saveData));
-        console.log("Game Saved!");
-    }
-
+    function saveGame() { localStorage.setItem('viegoRPG_save', JSON.stringify({ player: player, enemyIndex: currentEnemyIndex })); }
     function loadGame() {
         const saved = localStorage.getItem('viegoRPG_save');
         if (saved) {
-            const data = JSON.parse(saved);
-            player = data.player;
-            currentEnemyIndex = data.enemyIndex;
-            if (!player.ownedPassives) player.ownedPassives = [];
-            if (player.items) delete player.items; 
-
-            recalculateStats();
-            updateInventoryUI(); updateEquippedUI(); updateUI();
-            console.log("Game Loaded!");
+            const data = JSON.parse(saved); player = data.player; currentEnemyIndex = data.enemyIndex;
+            if (!player.ownedPassives) player.ownedPassives = []; if (player.items) delete player.items; 
+            recalculateStats(); updateInventoryUI(); updateEquippedUI(); updateUI();
         }
     }
-
-    // --- STAT HESAPLAMA ---
     function recalculateStats() {
         player.baseDmgBonus = player.ownedPassives.includes('sword') ? 40 : 0;
         player.armor = player.ownedPassives.includes('armor') ? 20 : 0;
         player.critChance = 0.2 + (player.ownedPassives.includes('cloak') ? 0.15 : 0);
     }
 
-    // --- MAĞAZA EŞYALARI ---
     const shopItems = [
         { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪', sellable: true },
         { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡', sellable: true },
@@ -748,7 +733,6 @@
 
         if (type === 'basic') { 
             playSkillSound('basic'); damage = 15 + player.baseDmgBonus + (player.level * 5); player.power += (isCrit ? 15 : 10); logMsg = t.logViegoBasic; 
-            // Vampir Asası Pasifi
             if(player.ownedPassives.includes('vampScepter')) {
                 player.hp = Math.min(player.maxHp, player.hp + 10);
                 showFloatingText(document.getElementById('player-box'), "+10", "heal");
@@ -765,7 +749,6 @@
         if (enemyData.id === 'mordekaiser' && bossState.mordeRealmActive) damage = Math.floor(damage * 0.7);
 
         enemyData.hp -= damage;
-        // Animasyon Tetikleme
         document.getElementById('player-box').classList.add('attacking'); setTimeout(() => document.getElementById('player-box').classList.remove('attacking'), 300);
         triggerDamageAnim('enemy-box');
 
@@ -794,29 +777,51 @@
         player.hp = Math.max(0, player.hp - dmg);
         if (player.wCooldown > 0) player.wCooldown--;
 
-        // Çivili Zırh Pasifi
         if(player.ownedPassives.includes('thornmail') && dmg > 0) {
             enemyData.hp = Math.max(0, enemyData.hp - 15);
             showFloatingText(document.getElementById('enemy-box'), "15", "text-special");
             log("Thornmail reflected 15 damage!");
         }
 
-        // Animasyon Tetikleme
         document.getElementById('enemy-box').classList.add('attacking'); setTimeout(() => document.getElementById('enemy-box').classList.remove('attacking'), 300);
         triggerDamageAnim('player-box');
         triggerEffect('damage'); showFloatingText(document.getElementById('player-box'), `-${dmg}`, 'damage'); updateUI();
         log(`${enemyTrans.name} ${t.logEnemyAtk} ${dmg}.`);
-        if (player.hp <= 0) { log(t.logDefeat); setTimeout(() => { alert(t.defeat); localStorage.removeItem('viegoRPG_save'); location.reload(); }, 1000); return; }
+        
+        // DEFEAT LOGIC (Native Alert Kaldırıldı)
+        if (player.hp <= 0) { 
+            log(t.logDefeat); 
+            setTimeout(() => { 
+                localStorage.removeItem('viegoRPG_save'); 
+                showDefeatScreen(); // Özel Defeat Ekranı
+            }, 1000); 
+            return; 
+        }
         turn = "player";
     }
 
     function winBattle() {
         if (enemyTimeout) clearTimeout(enemyTimeout);
         const enemyTrans = t.enemies[currentEnemyIndex];
-        document.getElementById('overlay-title').innerText = t.victory; document.getElementById('overlay-quote').innerText = enemyTrans.win; 
+        
+        // Victory Ekranını Ayarla (Defeat tarafından değiştirilmiş olabilir, resetle)
+        document.getElementById('overlay-title').innerText = t.victory;
+        document.getElementById('overlay-title').style.color = "var(--ruined-green)";
+        document.getElementById('overlay-quote').innerText = enemyTrans.win;
+        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`; 
+        document.getElementById('level-up-text').style.display = 'block';
+        
+        // Butonları Normal Haline Getir
+        const btnContainer = document.getElementById('overlay-buttons');
+        btnContainer.innerHTML = `
+            <button class="start-btn" id="btn-open-shop" onclick="openShop()">${t.shop.btnShop}</button>
+            <button class="start-btn" id="next-btn" onclick="nextLevel()">${t.continue}</button>
+        `;
+
+        document.getElementById('overlay').style.display = 'flex';
+        
         player.level++; player.maxHp += 50; player.hp = player.maxHp; player.gold += 100; 
-        document.getElementById('level-up-text').innerText = `${t.levelUp} (+100 ${t.shop.gold})`; document.getElementById('level-up-text').style.display = 'block'; document.getElementById('overlay').style.display = 'flex';
-        saveGame(); // Oyunu Kaydet
+        saveGame(); 
     }
 
     function nextLevel() { document.getElementById('overlay').style.display = 'none'; currentEnemyIndex++; loadLevel(currentEnemyIndex); saveGame(); }
