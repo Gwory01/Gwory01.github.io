@@ -6,7 +6,7 @@
     <title>Viego: The Ruined King RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'); /* Tooltipler için daha okunaklı font */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
         :root {
             --ruined-green: #0ac8b9;
@@ -82,7 +82,7 @@
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 30px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 30px rgba(214, 48, 49, 0.3); }
         
-        /* Yeni Savaş Animasyonları */
+        /* Savaş Animasyonları */
         .attacking { animation: attack-motion 0.3s ease-in-out; }
         @keyframes attack-motion { 0% { transform: translateX(0); } 50% { transform: translateX(30px); } 100% { transform: translateX(0); } }
         #enemy-box.attacking { animation: enemy-attack-motion 0.3s ease-in-out; }
@@ -224,7 +224,8 @@
                 <div class="speech-bubble" id="player-bubble">...</div>
                 <div class="level-badge" id="player-lvl">1</div>
                 <div class="gold-display"><span id="player-gold">0</span> 🪙</div>
-                <div id="equipped-container"></div> <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
+                <div id="equipped-container"></div>
+                <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow" id="player-img">
                 <h2 style="color: var(--ruined-green);">VIEGO</h2>
                 <div class="stat-bar hidden-ui" id="ui-hp-p"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
                 <div class="stat-bar hidden-ui" style="border-color:#b7950b;" id="ui-mp-p"><div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div><span class="bar-text" id="player-power-text" style="color:black;">0/100</span></div>
@@ -255,14 +256,31 @@
     </div>
 
 <script>
-    // --- SES AYARLARI ---
     let musicVolume = 0.15; let sfxVolume = 0.3;
     const bgMusic = document.getElementById('bgMusic');
     const musicSlider = document.getElementById('music-vol');
     const sfxSlider = document.getElementById('sfx-vol');
 
-    musicSlider.addEventListener('input', (e) => { musicVolume = e.target.value; bgMusic.volume = musicVolume; });
-    sfxSlider.addEventListener('input', (e) => { sfxVolume = e.target.value; });
+    // --- SES AYARLARI KAYIT SİSTEMİ ---
+    function saveSettings() {
+        localStorage.setItem('viegoRPG_settings', JSON.stringify({ mVol: musicVolume, sVol: sfxVolume }));
+    }
+    function loadSettings() {
+        const savedSet = localStorage.getItem('viegoRPG_settings');
+        if (savedSet) {
+            const data = JSON.parse(savedSet);
+            musicVolume = data.mVol;
+            sfxVolume = data.sVol;
+            // UI ve Audio güncelle
+            musicSlider.value = musicVolume;
+            sfxSlider.value = sfxVolume;
+            bgMusic.volume = musicVolume;
+        }
+    }
+
+    // Event listener'lara saveSettings eklendi
+    musicSlider.addEventListener('input', (e) => { musicVolume = e.target.value; bgMusic.volume = musicVolume; saveSettings(); });
+    sfxSlider.addEventListener('input', (e) => { sfxVolume = e.target.value; saveSettings(); });
 
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w: new Audio('W_Skill.wav'), q: new Audio(), r: new Audio() };
     function playSkillSound(type) { 
@@ -274,17 +292,15 @@
         } catch(e){} 
     }
 
-    // --- OYUNCU VERİSİ (KAYDEDİLECEK) ---
     let player = { 
         name: "Viego", level: 1, maxHp: 150, hp: 150, maxPower: 100, power: 0, 
         ultUsed: false, critChance: 0.2, nextHitCrit: false, wCooldown: 0,
         gold: 0, baseDmgBonus: 0, potions: 0, elixirs: 0, armor: 0,
         items: { sword: { level: 0, icon: '⚔️' }, armor: { level: 0, icon: '🛡️' }, cloak: { level: 0, icon: '🧥' } },
-        ownedPassives: [] // Yeni pasif eşyalar için dizi
+        ownedPassives: [] 
     };
     let currentEnemyIndex = 0;
 
-    // --- KAYIT SİSTEMİ ---
     function saveGame() {
         const saveData = { player: player, enemyIndex: currentEnemyIndex };
         localStorage.setItem('viegoRPG_save', JSON.stringify(saveData));
@@ -295,29 +311,25 @@
         const saved = localStorage.getItem('viegoRPG_save');
         if (saved) {
             const data = JSON.parse(saved);
-            player = data.player; // Kayıtlı veriyi yükle
+            player = data.player;
             currentEnemyIndex = data.enemyIndex;
-            recalculateStats(); // Statları tekrar hesapla
+            recalculateStats();
             updateInventoryUI(); updateEquippedUI(); updateUI();
             console.log("Game Loaded!");
         }
     }
-    // Yüklemeden sonra statları düzelt
     function recalculateStats() {
         player.baseDmgBonus = player.items.sword.level * 30;
         player.armor = player.items.armor.level * 15;
         player.critChance = 0.2 + (player.items.cloak.level * 0.05);
     }
 
-    // --- MAĞAZA EŞYALARI (YENİ PASİFLER EKLENDİ) ---
     const shopItems = [
         { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪' },
         { id: 'elixir', basePrice: 50, type: 'consumable', icon: '⚡' },
-        // Yükseltilebilirler
         { id: 'sword', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 30, icon: '⚔️' },
         { id: 'armor', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 15, icon: '🛡️' },
         { id: 'cloak', basePrice: 250, type: 'upgradable', maxLevel: 5, statPerLevel: 0.05, icon: '🧥' },
-        // Yeni Pasifler
         { id: 'vampScepter', basePrice: 400, type: 'passive', icon: '🩸', sellable: true },
         { id: 'thornmail', basePrice: 500, type: 'passive', icon: '🌵', sellable: true }
     ];
@@ -325,7 +337,6 @@
     let bossState = { isPlayerStunned: false, threshStacks: 0, threshVulnerable: false, belvethForm: 1, mordeRealmTriggered: false, mordeRealmActive: false, turnCount: 0, leblancClone: false, leblancHidden: false, leblancBuffTurns: 0 };
     const musicTracks = { tier1: "Tier1.mp3", tier2: "Tier2.mp3", tier3: "tier3.mp3", morde: "morde.mp3", isolde: "isolde.mp3", thresh: "thresh.mp3", leblanc: "leblanc.mp3" };
     
-    // --- DÜŞMANLAR ---
     const enemiesBase = [
         { id: "gangplank", level: 2, maxHp: 200, hp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 4, maxHp: 250, hp: 250, damage: 18, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
@@ -369,40 +380,6 @@
                     cloak: { name: "Crit Cloak", desc: "+5% Crit Chance/Lvl", stat: "Crit" },
                     vampScepter: { name: "Vampiric Scepter", desc: "PASSIVE: Basic attacks heal 10 HP.", stat: "Lifesteal" },
                     thornmail: { name: "Thornmail", desc: "PASSIVE: Reflects 15 magic damage when hit.", stat: "Reflect" }
-                }
-            },
-            enemies: [
-                { id: "gangplank", name: "Gangplank", win: "Viego: \"A pirate cannot stop a King.\"", intro: ["Gangplank: \"Get off my ship, ghost! This city is mine!\"", "Viego: \"Everything the mist touches belongs to me.\"", "Gangplank: \"I'll carve your heart out!\"", "Viego: \"I have no heart left to break.\""], quotes: ["Barrel!", "Burn!"] },
-                { id: "yorick", name: "Yorick", win: "Viego: \"Return to your grave, Monk.\"", intro: ["Yorick: \"The Mist must be purged. You must be stopped.\"", "Viego: \"The Mist IS me. You fight the inevitable.\"", "Yorick: \"I fight for the living. You fight for a corpse.\""], quotes: ["Join the grave."] },
-                { id: "akshan", name: "Akshan", win: "Viego: \"No absolver can save you.\"", intro: ["Akshan: \"Pretty face, ugly soul. Let's fix that.\"", "Viego: \"You are an annoying insect.\"", "Akshan: \"And you're a king with a temper tantrum.\""], quotes: ["Boom!"] },
-                { id: "gwen", name: "Gwen", win: "Viego: \"You are nothing but a doll.\"", intro: ["Gwen: \"I remember her smile... She wouldn't want this!\"", "Viego: \"Silence! You are a mockery of her memory!\"", "Gwen: \"I will cut the mist away from you!\""], quotes: ["Snip snip!"] },
-                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Your love is weak compared to mine.\"", intro: ["Lucian: \"It ends here, Viego! For everyone you've hurt!\"", "Viego: \"You saved your wife, Lucian. Why can't I have mine?!\"", "Senna: \"Because she is gone! You are chasing a ghost!\""], quotes: ["For the Light!", "Together!"] },
-                { id: "maokai", name: "Maokai", win: "Viego: \"Burn with the Isles.\"", intro: ["Maokai: \"You poisoned the waters of life!\"", "Viego: \"I made them eternal. You should thank me.\"", "Maokai: \"I will crush you into the dirt!\""], quotes: ["Nature wrath."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Go back to your spider god.\"", intro: ["Elise: \"My god is hungry for a King's soul.\"", "Viego: \"I am not food. I am death incarnate.\"", "Elise: \"We shall see about that.\""], quotes: ["Closer..."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Your blood magic is useless here.\"", intro: ["Vladimir: \"Ah, Viego. Still chasing fairytales?\"", "Viego: \"Watch your tongue, uncle. Or I will rip it out.\"", "Vladimir: \"So dramatic. Let's paint the floor red.\""], quotes: ["Delicious."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"The war is over, rider.\"", intro: ["Hecarim: \"War! Eternal war! Lead us, my King!\"", "Viego: \"You are a blunt instrument, Hecarim. Obey me.\"", "Hecarim: \"I only obey the charge!\""], quotes: ["Trample them!"] },
-                { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god has no power here.\"", intro: ["Illaoi: \"You are stagnant. You are stuck in the past.\"", "Viego: \"My love is timeless!\"", "Illaoi: \"Motion is life. You are dead inside.\""], quotes: ["Motion is life."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer! You let her die!\"", intro: ["Kalista: \"Viego... please. End this madness.\"", "Viego: \"You swore to protect me! You failed her!\"", "Kalista: \"I swore to the truth. You are lost.\""], quotes: ["Vengeance!"] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"I want Isolde! Give her to me!\"", "LeBlanc: \"Catch me if you can, ruined boy.\""], quotes: ["Smoke and mirrors."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Get back in your lantern, wretch.\"", intro: ["Thresh: \"Oh, the exquisite agony you spread.\"", "Viego: \"Do not mock me, Thresh. You are but a servant.\"", "Thresh: \"Servants eventually become masters, don't they?\""], quotes: ["Scream."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Death has a new King now.\"", intro: ["Mordekaiser: \"Iron stands eternal. Your mist is weak.\"", "Viego: \"I will rust your armor and break your will!\"", "Mordekaiser: \"You are a child playing with souls. I AM DEATH.\""], quotes: ["Crumble."] }
-            ]
-        },
-        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü",
-            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
-            bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
-            isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", upgrade: "GELİŞTİR", max: "MAKS", sold: "SAHİPSİN", sellModeOn: "SATIŞ MODU: AÇIK", sellModeOff: "SATIŞ MODU: KAPALI", sell: "SAT",
-                items: {
-                    potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
-                    elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
-                    sword: { name: "Mahvolmuş Parça", desc: "+30 Taban Hasar/Seviye", stat: "Hasar" },
-                    armor: { name: "Hayalet Zırh", desc: "%15 Hasar Azaltma/Seviye", stat: "Zırh" },
-                    cloak: { name: "Kritik Pelerini", desc: "+%5 Kritik Şansı/Seviye", stat: "Kritik" },
-                    vampScepter: { name: "Vampir Asası", desc: "PASİF: Düz vuruşlar 10 Can iyileştirir.", stat: "Can Çalma" },
-                    thornmail: { name: "Çivili Zırh", desc: "PASİF: Hasar alınca 15 büyü hasarı yansıtır.", stat: "Yansıtma" }
                 }
             },
             enemies: [
@@ -629,7 +606,7 @@
     }
     function closeInfo() { document.getElementById('info-modal').style.display = 'none'; }
 
-    function startGame() { document.getElementById('start-screen').style.display = 'none'; forcePlayMusic(); loadLevel(0); }
+    function startGame() { document.getElementById('start-screen').style.display = 'none'; forcePlayMusic(); loadLevel(currentEnemyIndex); }
 
     function loadLevel(index) {
         if (enemyTimeout) clearTimeout(enemyTimeout);
@@ -795,7 +772,8 @@
         const savedLang = localStorage.getItem('rpgLang') || 'en';
         document.getElementById('lang-select').value = savedLang;
         changeLanguage(savedLang);
-        loadGame(); // OYUNU YÜKLE
+        loadSettings(); // ÖNCE AYARLARI YÜKLE
+        loadGame(); // SONRA OYUNU YÜKLE
     };
 </script>
 </body>
