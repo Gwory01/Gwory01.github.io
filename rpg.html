@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Viego: The Ruined King RPG (Mobile)</title>
+    <title>Viego: The Ruined King RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -26,29 +26,43 @@
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh; margin: 0; 
-            overflow: hidden; /* Normalde gizli, mobilde media query ile açacağız */
+            overflow: hidden; 
             user-select: none;
             position: relative;
-            touch-action: manipulation; /* Mobilde çift tıklama zoom'unu engeller */
+            touch-action: manipulation;
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- ANA ARKA PLAN SİSİ --- */
+        /* --- ARKA PLAN SİSİ --- */
         #mist-canvas-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.8;
         }
 
         /* --- UI ELEMENTLERİ --- */
-        .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #info-modal, #shop-modal, #restart-modal { position: relative; z-index: 10; }
+        .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #shop-modal, #restart-modal { position: relative; z-index: 10; }
 
-        .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
+        /* YENİ INFO BUTON STİLİ */
+        .info-btn { 
+            position: absolute; top: 0; left: 0; 
+            width: 25px; height: 25px; 
+            background: rgba(0,0,0,0.9); 
+            border: 1px solid var(--ruined-green); 
+            color: var(--ruined-green); 
+            border-radius: 50%; 
+            font-weight: bold; cursor: help; 
+            z-index: 100; 
+            display: flex; justify-content: center; align-items: center; 
+            transition: 0.3s; 
+        }
+        .info-btn:hover { background: var(--ruined-green); color: black; transform: scale(1.1); }
         
-        .info-modal, .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px rgba(10, 200, 185, 0.2); border-radius: 4px; color: #ddd; text-align: center; }
-        .info-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; padding: 20px; z-index: 2000; display: none; text-align: left; font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.6; }
-        .info-modal h3 { color: var(--ruined-green); margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-family: 'Cinzel', serif; }
-        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
-        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } .info-close:hover { background: var(--ruined-green); color: black; }
+        /* ORTAK MODAL STİLLERİ (Shop, Restart vb.) */
+        .overlay-msg, .dialogue-box, #final-choice-overlay, #shop-modal, #restart-modal { background: rgba(10, 12, 15, 0.98); border: 2px solid #1a1a1a; outline: 2px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px rgba(10, 200, 185, 0.2); border-radius: 4px; color: #ddd; text-align: center; }
+        
+        /* TEXT STİLLERİ */
+        .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } 
+        .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
 
         .level-badge { display: none !important; }
 
@@ -72,6 +86,7 @@
         body.sell-mode-active .buy-btn.sellable { background: var(--sell-color); color: white; border-color: #c0392b; }
         #sell-mode-btn { margin-right: 10px; background: #333; color: #aaa; border: 1px solid #555; }
         #sell-mode-btn.active { background: var(--sell-color); color: white; border-color: #c0392b; }
+        .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; }
 
         .game-wrapper { width: 95%; max-width: 800px; height: 650px; background: rgba(8, 10, 12, 0.95); border: 5px solid #1a1a1a; outline: 3px solid var(--ruined-green); outline-offset: -2px; box-shadow: 0 0 40px 5px rgba(10, 200, 185, 0.4); padding: 25px; position: relative; display: flex; flex-direction: column; border-radius: 8px; }
         #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 8px; }
@@ -122,8 +137,24 @@
         #equipped-container { position: absolute; top: 50px; left: -60px; width: 50px; display: flex; flex-direction: column; gap: 8px; z-index: 50; }
         .eq-item { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--gold-color); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; position: relative; cursor: help; }
         .eq-lvl { position: absolute; bottom: -2px; right: -2px; background: var(--gold-color); color: black; font-size: 9px; padding: 1px 3px; font-weight: bold; border-radius: 2px; }
-        #inv-tooltip { position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); box-shadow: 0 0 20px rgba(0,0,0,0.8); padding: 12px; font-size: 12px; z-index: 1500; display: none; font-family: 'Roboto', sans-serif; }
-        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; } .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
+
+        /* --- GENEL TOOLTIP STİLİ (HEM ENVANTER HEM INFO İÇİN) --- */
+        #inv-tooltip { 
+            position: fixed; /* Mobilde kayma olmasın diye fixed */
+            background: rgba(10, 12, 15, 0.98); 
+            border: 1px solid var(--ruined-green); 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8); 
+            padding: 12px; 
+            font-size: 12px; 
+            z-index: 4000; /* En üstte */
+            display: none; 
+            font-family: 'Roboto', sans-serif; 
+            max-width: 250px; /* Çok geniş olmasın */
+            border-radius: 4px;
+            pointer-events: none; /* Mouse ile etkileşime girmesin */
+        }
+        .tooltip-title { color: var(--ruined-green); font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 4px; } 
+        .tooltip-stat { color: var(--power-yellow); display: block; margin-top: 5px; font-weight: bold; }
 
         .controls { height: 160px; border-top: 1px solid #444; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; transition: opacity 0.5s; } .hidden-ui { opacity: 0; pointer-events: none; }
         .skills { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
@@ -149,43 +180,39 @@
         /* --- MOBİL UYUMLULUK (RESPONSIVE) --- */
         @media screen and (max-width: 768px) {
             body { 
-                overflow-y: auto; /* Kaydırmaya izin ver */
+                overflow-y: auto; 
                 height: auto; 
                 min-height: 100vh;
-                display: block; /* Flex'i iptal et, normal akış */
+                display: block; 
                 padding-bottom: 20px;
             }
 
             .game-wrapper {
                 width: 95%;
-                height: auto; /* Sabit yükseklik kaldırıldı */
+                height: auto; 
                 min-height: 80vh;
-                margin: 60px auto 20px auto; /* Üst menüden uzaklaştır */
+                margin: 60px auto 20px auto; 
                 padding: 10px;
             }
 
-            /* Savaş sahnesi: Düşman Üstte, Viego Altta */
             .battle-scene {
                 flex-direction: column-reverse;
                 padding: 10px 0;
                 gap: 30px;
             }
 
-            /* VS Yazısı */
             #vs-text {
                 font-size: 2rem;
                 margin: 10px 0;
-                transform: rotate(90deg); /* Dikey VS */
+                transform: rotate(90deg);
             }
 
-            /* Karakter Resimleri */
             .character-img {
                 width: 130px;
                 height: 130px;
                 border-width: 3px;
             }
 
-            /* Karakter Kutuları */
             .character-box {
                 width: 100%;
                 display: flex;
@@ -193,63 +220,57 @@
                 align-items: center;
             }
 
-            /* Stat Barlar (Can/Mana) */
             .stat-bar {
-                width: 80%; /* Mobilde barlar çok geniş olmasın */
+                width: 80%;
             }
 
-            /* Kontroller ve Skill Butonları */
             .controls {
-                grid-template-columns: 1fr; /* Logu aşağı at */
+                grid-template-columns: 1fr;
                 height: auto;
                 gap: 15px;
             }
 
             .skills {
-                grid-template-columns: 1fr 1fr; /* Skilleri 2x2 yap */
+                grid-template-columns: 1fr 1fr;
                 gap: 8px;
             }
 
             .skill-btn {
-                padding: 15px 5px; /* Parmakla basmak için büyüt */
+                padding: 15px 5px;
             }
 
             .log-box {
-                height: 80px; /* Log kutusunu küçült */
+                height: 80px; 
                 font-size: 0.8rem;
             }
 
-            /* Menüler ve Modallar */
             .top-bar-controls {
                 top: 5px; right: 5px;
-                transform: scale(0.85); /* Biraz küçültelim */
+                transform: scale(0.85);
                 transform-origin: top right;
             }
             .back-btn { top: 10px; left: 10px; font-size: 0.8rem; padding: 5px 10px; }
 
-            #shop-modal, #restart-modal, #info-modal {
+            #shop-modal, #restart-modal {
                 width: 90% !important;
                 padding: 15px;
             }
             .shop-grid {
-                grid-template-columns: 1fr; /* Ürünler tek sütun */
+                grid-template-columns: 1fr; 
                 max-height: 250px;
             }
             
-            /* Konuşma Balonları */
             .speech-bubble {
                 width: 180px;
                 font-size: 11px;
                 top: -60px;
             }
 
-            /* Envanter */
             #inventory-frame {
                 top: 60px; left: 5px;
                 transform: scale(0.8); transform-origin: top left;
             }
             
-            /* Seçim Ekranı Butonları */
             .choice-btn {
                 width: 90%;
                 padding: 15px;
@@ -303,12 +324,6 @@
         </div>
     </div>
 
-    <div id="info-modal" class="info-modal">
-        <h3 id="info-title">KARAKTER BİLGİSİ</h3>
-        <div id="info-content">...</div>
-        <button class="info-close" onclick="closeInfo()">KAPAT</button>
-    </div>
-
     <div id="shop-modal">
         <div class="shop-header">
             <h3 style="margin:0; color:var(--gold-color);" id="shop-title-text">RUINED SHOP</h3>
@@ -354,7 +369,8 @@
 
         <div class="battle-scene">
             <div class="character-box" id="player-box">
-                <button class="info-btn" onclick="showInfo('player')">i</button>
+                <button class="info-btn" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</button>
+                
                 <div class="speech-bubble" id="player-bubble">...</div>
                 <div class="level-badge" id="player-lvl">1</div>
                 <div class="gold-display"><span id="player-gold">0</span> 🪙</div>
@@ -368,7 +384,8 @@
             <h1 style="color: #555; font-size: 3rem;" id="vs-text">VS</h1>
 
             <div class="character-box" id="enemy-box">
-                <button class="info-btn" onclick="showInfo('enemy')">i</button>
+                <button class="info-btn" onmouseover="showCharacterTooltip(this, 'enemy')" onmouseout="hideTooltip()">i</button>
+                
                 <div class="speech-bubble" id="enemy-bubble">...</div>
                 <div class="level-badge" id="enemy-lvl">1</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
@@ -390,129 +407,56 @@
     </div>
 
 <script>
-    // --- WEBGL SHADER KODLARI (ARKA PLAN + FARE ETKİLEŞİMİ) ---
+    // --- WEBGL SHADER KODLARI ---
     const bgMistFragmentShader = `#version 300 es
     precision highp float;
     uniform float time;
     uniform vec2 vp;
-    uniform vec2 u_mouse; // Fare pozisyonu (0.0 - 1.0 arası normalize edilmiş)
+    uniform vec2 u_mouse;
     in vec2 uv;
     out vec4 fragColor;
-
     float rand(vec2 p) { return fract(sin(dot(p.xy, vec2(1., 300.))) * 43758.5453123); }
-    float noise(vec2 p) {
-        vec2 i = floor(p); vec2 f = fract(p);
-        float a = rand(i); float b = rand(i + vec2(1.0, 0.0)); float c = rand(i + vec2(0.0, 1.0)); float d = rand(i + vec2(1.0, 1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-    }
+    float noise(vec2 p) { vec2 i = floor(p); vec2 f = fract(p); float a = rand(i); float b = rand(i + vec2(1.0, 0.0)); float c = rand(i + vec2(0.0, 1.0)); float d = rand(i + vec2(1.0, 1.0)); vec2 u = f * f * (3.0 - 2.0 * f); return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y; }
     #define OCTAVES 4
-    float fbm(vec2 p) {
-        float value = 0.; float amplitude = .5;
-        for (int i = 0; i < OCTAVES; i++) { value += amplitude * noise(p); p *= 2.2; amplitude *= .45; }
-        return value;
-    }
+    float fbm(vec2 p) { float value = 0.; float amplitude = .5; for (int i = 0; i < OCTAVES; i++) { value += amplitude * noise(p); p *= 2.2; amplitude *= .45; } return value; }
     void main() {
-        vec2 p = uv.xy;
-        float aspect = vp.x / vp.y;
-        p.x *= aspect; // Aspect oranını düzelt
-
-        float t = time * 0.1; vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2;
-        vec2 fast = (p + flow) * 3.5;
+        vec2 p = uv.xy; float aspect = vp.x / vp.y; p.x *= aspect;
+        float t = time * 0.1; vec2 flow = vec2(sin(t * 0.5), cos(t * 0.3)) * 0.2; vec2 fast = (p + flow) * 3.5;
         float ns_a = fbm(fast + t); float ns_b = fbm(fast + ns_a - t * 0.5); float intensity = fbm(vec2(ns_a, ns_b));
-        
         vec3 darkMist = vec3(0.02, 0.05, 0.05); vec3 ruinedTeal = vec3(0.04, 0.78, 0.72);
         vec3 color = mix(darkMist, ruinedTeal, intensity * intensity * 0.8);
-        
         float alpha = smoothstep(0.2, 0.9, intensity);
-
-        // --- FARE ETKİLEŞİMİ (SİS DAĞITMA) ---
-        // Fare pozisyonunu da aspect oranına göre düzelt
-        vec2 mousePosCorrected = u_mouse;
-        mousePosCorrected.x *= aspect;
-
-        // Mevcut piksel ile fare arasındaki mesafeyi hesapla
+        vec2 mousePosCorrected = u_mouse; mousePosCorrected.x *= aspect;
         float dist = distance(p, mousePosCorrected);
-
-        // Fare etrafında bir daire maskesi oluştur (Merkezde 0, dışarıda 1)
-        // 0.15: Dağılma yarıçapı, 0.3: Yumuşak geçiş sınırı
         float clearMask = smoothstep(0.15, 0.35, dist);
-        
-        // Maskeyi uygulayarak fare yakınındaki alpha değerini düşür
         alpha *= clearMask;
-
         fragColor = vec4(color, alpha);
-    }
-    `;
-
+    } `;
     const vertexShaderSource = `#version 300 es
-        precision mediump float;
-        const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
-        out vec2 uv;
-        void main() {
-            uv = positions[gl_VertexID] * 0.5 + 0.5;
-            gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0);
-        }`;
+    precision mediump float;
+    const vec2 positions[6] = vec2[6](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
+    out vec2 uv;
+    void main() { uv = positions[gl_VertexID] * 0.5 + 0.5; gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0); }`;
 
     class WebGLHandler {
         constructor(canvas, fragmentSource) {
-            this.cn = canvas;
-            this.gl = canvas.getContext("webgl2", { alpha: true });
-            this.startTime = Date.now();
-            this.resize();
-            window.addEventListener("resize", () => this.resize());
-            
+            this.cn = canvas; this.gl = canvas.getContext("webgl2", { alpha: true }); this.startTime = Date.now();
+            this.resize(); window.addEventListener("resize", () => this.resize());
             this.program = this.gl.createProgram();
-            this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER);
-            this.compileShader(fragmentSource, this.gl.FRAGMENT_SHADER);
-            this.gl.linkProgram(this.program);
-            this.gl.useProgram(this.program);
-            this.timeLocation = this.gl.getUniformLocation(this.program, "time");
-            this.resolutionLocation = this.gl.getUniformLocation(this.program, "vp");
-            
-            // Fare pozisyonu için uniform ve event listener
-            this.mouseLocation = this.gl.getUniformLocation(this.program, "u_mouse");
-            this.mouseX = 0.5; // Başlangıçta merkezde varsayalım
-            this.mouseY = 0.5;
-
-            window.addEventListener('mousemove', (e) => {
-                 // Fare pozisyonunu [0, 1] aralığına normalize et
-                 this.mouseX = e.clientX / window.innerWidth;
-                 // WebGL'de Y ekseni ters olduğu için çevir
-                 this.mouseY = 1.0 - (e.clientY / window.innerHeight);
-            });
-
+            this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER); this.compileShader(fragmentSource, this.gl.FRAGMENT_SHADER);
+            this.gl.linkProgram(this.program); this.gl.useProgram(this.program);
+            this.timeLocation = this.gl.getUniformLocation(this.program, "time"); this.resolutionLocation = this.gl.getUniformLocation(this.program, "vp");
+            this.mouseLocation = this.gl.getUniformLocation(this.program, "u_mouse"); this.mouseX = 0.5; this.mouseY = 0.5;
+            window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX / window.innerWidth; this.mouseY = 1.0 - (e.clientY / window.innerHeight); });
             this.render();
         }
-        resize() {
-            this.cn.width = window.innerWidth;
-            this.cn.height = window.innerHeight;
-            this.gl.viewport(0, 0, this.cn.width, this.cn.height);
-        }
-        compileShader(source, type) {
-            const shader = this.gl.createShader(type);
-            this.gl.shaderSource(shader, source);
-            this.gl.compileShader(shader);
-            if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) console.error(this.gl.getShaderInfoLog(shader));
-            this.gl.attachShader(this.program, shader);
-        }
-        render = () => {
-            this.gl.uniform1f(this.timeLocation, (Date.now() - this.startTime) / 1000);
-            this.gl.uniform2fv(this.resolutionLocation, [this.cn.width, this.cn.height]);
-            // Fare pozisyonunu shader'a gönder
-            this.gl.uniform2fv(this.mouseLocation, [this.mouseX, this.mouseY]);
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
-            requestAnimationFrame(this.render);
-        };
+        resize() { this.cn.width = window.innerWidth; this.cn.height = window.innerHeight; this.gl.viewport(0, 0, this.cn.width, this.cn.height); }
+        compileShader(source, type) { const shader = this.gl.createShader(type); this.gl.shaderSource(shader, source); this.gl.compileShader(shader); this.gl.attachShader(this.program, shader); }
+        render = () => { this.gl.uniform1f(this.timeLocation, (Date.now() - this.startTime) / 1000); this.gl.uniform2fv(this.resolutionLocation, [this.cn.width, this.cn.height]); this.gl.uniform2fv(this.mouseLocation, [this.mouseX, this.mouseY]); this.gl.drawArrays(this.gl.TRIANGLES, 0, 6); requestAnimationFrame(this.render); };
     }
+    const bgCanvas = document.body.appendChild(document.createElement("canvas")); bgCanvas.id = "mist-canvas-bg"; new WebGLHandler(bgCanvas, bgMistFragmentShader);
 
-    // --- WEBGL BAŞLATMA ---
-    const bgCanvas = document.body.appendChild(document.createElement("canvas"));
-    bgCanvas.id = "mist-canvas-bg";
-    new WebGLHandler(bgCanvas, bgMistFragmentShader);
-
-
-    // --- OYUN JS KODLARI (MEVCUT KODLAR) ---
+    // --- OYUN JS KODLARI ---
     let musicVolume = 0.15; let sfxVolume = 0.3;
     const bgMusic = document.getElementById('bgMusic');
     const musicSlider = document.getElementById('music-vol');
@@ -534,13 +478,7 @@
     }
 
     function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify({ mVol: musicVolume, sVol: sfxVolume })); }
-    function loadSettings() {
-        const savedSet = localStorage.getItem('viegoRPG_settings');
-        if (savedSet) {
-            const data = JSON.parse(savedSet); musicVolume = data.mVol; sfxVolume = data.sVol;
-            musicSlider.value = musicVolume; sfxSlider.value = sfxVolume; bgMusic.volume = musicVolume;
-        }
-    }
+    function loadSettings() { const savedSet = localStorage.getItem('viegoRPG_settings'); if (savedSet) { const data = JSON.parse(savedSet); musicVolume = data.mVol; sfxVolume = data.sVol; musicSlider.value = musicVolume; sfxSlider.value = sfxVolume; bgMusic.volume = musicVolume; } }
     musicSlider.addEventListener('input', (e) => { musicVolume = e.target.value; bgMusic.volume = musicVolume; saveSettings(); });
     sfxSlider.addEventListener('input', (e) => { sfxVolume = e.target.value; saveSettings(); });
 
@@ -551,19 +489,8 @@
     let currentEnemyIndex = 0;
 
     function saveGame() { localStorage.setItem('viegoRPG_save', JSON.stringify({ player: player, enemyIndex: currentEnemyIndex })); }
-    function loadGame() {
-        const saved = localStorage.getItem('viegoRPG_save');
-        if (saved) {
-            const data = JSON.parse(saved); player = data.player; currentEnemyIndex = data.enemyIndex;
-            if (!player.ownedPassives) player.ownedPassives = []; if (player.items) delete player.items; 
-            recalculateStats(); updateInventoryUI(); updateEquippedUI(); updateUI();
-        }
-    }
-    function recalculateStats() {
-        player.baseDmgBonus = player.ownedPassives.includes('sword') ? 40 : 0;
-        player.armor = player.ownedPassives.includes('armor') ? 20 : 0;
-        player.critChance = 0.2 + (player.ownedPassives.includes('cloak') ? 0.15 : 0);
-    }
+    function loadGame() { const saved = localStorage.getItem('viegoRPG_save'); if (saved) { const data = JSON.parse(saved); player = data.player; currentEnemyIndex = data.enemyIndex; if (!player.ownedPassives) player.ownedPassives = []; if (player.items) delete player.items; recalculateStats(); updateInventoryUI(); updateEquippedUI(); updateUI(); } }
+    function recalculateStats() { player.baseDmgBonus = player.ownedPassives.includes('sword') ? 40 : 0; player.armor = player.ownedPassives.includes('armor') ? 20 : 0; player.critChance = 0.2 + (player.ownedPassives.includes('cloak') ? 0.15 : 0); }
 
     const shopItems = [
         { id: 'potion', basePrice: 50, type: 'consumable', icon: '🧪', sellable: true },
@@ -795,12 +722,7 @@
     function createEquippedIcon(container, id, icon) {
         const div = document.createElement('div'); div.className = 'eq-item';
         div.innerHTML = `${icon}`;
-        div.onmouseover = function() { 
-            const itemTrans = t.shop.items[id];
-            const tooltip = document.getElementById('inv-tooltip');
-            tooltip.style.display = 'block'; tooltip.style.top = this.offsetTop + 50 + 'px'; tooltip.style.left = '60px';
-            tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-desc">${itemTrans.desc}</span><span class="tooltip-stat">${itemTrans.stat}</span>`;
-        };
+        div.onmouseover = function() { showTooltip(this, id); }; // Bu kısmı da yeni tooltipe yönlendiriyoruz
         div.onmouseout = hideTooltip;
         container.appendChild(div);
     }
@@ -825,21 +747,48 @@
         }
     }
 
+    // --- YENİ TOOLTIP FONKSİYONLARI ---
+    
+    // Karakter info butonları için
+    function showCharacterTooltip(el, target) {
+        const tooltip = document.getElementById('inv-tooltip');
+        let content = "";
+        if (target === 'player') content = `<div class="tooltip-title">VIEGO</div>` + mechanicsInfo.player;
+        else {
+            const id = enemiesBase[currentEnemyIndex].id;
+            content = `<div class="tooltip-title">${id.toUpperCase()}</div>` + (mechanicsInfo[id] || mechanicsInfo.default);
+        }
+        
+        tooltip.innerHTML = content;
+        tooltip.style.display = 'block';
+        
+        // Konumlandırma
+        const rect = el.getBoundingClientRect();
+        tooltip.style.top = (rect.bottom + 10) + 'px'; 
+        tooltip.style.left = (rect.left - 100) + 'px'; // Biraz sola kaydır ki ortalansın
+        
+        // Mobilde ekran dışına taşmayı engelle (Basit kontrol)
+        if (rect.left < 100) tooltip.style.left = '10px';
+    }
+
+    // Envanter ve itemlar için
     function showTooltip(el, type) {
         const tooltip = document.getElementById('inv-tooltip');
-        tooltip.style.display = 'block'; tooltip.style.top = el.offsetTop + 'px'; tooltip.style.left = '85px';
         const itemTrans = t.shop.items[type]; 
-        if (itemTrans) tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-desc">${itemTrans.desc}</span><span class="tooltip-stat">${itemTrans.stat}</span>`;
+        
+        if (itemTrans) {
+            tooltip.innerHTML = `<span class="tooltip-title">${itemTrans.name}</span><span class="tooltip-desc">${itemTrans.desc}</span><span class="tooltip-stat">${itemTrans.stat}</span>`;
+            tooltip.style.display = 'block';
+            
+            const rect = el.getBoundingClientRect();
+            tooltip.style.top = rect.bottom + 'px';
+            tooltip.style.left = (rect.left + 50) + 'px';
+        }
     }
+
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
 
-    function showInfo(target) {
-        const modal = document.getElementById('info-modal'); const content = document.getElementById('info-content');
-        modal.style.display = 'block';
-        if (target === 'player') { document.getElementById('info-title').innerText = "VIEGO"; content.innerHTML = mechanicsInfo.player; } 
-        else { const id = enemiesBase[currentEnemyIndex].id; document.getElementById('info-title').innerText = id.toUpperCase(); content.innerHTML = mechanicsInfo[id] || mechanicsInfo.default; }
-    }
-    function closeInfo() { document.getElementById('info-modal').style.display = 'none'; }
+    // Eski showInfo modalını kaldırdık
 
     function startGame() { document.getElementById('start-screen').style.display = 'none'; forcePlayMusic(); loadLevel(currentEnemyIndex); }
 
