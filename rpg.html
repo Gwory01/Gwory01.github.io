@@ -21,7 +21,6 @@
 
         body {
             background-color: var(--dark-bg);
-            /* Arka plan görseli, sisin daha iyi görünmesi için koyu tutuldu */
             background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,20,20,0.95)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
@@ -34,18 +33,11 @@
 
         /* --- ANA ARKA PLAN SİSİ --- */
         #mist-canvas-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0; /* Arka planın hemen üstü */
-            pointer-events: none;
-            mix-blend-mode: screen; /* Sisin parlaması için screen modu */
-            opacity: 0.8;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.8;
         }
 
-        /* --- UI ELEMENTLERİ (Z-Index: 10 ve üzeri) --- */
+        /* --- UI ELEMENTLERİ --- */
         .game-wrapper, .top-bar-controls, #inventory-frame, .back-btn, #info-modal, #shop-modal, #restart-modal { position: relative; z-index: 10; }
 
         .info-btn { position: absolute; top: 5px; left: 5px; width: 25px; height: 25px; background: rgba(0,0,0,0.9); border: 1px solid var(--ruined-green); color: var(--ruined-green); border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
@@ -57,8 +49,8 @@
         .info-strong { color: #e74c3c; font-weight: bold; display: block; margin-top: 5px; } .info-weak { color: #2ecc71; font-weight: bold; display: block; margin-top: 5px; }
         .info-close { margin-top: 15px; width: 100%; background: #333; color: white; border: 1px solid #555; padding: 8px; cursor: pointer; font-family: 'Cinzel', serif; transition: 0.2s; } .info-close:hover { background: var(--ruined-green); color: black; }
 
-        .level-badge { position: absolute; top: -15px; right: 50%; transform: translateX(50%); width: 35px; height: 35px; background: var(--ruined-green); color: black; border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-family: sans-serif; font-size: 16px; box-shadow: 0 0 15px var(--ruined-green); z-index: 20; }
-        #enemy-lvl { background: transparent !important; border: none !important; box-shadow: none !important; color: #d63031 !important; text-shadow: 0 0 5px black, 0 0 10px black; font-size: 28px; font-family: 'Cinzel', serif; top: -30px; }
+        /* LEVEL GÖSTERGELERİ GİZLENDİ */
+        .level-badge { display: none !important; }
 
         #restart-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; padding: 30px; z-index: 3000; display: none; font-family: 'Cinzel', serif; }
         #restart-modal h3 { color: var(--hp-red); font-size: 1.5rem; margin: 0 0 15px 0; text-shadow: 0 0 10px red; border-bottom: 1px solid #444; padding-bottom: 10px;}
@@ -101,9 +93,13 @@
         .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
 
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; }
-        .character-box { width: 250px; text-align: center; position: relative; transition: transform 0.2s; z-index: 2; }
         
-        /* --- RESİM DÜZENLEMESİ BURADA --- */
+        .character-box { width: 250px; text-align: center; position: relative; transition: transform 0.2s; z-index: 2; }
+
+        /* --- KARAKTER POZİSYONLAMA (YUKARI/AŞAĞI OFSET) --- */
+        #player-box { top: -60px; } /* Sol (Oyuncu) yukarıda */
+        #enemy-box { top: 60px; } /* Sağ (Rakip) aşağıda */
+        
         .character-img { 
             width: 200px; height: 200px; 
             object-fit: cover; 
@@ -535,41 +531,6 @@
                 { id: "akshan", name: "Akshan", win: "Viego: \"No absolver can save you.\"", intro: ["Akshan: \"Pretty face, ugly soul. Let's fix that.\"", "Viego: \"You are an annoying insect.\"", "Akshan: \"And you're a king with a temper tantrum.\""], quotes: ["Boom!"] },
                 { id: "gwen", name: "Gwen", win: "Viego: \"You are nothing but a doll.\"", intro: ["Gwen: \"I remember her smile... She wouldn't want this!\"", "Viego: \"Silence! You are a mockery of her memory!\"", "Gwen: \"I will cut the mist away from you!\""], quotes: ["Snip snip!"] },
                 { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Your love is weak compared to mine.\"", intro: ["Lucian: \"It ends here, Viego! For everyone you've hurt!\"", "Viego: \"You saved your wife, Lucian. Why can't I have mine?!\"", "Senna: \"Because she is gone! You are chasing a ghost!\""], quotes: ["For the Light!", "Together!"] },
-                { id: "maokai", name: "Maokai", win: "Viego: \"Burn with the Isles.\"", intro: ["Maokai: \"You poisoned the waters of life!\"", "Viego: \"I made them eternal. You should thank me.\"", "Maokai: \"I will crush you into the dirt!\""], quotes: ["Nature's wrath."] },
-                { id: "elise", name: "Elise", win: "Viego: \"Go back to your spider god.\"", intro: ["Elise: \"My god is hungry for a King's soul.\"", "Viego: \"I am not food. I am death incarnate.\"", "Elise: \"We shall see about that.\""], quotes: ["Closer..."] },
-                { id: "vladimir", name: "Vladimir", win: "Viego: \"Your blood magic is useless here.\"", intro: ["Vladimir: \"Ah, Viego. Still chasing fairytales?\"", "Viego: \"Watch your tongue, uncle. Or I will rip it out.\"", "Vladimir: \"So dramatic. Let's paint the floor red.\""], quotes: ["Delicious."] },
-                { id: "hecarim", name: "Hecarim", win: "Viego: \"The war is over, rider.\"", intro: ["Hecarim: \"War! Eternal war! Lead us, my King!\"", "Viego: \"You are a blunt instrument, Hecarim. Obey me.\"", "Hecarim: \"I only obey the charge!\""], quotes: ["Trample them!"] },
-                { id: "illaoi", name: "Illaoi", win: "Viego: \"Your god has no power here.\"", intro: ["Illaoi: \"You are stagnant. You are stuck in the past.\"", "Viego: \"My love is timeless!\"", "Illaoi: \"Motion is life. You are dead inside.\""], quotes: ["Motion is life."] },
-                { id: "kalista", name: "Kalista", win: "Viego: \"Betrayer! You let her die!\"", intro: ["Kalista: \"Viego... please. End this madness.\"", "Viego: \"You swore to protect me! You failed her!\"", "Kalista: \"I swore to the truth. You are lost.\""], quotes: ["Vengeance!"] },
-                { id: "ledros", name: "Ledros", win: "Viego: \"Rest now, old friend.\"", intro: ["Ledros: \"I have tried to save you for centuries, my King.\"", "Viego: \"Then why do you stand in my way, Ledros?\"", "Ledros: \"Because the man I served is gone. Only the monster remains.\""], quotes: ["I cannot fall."] },
-                { id: "leblanc", name: "LeBlanc", win: "Viego: \"Deceiver. Your games bore me.\"", intro: ["Viego: \"Where is she?! I know you know something!\"", "LeBlanc: \"I know many things. But do you want the truth?\"", "Viego: \"Isolde'yi istiyorum! Onu bana ver!\"", "LeBlanc: \"Yakala beni, mahvolmuş çocuk.\""], quotes: ["Göz yanılması."] },
-                { id: "thresh", name: "Thresh", win: "Viego: \"Fenerine geri dön.\"", intro: ["Thresh: \"Yaydıgın bu acı... Ne kadar lezzetli.\"", "Viego: \"Benimle alay etme Thresh. Sen sadece bir hizmetkarsın.\"", "Thresh: \"Hizmetkarlar sonunda efendi olur, değil mi?\""], quotes: ["Çığlık at."] },
-                { id: "belveth", name: "Bel'Veth", win: "Viego: \"Aşk Hiçliği yendi.\"", intro: ["Bel'Veth: \"Dünyanı tüketeceğim.\"", "Viego: \"Benim dünyam Isolde.\""], quotes: ["Sonunuz geldi."] },
-                { id: "mordekaiser", name: "Mordekaiser", win: "Viego: \"Ölümün yeni Kralı var.\"", intro: ["Mordekaiser: \"Demir ebedidir.\"", "Viego: \"Ben Mahvolmuş Kralım!\""], quotes: ["Yıkıl."] }
-            ]
-        },
-        tr: { title1: "MAHVOLMUŞ KRAL'IN", title2: "İNTİKAMI", sub: "\"Hepsi... Onun için.\"", startBtn: "HİKAYEYE BAŞLA", victory: "ZAFER", levelUp: "SEVİYE ATLADIN!", continue: "DEVAM ET", defeat: "KAYBETTİN...", skillBasic: "Kralın Kılıcı", skillQ: "M. Kralın Kılıcı (Q)", skillQDesc: "%7 Rakip Can Çalma", skillW: "Hortlakın Pençesi (W)", skillR: "KALP KIRAN (R)", finalChoiceTitle: "SEÇİMİNİ YAP", choiceAttack: "ONU ÖLDÜR", choiceSurrender: "TESLİM OL", menu: "← Menü", restart: "🔄 Yeniden Başla",
-            restartTitle: "OYUNU SIFIRLA?", restartMsg: "Emin misin? Tüm ilerleme silinecek.", restartConfirm: "EVET, SIFIRLA", restartCancel: "İPTAL",
-            logViegoBasic: "Viego vurdu!", logViegoQ: "Viego Q kullandı!", logViegoW: "Viego W hazırladı!", logViegoR: "VIEGO ULTİ ATTI!", logCrit: " (KRİTİK!)", logDamage: " hasar.", logEnemyAtk: " saldırdı! Aldığın hasar: ", logNoPower: "Güç Yetersiz!", logCooldown: "Bekleme Süresi!", logUltUsed: "Ulti kullanıldı!", logStart: "Savaş Başladı!", logPotion: "Sis İksiri içildi (+%10 Can)", logPotionErr: "İksirin yok!", logElixir: "Öfke İksiri içildi (+40 Güç)", logElixirErr: "İksirin yok!",
-            bossLogs: { stunned: "SERSEMLEDİN!", threshStack: "Thresh ruh topladı!", leblancMimic: "LeBlanc TAKLİT ETTİ!", belvethTransform: "GERÇEK FORM!", mordeRealm: "ÖLÜLER ALEMİ!", leblancClone: "LeBlanc görünmez oldu!", decoy: "KOPYA!", leblancEnraged: "LeBlanc güçlendi! (Kesin Taklit)" },
-            isolde: { intro: ["Viego: \"Isolde... Aşkım... Senin için dünyayı yaktım.\"", "Isolde: \"Viego... neye dönüştüğüne bir bak. Bu aşk değil.\"", "Viego: \"BU AŞK! Her şeyi senin yüzünü tekrar görmek için yaptım!\"", "Isolde: \"Sen bir canavarsın Kralım. Bırak gideyim. Dünya iyileşsin.\"", "Viego: \"ASLA! Seni bir daha asla kaybetmeyeceğim!\""], endingAttack: ["Viego: \"Eğer sana sahip olamıyorsam... kimse olamaz.\"", "Isolde: \"Viego... nihayet... huzur...\"", "Sistem: Tek aşkını kendi ellerinle yok ettin. Sis dağıldı, geriye boş bir taht kaldı."], endingSurrender: ["Viego: \"Ben... Seni incitemem. Sonsuza dek seninim.\"", "Isolde: \"Ah, Viego. Benim zavallı, aptal Kralım.\"", "*Viego kılıcını yere atar. Isolde gözlerinde yaşlarla kılıcı alır.*", "Isolde: \"Uyu artık sevgilim. Kabus bitti.\"", "*Isolde kılıcı Viego'nun kalbine saplar. Birlikte sisin içinde kaybolurlar.*"] },
-            shop: { title: "MAHVOLMUŞ MAĞAZA", gold: "Altın", close: "KAPAT", btnShop: "MAĞAZA", buy: "SATIN AL", owned: "SAHİPSİN", sellModeOn: "SATIŞ MODU: AÇIK", sellModeOff: "SATIŞ MODU: KAPALI", sell: "SAT",
-                items: {
-                    potion: { name: "Sis İksiri", desc: "%10 Eksik Can Yeniler", stat: "İyileşme" },
-                    elixir: { name: "Öfke İksiri", desc: "Güç Yeniler", stat: "+40 GÜÇ" },
-                    sword: { name: "Mahvolmuş Kılıç", desc: "PASİF: +40 Taban Hasar.", stat: "Hasar" },
-                    armor: { name: "Hayalet Zırh", desc: "PASİF: %20 Hasar Azaltma.", stat: "Zırh" },
-                    cloak: { name: "Kritik Pelerini", desc: "PASİF: +%15 Kritik Şansı.", stat: "Kritik" },
-                    vampScepter: { name: "Vampir Asası", desc: "PASİF: Düz vuruşlar 10 Can iyileştirir.", stat: "Can Çalma" },
-                    thornmail: { name: "Çivili Zırh", desc: "PASİF: Hasar alınca 15 büyü hasarı yansıtır.", stat: "Yansıtma" }
-                }
-            },
-            enemies: [
-                { id: "gangplank", name: "Gangplank", win: "Viego: \"Burası benim şehrim.\"", intro: ["Gangplank: \"Gemimden defol hayalet! Bu şehir benim!\"", "Viego: \"Sisin dokunduğu her şey bana aittir.\"", "Gangplank: \"Kalbini söküp alacağım!\"", "Viego: \"Kırılacak bir kalbim kalmadı.\""], quotes: ["Fıçı!", "Yak onları!"] },
-                { id: "yorick", name: "Yorick", win: "Viego: \"Mezarını kaz.\"", intro: ["Yorick: \"Sis temizlenmeli. Durdurulmalısın.\"", "Viego: \"Sis BENİM. Kaçınılmaz olandan kaçamazsın.\"", "Yorick: \"Ben yaşayanlar için savaşıyorum. Sen bir ceset için.\""], quotes: ["Mezara gir."] },
-                { id: "akshan", name: "Akshan", win: "Viego: \"Diriliş yok.\"", intro: ["Akshan: \"Güzel yüz, çirkin ruh. Hadi düzeltelim.\"", "Viego: \"Sen sadece can sıkıcı bir böceksin.\"", "Akshan: \"Sen de mızmız bir kralsın.\""], quotes: ["Bum!"] },
-                { id: "gwen", name: "Gwen", win: "Viego: \"Sadece bir oyuncaksın.\"", intro: ["Gwen: \"O'nun gülüşünü hatırlıyorum... Bunu istemezdi!\"", "Viego: \"Kes sesini! Sen sadece onun gölgesisin!\"", "Gwen: \"Seni durduracağım ve herkesi kurtaracağım!\""], quotes: ["Kesip biçerim!"] },
-                { id: "lucian_senna", name: "Lucian & Senna", win: "Viego: \"Aşkınız zayıf.\"", intro: ["Lucian: \"Burada bitiyor Viego! İncittiğin herkes için!\"", "Viego: \"Sen karını kurtardın Lucian. Ben neden kurtaramayayım?!\"", "Senna: \"Çünkü o gitti Viego! Bir hayali kovalıyorsun!\""], quotes: ["Işık adına!", "Birlikte!"] },
                 { id: "maokai", name: "Maokai", win: "Viego: \"Adalarla birlikte yan.\"", intro: ["Maokai: \"Yaşam sularını zehirledin!\"", "Viego: \"Onları sonsuz kıldım. Bana teşekkür etmelisin.\"", "Maokai: \"Seni toprağa gömeceğim!\""], quotes: ["Doğa affetmez."] },
                 { id: "elise", name: "Elise", win: "Viego: \"Örümcek tanrına dön.\"", intro: ["Elise: \"Tanrım bir kralın ruhuna aç.\"", "Viego: \"Ben yemek değilim. Ben ölümün kendisiyim.\"", "Elise: \"Göreceğiz.\""], quotes: ["Yaklaş..."] },
                 { id: "vladimir", name: "Vladimir", win: "Viego: \"Kanın bana ait amca.\"", intro: ["Vladimir: \"Ah, Viego. Hala masalların peşinde misin?\"", "Viego: \"Sözlerine dikkat et amca. Yoksa dilini koparırım.\"", "Vladimir: \"Çok dramatiksin. Hadi yeri kırmızıya boyayalım.\""], quotes: ["Kanın kokusu..."] },
