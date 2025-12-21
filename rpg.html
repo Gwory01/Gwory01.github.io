@@ -17,7 +17,6 @@
             --heal-color: #2ecc71;
             --gold-color: #f39c12;
             --sell-color: #e74c3c;
-            --shield-grey: #95a5a6;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -67,7 +66,7 @@
         .character-img { 
             width: 18vh; height: 18vh; max-width: 180px; max-height: 180px; min-width: 120px; min-height: 120px;
             object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.5s; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; 
         }
         
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
@@ -85,6 +84,8 @@
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
         .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 5px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
         .skill-btn:active { background: #222; transform: scale(0.98); }
+        
+        /* DISABLED STATE */
         .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); border-color: #333; background: #000; }
         .skill-btn:disabled .skill-cost { color: #555; }
         
@@ -273,13 +274,12 @@
         else { gameSettings.sfxVolume = parseFloat(val); }
         saveSettings();
     }
-    
-    // SES MANTIĞI DÜZELTİLDİ: Sadece 'basic' için BasicAA, 'w' için W_skill çalacak.
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
         let s = null;
         if (type === 'basic') s = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
         else if (type === 'w') s = sounds.w_skill;
+        // Q ve R için ses yok (istek üzerine)
         
         if (s) { s.volume = gameSettings.sfxVolume; s.currentTime=0; s.play().catch(e=>{}); }
     }
@@ -291,21 +291,11 @@
         const enemy = enemiesData[currentEnemyIndex];
 
         if (enemy) {
-            // TIER 1 (Lvl <= 10)
-            if (enemy.level <= 10) {
-                track = "Tier1.mp3";
-            }
-            // TIER 2 (Lvl <= 25)
-            else if (enemy.level <= 25) {
-                track = "Tier2.mp3";
-            }
-            // TIER 3 (Bosslar) - Özel dosya isimleri
-            else {
-                track = enemy.id + ".mp3"; // leblanc.mp3, thresh.mp3 vb.
-            }
+            if (enemy.level <= 10) track = "Tier1.mp3";
+            else if (enemy.level <= 25) track = "Tier2.mp3";
+            else track = enemy.id + ".mp3"; 
         }
 
-        // Şarkı değiştiyse çal, aynıysa devam et
         if (bgMusic.getAttribute('src') !== track) {
             bgMusic.src = track;
             bgMusic.volume = gameSettings.musicVolume;
@@ -403,35 +393,6 @@
         loadLevel(0);
     }
 
-    // --- MÜZİK KONTROLÜ (DÜZELTİLDİ) ---
-    function playMusic() {
-        const bgMusic = document.getElementById('bgMusic');
-        let track = "";
-        const enemy = enemiesData[currentEnemyIndex];
-
-        if (enemy) {
-            // TIER 1 (Lvl <= 10)
-            if (enemy.level <= 10) {
-                track = "Tier1.mp3";
-            }
-            // TIER 2 (Lvl <= 25)
-            else if (enemy.level <= 25) {
-                track = "Tier2.mp3";
-            }
-            // TIER 3 (Bosslar) - Özel dosya isimleri
-            else {
-                track = enemy.id + ".mp3"; 
-            }
-        }
-
-        // Şarkı değiştiyse çal, aynıysa devam et
-        if (bgMusic.getAttribute('src') !== track) {
-            bgMusic.src = track;
-            bgMusic.volume = gameSettings.musicVolume;
-            bgMusic.play().catch(e => {});
-        }
-    }
-
     function loadLevel(index) {
         currentEnemyIndex = index;
         const t = translations[gameSettings.lang];
@@ -473,7 +434,6 @@
         const enemy = enemiesData[currentEnemyIndex];
         let dmg = 0; let msg = "";
 
-        // GÜÇ KAZANIMI (VURUNCA)
         let pGain = Math.floor(Math.random()*11)+5;
         player.power = Math.min(100, player.power + pGain);
         showFloat(document.getElementById('player-box'), `+${pGain} MP`, 'mana');
@@ -485,7 +445,6 @@
 
         player.power = Math.min(100, player.power);
         
-        // LEBLANC PASİF
         if (enemy.id === 'leblanc' && enemy.hp < enemy.maxHp * 0.4 && Math.random() > 0.5) {
             dmg = 0; msg = t.logs.lbClone;
             showFloat(document.getElementById('enemy-box'), "MISS", 'text-mana');
@@ -504,7 +463,6 @@
         log(msg);
         updateUI();
 
-        // BELVETH FORM CHECK
         if (enemy.id === 'belveth' && enemy.hp <= 0 && enemy.form === 1) {
             enemy.form = 2;
             enemy.hp = Math.floor(enemy.maxHp * 0.6); 
@@ -526,13 +484,11 @@
         const enemy = enemiesData[currentEnemyIndex];
         const enemyName = t.enemies[enemy.id].name;
         
-        // GÜÇ KAZANIMI (DÜŞMAN SALDIRIRKEN)
         let eGain = Math.floor(Math.random()*11)+5;
         enemy.power = Math.min(100, enemy.power + eGain);
         showFloat(document.getElementById('enemy-box'), `+${eGain} MP`, 'mana');
         updateUI();
 
-        // --- AI ---
         if (enemy.id === 'mordekaiser' && enemy.hp < enemy.maxHp * 0.5 && !mordeRealmActive) {
             mordeRealmActive = true;
             document.body.classList.add('death-realm-active');
@@ -543,12 +499,8 @@
         if (enemy.id === 'gangplank') {
             if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
                 enemy.power = 0; enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50); enemy.wUsed = true;
-                showFloat(document.getElementById('enemy-box'), t.bossSkills.gpW, 'heal');
-                showFloat(document.getElementById('enemy-box'), "+50", 'heal');
-                log(t.logs.gpOrange);
-                turn = "player"; 
-                updateUI(); 
-                return; 
+                showFloat(document.getElementById('enemy-box'), "+50", 'heal'); log(t.logs.gpW);
+                endEnemyTurn(); return; 
             }
             if (enemy.power >= 20) {
                 enemy.power = 0;
@@ -616,7 +568,6 @@
         player.hp = player.maxHp;
     }
 
-    // --- DIALOGUE & UI HELPERS ---
     function updateDialogueText() {
         if (dialogueIndex < dialogueQueue.length) { document.getElementById('cinematic-text').innerText = dialogueQueue[dialogueIndex]; } 
         else {
