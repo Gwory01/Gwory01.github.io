@@ -45,7 +45,6 @@
             position: relative; z-index: 10;
         }
 
-        /* INFO BUTONU */
         .info-btn { 
             position: absolute; top: 10px; right: 20px; 
             width: 28px; height: 28px; 
@@ -57,7 +56,6 @@
         }
         .info-btn:active { transform: scale(0.9); }
 
-        /* HEADER */
         .top-bar-controls { 
             position: absolute; top: 10px; right: 10px; z-index: 100;
             display: flex; gap: 10px; align-items: center; 
@@ -69,99 +67,43 @@
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-evenly; align-items: center; position: relative; width: 100%; }
         .character-box { width: 45%; max-width: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .character-img { 
-            width: 18vh; height: 18vh; 
-            max-width: 180px; max-height: 180px;
-            min-width: 120px; min-height: 120px;
-            object-fit: cover; object-position: center top; 
-            border-radius: 50%; border: 3px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
-            transition: all 0.2s; 
+            width: 18vh; height: 18vh; max-width: 180px; max-height: 180px; min-width: 120px; min-height: 120px;
+            object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #444; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; 
         }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 20px rgba(214, 48, 49, 0.3); }
-        
         .character-box h2 { font-size: 1.2rem; margin: 10px 0 5px 0; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; }
-
-        /* STAT BARS (HP & POWER) */
+        
         .stat-bar { width: 80%; height: 10px; background: #111; margin-top: 5px; border: 1px solid #444; position: relative; border-radius: 2px; }
-        .fill { height: 100%; transition: width 0.4s ease-out; } 
-        .hp-fill { background-color: var(--hp-red); } 
-        /* YENİ GÜÇ BARI STİLİ */
+        .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } 
         .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 5px var(--power-yellow); }
-        
         .bar-text { font-size: 9px; font-weight: bold; position: absolute; top: -15px; right: 0; color: #aaa; }
-        
         #vs-text { font-size: 1.5rem; color: #444; font-weight: bold; }
 
-        /* KONTROLLER */
-        .controls { 
-            background: rgba(0,0,0,0.6); 
-            border-top: 2px solid var(--ruined-green); 
-            padding: 10px; 
-            display: flex; flex-direction: column; gap: 10px;
-            height: auto; min-height: 25vh;
-            transition: opacity 0.5s;
-        }
+        .controls { background: rgba(0,0,0,0.6); border-top: 2px solid var(--ruined-green); padding: 10px; display: flex; flex-direction: column; gap: 10px; height: auto; min-height: 25vh; transition: opacity 0.5s; }
         .hidden-ui { opacity: 0; pointer-events: none; }
-
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
-        .skill-btn { 
-            background: #111; border: 1px solid #333; color: #aaa; 
-            font-family: 'Cinzel'; padding: 10px; border-radius: 4px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
+        .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 10px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .skill-btn:active { background: #222; transform: scale(0.98); }
         .skill-btn:disabled { opacity: 0.3; }
         .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; color: #ddd; text-align: center; }
         .skill-cost { font-size: 0.7rem; color: #2ecc71; text-align: center; }
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .log-box { height: 40px; background: rgba(0,0,0,0.5); border: 1px solid #333; font-size: 0.8rem; color: #ccc; padding: 5px; overflow-y: auto; font-family: 'Roboto', sans-serif; text-align: center; }
 
-        .log-box { 
-            height: 40px; background: rgba(0,0,0,0.5); border: 1px solid #333; 
-            font-size: 0.8rem; color: #ccc; padding: 5px; overflow-y: auto; 
-            font-family: 'Roboto', sans-serif; text-align: center;
-        }
-
-        /* ENVANTER */
-        #inventory-frame { 
-            position: absolute; top: 60px; left: 10px; z-index: 20;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .inv-slot { 
-            width: 40px; height: 40px; background: rgba(0,0,0,0.8); 
-            border: 1px solid #444; border-radius: 4px; 
-            display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer;
-        }
+        #inventory-frame { position: absolute; top: 60px; left: 10px; z-index: 20; display: flex; flex-direction: column; gap: 10px; }
+        .inv-slot { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; }
         .inv-count { position: absolute; bottom: 0; right: 0; font-size: 10px; background: black; color: white; padding: 1px 3px; }
 
-        /* MODALLAR */
-        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); z-index: 200; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            text-align: center; padding: 20px;
-        }
+        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #overlay, #final-choice-overlay, #cinematic-dialogue { display: none; }
-        
-        .dialogue-box { 
-            background: #111; border: 2px solid var(--ruined-green); padding: 20px; 
-            width: 90%; max-width: 500px; border-radius: 8px;
-        }
+        .dialogue-box { background: #111; border: 2px solid var(--ruined-green); padding: 20px; width: 90%; max-width: 500px; border-radius: 8px; }
         #cinematic-text { font-size: 1.1rem; color: white; margin-bottom: 20px; font-style: italic; min-height: 50px; }
-        
-        .start-btn { 
-            background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); 
-            padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; 
-            transition: 0.3s;
-        }
+        .start-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .start-btn:active { background: var(--ruined-green); color: black; }
 
-        /* SHOP & SETTINGS MODAL */
-        #shop-modal, #settings-modal { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); z-index: 3000; 
-            display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; 
-        }
+        #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; }
         .shop-content, .settings-content { width: 90%; max-width: 500px; background: #111; border: 2px solid #333; padding: 20px; border-radius: 8px; }
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 50vh; overflow-y: auto; margin-top: 20px; }
         .shop-item { background: #1a1a1a; border: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -170,19 +112,12 @@
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
-        /* TOOLTIP */
-        #inv-tooltip { 
-            position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); 
-            padding: 10px; font-size: 12px; z-index: 5000; pointer-events: none; 
-            display: none; width: 220px; text-align: left; font-family: 'Roboto'; color: #ddd;
-            border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        }
+        #inv-tooltip { position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); padding: 10px; font-size: 12px; z-index: 5000; pointer-events: none; display: none; width: 220px; text-align: left; font-family: 'Roboto'; color: #ddd; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 5px; padding-bottom: 5px; font-size: 14px; }
 
-        /* EFEKTLER */
         .float-text { position: absolute; font-weight: bold; font-size: 24px; animation: floatUp 1s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none; }
         @keyframes floatUp { to { transform: translateY(-50px); opacity: 0; } }
-        .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; }
+        .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 28px; }
         .attacking { animation: bump 0.2s; } @keyframes bump { 50% { transform: scale(1.1); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         #flash-effect { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; }
@@ -228,17 +163,8 @@
     <div id="settings-modal">
         <div class="settings-content">
             <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444; padding-bottom:10px;" id="ui-settings-title">SETTINGS</h2>
-            
-            <div class="setting-row">
-                <span id="ui-music-vol">Music Volume</span>
-                <input type="range" id="vol-music" min="0" max="1" step="0.1" oninput="updateVolume('music', this.value)">
-            </div>
-            
-            <div class="setting-row">
-                <span id="ui-sfx-vol">SFX Volume</span>
-                <input type="range" id="vol-sfx" min="0" max="1" step="0.1" oninput="updateVolume('sfx', this.value)">
-            </div>
-
+            <div class="setting-row"><span id="ui-music-vol">Music Volume</span><input type="range" id="vol-music" min="0" max="1" step="0.1" oninput="updateVolume('music', this.value)"></div>
+            <div class="setting-row"><span id="ui-sfx-vol">SFX Volume</span><input type="range" id="vol-sfx" min="0" max="1" step="0.1" oninput="updateVolume('sfx', this.value)"></div>
             <button class="start-btn" style="width:100%; padding:10px;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
         </div>
     </div>
@@ -249,16 +175,13 @@
                 <h2 style="color:var(--gold-color); margin:0;" id="ui-shop-title">SHOP</h2>
                 <span id="shop-gold" style="color:white; font-weight:bold;">0 G</span>
             </div>
-            <div style="text-align:right; margin:10px 0;">
-                 <button id="sell-mode-btn" class="control-btn-ui" onclick="toggleSellMode()">SELL: OFF</button>
-            </div>
+            <div style="text-align:right; margin:10px 0;"><button id="sell-mode-btn" class="control-btn-ui" onclick="toggleSellMode()">SELL: OFF</button></div>
             <div class="shop-grid" id="shop-container"></div>
             <button class="start-btn" id="ui-shop-close" style="padding:10px; width:100%; margin-top:10px;" onclick="closeShop()">CLOSE</button>
         </div>
     </div>
 
     <div class="game-wrapper">
-        
         <div id="start-screen">
             <h1 style="color:white; margin-bottom:5px;" id="ui-title">THE RUINED KING</h1>
             <p style="color:#aaa; font-style:italic;" id="ui-subtitle">"She is waiting..."</p>
@@ -282,17 +205,8 @@
                 <div class="info-btn" ontouchstart="showCharacterTooltip(this, 'player')" ontouchend="hideTooltip()" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow">
                 <h2>VIEGO</h2>
-                
-                <div class="stat-bar">
-                    <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
-                    <span class="bar-text" id="player-hp-text">150/150</span>
-                </div>
-                
-                <div class="stat-bar" style="margin-top:2px; border-color:var(--power-yellow);">
-                    <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
-                    <span class="bar-text" id="player-power-text" style="color:var(--power-yellow); top:-2px;">0/100</span>
-                </div>
-
+                <div class="stat-bar"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
+                <div class="stat-bar" style="margin-top:2px; border-color:var(--power-yellow);"><div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div><span class="bar-text" id="player-power-text" style="color:var(--power-yellow); top:-2px;">0/100</span></div>
             </div>
 
             <div id="vs-text">VS</div>
@@ -302,6 +216,7 @@
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 id="enemy-name">ENEMY</h2>
                 <div class="stat-bar"><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
+                <div class="stat-bar" style="margin-top:2px; border-color:var(--power-yellow);"><div class="fill power-fill" id="enemy-power-bar" style="width: 0%;"></div></div>
             </div>
         </div>
 
@@ -324,17 +239,11 @@
         w_skill: new Audio('W_skill.wav')
     };
 
-    let gameSettings = {
-        musicVolume: 0.3,
-        sfxVolume: 0.5,
-        lang: 'en'
-    };
+    let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
 
     function loadSettings() {
         const saved = localStorage.getItem('viegoRPG_settings');
-        if (saved) {
-            gameSettings = JSON.parse(saved);
-        }
+        if (saved) gameSettings = JSON.parse(saved);
         document.getElementById('vol-music').value = gameSettings.musicVolume;
         document.getElementById('vol-sfx').value = gameSettings.sfxVolume;
         document.getElementById('lang-select').value = gameSettings.lang;
@@ -342,39 +251,24 @@
         changeLanguage(gameSettings.lang); 
     }
 
-    function saveSettings() {
-        localStorage.setItem('viegoRPG_settings', JSON.stringify(gameSettings));
-    }
+    function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify(gameSettings)); }
 
     function updateVolume(type, val) {
-        if (type === 'music') {
-            gameSettings.musicVolume = parseFloat(val);
-            document.getElementById('bgMusic').volume = gameSettings.musicVolume;
-        } else {
-            gameSettings.sfxVolume = parseFloat(val);
-        }
+        if (type === 'music') { gameSettings.musicVolume = parseFloat(val); document.getElementById('bgMusic').volume = gameSettings.musicVolume; } 
+        else { gameSettings.sfxVolume = parseFloat(val); }
         saveSettings();
     }
 
-    // --- SFX MANTIĞI (DÜZELTİLDİ) ---
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
-
         let soundToPlay = null;
-
-        // İsteğe göre: Sadece basic (viego düz vuruş) ve W yeteneği ses çalacak
-        if (type === 'basic') {
-            // Rastgele vuruş sesi seç
-            soundToPlay = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
-        } else if (type === 'w') {
-            soundToPlay = sounds.w_skill;
-        }
-        // Rakip (enemy) sırası için herhangi bir çağrı yapılmayacak.
-
+        if (type === 'basic') soundToPlay = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
+        else if (type === 'w') soundToPlay = sounds.w_skill;
+        
         if (soundToPlay) {
             soundToPlay.volume = gameSettings.sfxVolume;
             soundToPlay.currentTime = 0; 
-            soundToPlay.play().catch(e => console.log("SFX Error (File missing?):", e));
+            soundToPlay.play().catch(e => {});
         }
     }
 
@@ -395,7 +289,8 @@
             logs: {
                 wait: "Waiting for battle...", start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!",
                 pR: "HEARTBREAKER!", noPower: "Not enough Power!", enemyAtk: "attacks for", defeat: "DEFEAT... The Mist fades.", usedPot: "Used Potion (+50 HP)",
-                usedElix: "Used Elixir (+50 Power)", notEnoughGold: "Not enough Gold!", won: "Game Over! You conquered all."
+                usedElix: "Used Elixir (+50 Power)", notEnoughGold: "Not enough Gold!", won: "Game Over! You conquered all.",
+                gpQ: "Gangplank uses Parley!", gpOrange: "Gangplank eats an Orange!"
             },
             tooltips: {
                 viego: "Passive: Soul Eater<br>Ult: Heartbreaker (Executes)", threat: "Threat", potion: { name: "Mist Potion", desc: "Heals 50 HP" },
@@ -406,6 +301,9 @@
                 yorick: { name: "Yorick", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
                 lucian: { name: "Lucian", intro: ["Lucian: Stop this madness, Viego!", "Viego: Never!"] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
+            },
+            bossSkills: {
+                gpQ: "Pistol Shot", gpW: "Remove Scurvy"
             }
         },
         tr: {
@@ -423,7 +321,8 @@
             logs: {
                 wait: "Savaş bekleniyor...", start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!",
                 pR: "KALP KIRAN!", noPower: "Yetersiz Güç!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ... Sis dağılıyor.", usedPot: "İksir İçildi (+50 Can)",
-                usedElix: "Elixir İçildi (+50 Güç)", notEnoughGold: "Yetersiz Altın!", won: "Oyun Bitti! Hepsini fethettin."
+                usedElix: "Elixir İçildi (+50 Güç)", notEnoughGold: "Yetersiz Altın!", won: "Oyun Bitti! Hepsini fethettin.",
+                gpQ: "Gangplank Çakaralmaz kullandı!", gpOrange: "Gangplank Portakal yedi!"
             },
             tooltips: {
                 viego: "Pasif: Ruh Yiyen<br>Ulti: Kalp Kıran (İnfaz)", threat: "Tehdit", potion: { name: "Sis İksiri", desc: "50 Can Yeniler" },
@@ -434,16 +333,19 @@
                 yorick: { name: "Yorick", intro: ["Yorick: Kara Sis bir lanet.", "Viego: O benim aşkım."] },
                 lucian: { name: "Lucian", intro: ["Lucian: Bu deliliğe son ver Viego!", "Viego: Asla!"] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
+            },
+            bossSkills: {
+                gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare"
             }
         }
     };
 
     // --- OYUN VERİLERİ ---
     const enemiesData = [
-        { id: "gangplank", hp: 200, maxHp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
-        { id: "yorick", hp: 250, maxHp: 250, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
-        { id: "lucian", hp: 300, maxHp: 300, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
-        { id: "mordekaiser", hp: 500, maxHp: 500, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
+        { id: "gangplank", hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, wUsed: false, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
+        { id: "yorick", hp: 250, maxHp: 250, power: 0, maxPower: 100, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
+        { id: "lucian", hp: 300, maxHp: 300, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
+        { id: "mordekaiser", hp: 500, maxHp: 500, power: 0, maxPower: 100, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
 
     let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1 };
@@ -453,7 +355,7 @@
     let dialogueIndex = 0;
     let isSellMode = false;
 
-    // --- DİL DEĞİŞTİRME ---
+    // --- DİL ---
     function changeLanguage(lang) {
         gameSettings.lang = lang;
         saveSettings();
@@ -462,7 +364,6 @@
 
     function updateTexts() {
         const t = translations[gameSettings.lang];
-        
         document.getElementById('ui-menu').innerText = t.ui.menu;
         document.getElementById('ui-title').innerText = t.ui.title;
         document.getElementById('ui-subtitle').innerText = t.ui.sub;
@@ -474,12 +375,10 @@
         document.getElementById('ui-shop-close').innerText = t.ui.shopClose;
         document.getElementById('btn-open-shop').innerText = t.ui.shopOpen;
         document.getElementById('sell-mode-btn').innerText = isSellMode ? t.ui.sellOn : t.ui.sellOff;
-        
         document.getElementById('ui-settings-title').innerText = t.ui.settingsTitle;
         document.getElementById('ui-settings-close').innerText = t.ui.settingsClose;
         document.getElementById('ui-music-vol').innerText = t.ui.musicVol;
         document.getElementById('ui-sfx-vol').innerText = t.ui.sfxVol;
-
         document.getElementById('skill-name-basic').innerText = t.skills.basic.name;
         document.getElementById('skill-desc-basic').innerText = t.skills.basic.desc;
         document.getElementById('skill-name-q').innerText = t.skills.q.name;
@@ -488,37 +387,31 @@
         document.getElementById('skill-desc-w').innerText = t.skills.w.desc;
         document.getElementById('skill-name-r').innerText = t.skills.r.name;
         document.getElementById('skill-desc-r').innerText = t.skills.r.desc;
-
         const enemyData = enemiesData[currentEnemyIndex];
-        if(enemyData) {
-            document.getElementById('enemy-name').innerText = t.enemies[enemyData.id].name.toUpperCase();
-        }
+        if(enemyData) document.getElementById('enemy-name').innerText = t.enemies[enemyData.id].name.toUpperCase();
     }
 
     // --- BAŞLATMA ---
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
-        
         const bgMusic = document.getElementById('bgMusic');
         bgMusic.src = "Tier1.mp3"; 
         bgMusic.volume = gameSettings.musicVolume;
         bgMusic.play().catch(e => {});
-
         loadLevel(0);
     }
 
     function loadLevel(index) {
         currentEnemyIndex = index;
         const t = translations[gameSettings.lang];
-
         if (index >= enemiesData.length) { alert(t.logs.won); location.reload(); return; }
-        
         const enemy = enemiesData[index];
         enemy.hp = enemy.maxHp; 
+        enemy.power = 0; // Reset enemy power
+        enemy.wUsed = false; // Reset GP heal
         
         document.getElementById('enemy-name').innerText = t.enemies[enemy.id].name.toUpperCase();
         document.getElementById('enemy-img').src = enemy.img;
-        
         updateUI();
         
         dialogueQueue = t.enemies[enemy.id].intro;
@@ -540,10 +433,7 @@
         }
     }
 
-    function nextDialogue() {
-        dialogueIndex++;
-        updateDialogueText();
-    }
+    function nextDialogue() { dialogueIndex++; updateDialogueText(); }
 
     // --- SAVAŞ SİSTEMİ ---
     function useSkill(type) {
@@ -554,13 +444,13 @@
         let msg = "";
 
         if (type === 'basic') {
-            playSfx('basic'); // SES ÇALAR
+            playSfx('basic'); 
             dmg = 15 + (player.level * 5);
             player.power += 10;
             msg = t.logs.pStrike;
         } else if (type === 'q') {
             if (player.power < 20) { log(t.logs.noPower + " (20)"); return; }
-            // Q için ses isteği yoktu, sessiz
+            playSfx('basic'); // Q ses yoktu
             player.power -= 20;
             dmg = 30 + (player.level * 8);
             let heal = 10;
@@ -569,13 +459,13 @@
             msg = t.logs.pQ;
         } else if (type === 'w') {
             if (player.power < 30) { log(t.logs.noPower + " (30)"); return; }
-            playSfx('w'); // SES ÇALAR
+            playSfx('w'); 
             player.power -= 30;
             dmg = 45 + (player.level * 10);
             msg = t.logs.pW;
         } else if (type === 'r') {
             if (player.power < 100) { log(t.logs.noPower + " (100)"); return; }
-            // R için ses isteği yoktu, sessiz
+            // R ses yoktu
             player.power = 0;
             dmg = 100 + (player.level * 20);
             msg = t.logs.pR;
@@ -610,10 +500,45 @@
         const t = translations[gameSettings.lang];
         const enemy = enemiesData[currentEnemyIndex];
         const enemyName = t.enemies[enemy.id].name;
-        let dmg = enemy.damage + Math.floor(Math.random() * 10);
         
-        // Rakip sesi ÇALMAZ
+        // Enerji Kazanımı
+        enemy.power = Math.min(100, enemy.power + 15);
+        updateUI();
 
+        // GANGPLANK AI
+        if (enemy.id === 'gangplank') {
+            // 1. Durum: Can az ve Enerji Yeterli -> İyileşme (W)
+            if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
+                enemy.power = 0;
+                enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50);
+                enemy.wUsed = true;
+                showFloat(document.getElementById('enemy-box'), t.bossSkills.gpW, 'heal');
+                showFloat(document.getElementById('enemy-box'), "+50", 'heal');
+                log(t.logs.gpOrange);
+                updateUI();
+                turn = "player"; // İyileşince tur biter (saldıramaz)
+                checkTurn();
+                return; 
+            }
+            
+            // 2. Durum: Enerji Yeterli -> Güçlü Saldırı (Q)
+            if (enemy.power >= 20) {
+                enemy.power = 0;
+                let dmg = Math.floor((enemy.damage + Math.floor(Math.random() * 10)) * 1.75); // %75 Artış
+                player.hp -= dmg;
+                showFloat(document.getElementById('enemy-box'), t.bossSkills.gpQ, 'crit');
+                showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
+                log(`${enemyName} ${t.logs.gpQ} ${dmg} dmg!`);
+                updateUI();
+                if (player.hp <= 0) { player.hp = 0; updateUI(); log(t.logs.defeat); setTimeout(() => location.reload(), 2000); return; }
+                turn = "player";
+                checkTurn();
+                return;
+            }
+        }
+
+        // STANDART SALDIRI
+        let dmg = enemy.damage + Math.floor(Math.random() * 10);
         player.hp -= dmg;
         showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
         
@@ -658,24 +583,18 @@
     function useInventoryItem(type) {
         if (turn !== 'player') return;
         const t = translations[gameSettings.lang];
-        
         if (type === 'potion' && player.potions > 0) {
-            player.potions--;
-            player.hp = Math.min(player.maxHp, player.hp + 50);
-            showFloat(document.getElementById('player-box'), "+50", 'heal');
-            log(t.logs.usedPot);
+            player.potions--; player.hp = Math.min(player.maxHp, player.hp + 50);
+            showFloat(document.getElementById('player-box'), "+50", 'heal'); log(t.logs.usedPot); playSfx('magic');
         } else if (type === 'elixir' && player.elixirs > 0) {
-            player.elixirs--;
-            player.power = Math.min(player.maxPower, player.power + 50);
-            showFloat(document.getElementById('player-box'), "+50 Power", 'heal');
-            log(t.logs.usedElix);
+            player.elixirs--; player.power = Math.min(player.maxPower, player.power + 50);
+            showFloat(document.getElementById('player-box'), "+50 Power", 'heal'); log(t.logs.usedElix); playSfx('magic');
         }
         updateUI();
     }
 
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-
     function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
 
     function openShop() {
@@ -683,57 +602,33 @@
         const container = document.getElementById('shop-container');
         document.getElementById('shop-gold').innerText = player.gold + " G";
         const t = translations[gameSettings.lang];
-        
-        const items = [
-            { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" },
-            { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" },
-            { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" }
-        ];
-
+        const items = [ { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } ];
         container.innerHTML = "";
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'shop-item';
             let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`;
-            
-            div.innerHTML = `
-                <div style="color:white;">${item.icon} ${item.name}</div>
-                <button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>
-            `;
+            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`;
             container.appendChild(div);
         });
-        
         modal.style.display = 'flex';
     }
 
     function handleShop(id, price) {
         const t = translations[gameSettings.lang];
-        if (isSellMode) {
-            if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; }
-            else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; }
-            openShop(); updateUI();
-        } else {
-            if (player.gold >= price) {
-                player.gold -= price;
-                if (id === 'potion') player.potions++;
-                if (id === 'elixir') player.elixirs++;
-                openShop(); updateUI();
-            } else {
-                alert(t.logs.notEnoughGold);
-            }
-        }
+        if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } 
+        else { if (player.gold >= price) { player.gold -= price; if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; openShop(); updateUI(); } else { alert(t.logs.notEnoughGold); } }
     }
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
 
-    // --- UI GÜNCELLEME (GÜÇ BARI ENTEGRE EDİLDİ) ---
+    // --- UI GÜNCELLEME ---
     function updateUI() {
         const enemy = enemiesData[currentEnemyIndex];
-        
         const pHpPct = (player.hp / player.maxHp) * 100;
         document.getElementById('player-hp-bar').style.width = pHpPct + "%";
         document.getElementById('player-hp-text').innerText = `${Math.ceil(player.hp)}/${player.maxHp}`;
         
-        // GÜÇ BARI GÜNCELLEMESİ
+        // Viego Power Bar
         const pMpPct = (player.power / player.maxPower) * 100;
         document.getElementById('player-power-bar').style.width = pMpPct + "%";
         document.getElementById('player-power-text').innerText = `${Math.floor(player.power)}/${player.maxPower}`;
@@ -742,6 +637,10 @@
         document.getElementById('enemy-hp-bar').style.width = eHpPct + "%";
         document.getElementById('enemy-hp-text').innerText = `${Math.ceil(enemy.hp)}/${enemy.maxHp}`;
         
+        // Enemy Power Bar
+        const eMpPct = (enemy.power / enemy.maxPower) * 100;
+        document.getElementById('enemy-power-bar').style.width = eMpPct + "%";
+
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
     }
@@ -766,36 +665,24 @@
         const tip = document.getElementById('inv-tooltip');
         const t = translations[gameSettings.lang];
         let html = "";
-        
-        if (who === 'player') {
-            html = `<div class="tooltip-title">VIEGO</div>${t.tooltips.viego}`;
-        } else {
-            const enemy = enemiesData[currentEnemyIndex];
-            const enemyName = t.enemies[enemy.id].name.toUpperCase();
-            html = `<div class="tooltip-title">${enemyName}</div>
-                    Dmg: ${enemy.damage}<br>
-                    <span class="info-strong">${t.tooltips.threat}:</span> High`;
-        }
+        if (who === 'player') html = `<div class="tooltip-title">VIEGO</div>${t.tooltips.viego}`;
+        else { const enemy = enemiesData[currentEnemyIndex]; html = `<div class="tooltip-title">${t.enemies[enemy.id].name.toUpperCase()}</div>Dmg: ${enemy.damage}<br><span class="info-strong">${t.tooltips.threat}:</span> High`; }
         tip.innerHTML = html;
         tip.style.display = 'block';
         const rect = el.getBoundingClientRect();
-        let left = rect.left - 200;
-        if (left < 10) left = 10; 
-        tip.style.top = (rect.bottom + 5) + 'px';
-        tip.style.left = left + 'px';
+        let left = rect.left - 200; if (left < 10) left = 10; 
+        tip.style.top = (rect.bottom + 5) + 'px'; tip.style.left = left + 'px';
     }
     
     function showTooltip(el, type) {
         const tip = document.getElementById('inv-tooltip');
         const t = translations[gameSettings.lang];
         let text = ""; let title = "";
-        if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; }
-        else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
+        if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
         tip.innerHTML = `<div class="tooltip-title">${title}</div>${text}`;
         tip.style.display = 'block';
         const rect = el.getBoundingClientRect();
-        tip.style.left = (rect.right + 10) + 'px';
-        tip.style.top = rect.top + 'px';
+        tip.style.left = (rect.right + 10) + 'px'; tip.style.top = rect.top + 'px';
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
 
@@ -812,7 +699,6 @@
         float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.;a*=.5;}return v;}
         void main(){vec2 p=uv;float t=time*0.1;float f=fbm(p*3.+t);
         color=vec4(0.04,0.78,0.72,smoothstep(0.2,0.9,f)*0.3);}`;
-        
         const createShader = (ty, src) => { const s=gl.createShader(ty); gl.shaderSource(s,src); gl.compileShader(s); return s; };
         const prog = gl.createProgram(); 
         gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
@@ -820,13 +706,7 @@
         gl.linkProgram(prog); gl.useProgram(prog);
         const tLoc = gl.getUniformLocation(prog, "time");
         const start = Date.now();
-        const render = () => {
-            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
-            gl.viewport(0,0,bgCanvas.width, bgCanvas.height);
-            gl.uniform1f(tLoc, (Date.now()-start)/1000);
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-            requestAnimationFrame(render);
-        };
+        const render = () => { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; gl.viewport(0,0,bgCanvas.width, bgCanvas.height); gl.uniform1f(tLoc, (Date.now()-start)/1000); gl.drawArrays(gl.TRIANGLES, 0, 6); requestAnimationFrame(render); };
         render();
     }
 
