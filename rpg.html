@@ -17,6 +17,7 @@
             --heal-color: #2ecc71;
             --gold-color: #f39c12;
             --sell-color: #e74c3c;
+            --shield-grey: #95a5a6;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -66,7 +67,7 @@
         .character-img { 
             width: 18vh; height: 18vh; max-width: 180px; max-height: 180px; min-width: 120px; min-height: 120px;
             object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.5s; 
         }
         
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
@@ -84,13 +85,11 @@
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
         .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 5px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
         .skill-btn:active { background: #222; transform: scale(0.98); }
-        
-        /* DISABLED STATE */
         .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); border-color: #333; background: #000; }
+        .skill-btn:disabled .skill-cost { color: #555; }
         
         .skill-name { font-weight: bold; font-size: 0.75rem; margin-bottom: 2px; color: #ddd; text-align: center; }
         .skill-cost { font-size: 0.65rem; color: #2ecc71; text-align: center; font-family: 'Roboto', sans-serif; }
-        .skill-btn:disabled .skill-cost { color: #555; }
         
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
         .ult-btn:disabled { border-color: #333; color: #555; }
@@ -127,6 +126,9 @@
         .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 26px; } .text-mana { color: #f1c40f; font-size: 16px; } .text-special { color: #a020f0; font-size: 24px; }
         .attacking { animation: bump 0.2s; } @keyframes bump { 50% { transform: scale(1.1); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        /* ÖZEL EFEKTLER */
+        body.void-active { filter: hue-rotate(270deg) contrast(1.1); }
         
         @media screen and (max-width: 768px) {
             .battle-scene { flex-direction: column-reverse; gap: 20px; }
@@ -252,6 +254,7 @@
     </div>
 
 <script>
+    // --- SES YÖNETİMİ ---
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w_skill: new Audio('W_skill.wav') };
     let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
 
@@ -276,7 +279,37 @@
         if (s) { s.volume = gameSettings.sfxVolume; s.currentTime=0; s.play().catch(e=>{}); }
     }
 
-    // --- OYUN VERİLERİ (Genişletilmiş) ---
+    // --- MÜZİK KONTROLÜ (DÜZELTİLDİ) ---
+    function playMusic() {
+        const bgMusic = document.getElementById('bgMusic');
+        let track = "";
+        const enemy = enemiesData[currentEnemyIndex];
+
+        if (enemy) {
+            // TIER 1 (Lvl <= 10)
+            if (enemy.level <= 10) {
+                track = "Tier1.mp3";
+            }
+            // TIER 2 (Lvl <= 25)
+            else if (enemy.level <= 25) {
+                track = "Tier2.mp3";
+            }
+            // TIER 3 (Bosslar) - Özel dosya isimleri
+            else {
+                track = enemy.id + ".mp3"; // leblanc.mp3, thresh.mp3 vb.
+            }
+        }
+
+        // Şarkı değiştiyse çal, aynıysa devam et
+        // getAttribute ile ham string değerini alıyoruz (tam url değil)
+        if (bgMusic.getAttribute('src') !== track) {
+            bgMusic.src = track;
+            bgMusic.volume = gameSettings.musicVolume;
+            bgMusic.play().catch(e => {});
+        }
+    }
+
+    // --- OYUN VERİLERİ ---
     const enemiesData = [
         // TIER 1
         { id: "gangplank", level: 3, hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
@@ -358,7 +391,7 @@
     let dialogueQueue = [];
     let dialogueIndex = 0;
     let isSellMode = false;
-    let mordeRealmActive = false;
+    let mordeRealmActive = false; // Morde görsel efekti için
 
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
@@ -366,28 +399,11 @@
         loadLevel(0);
     }
 
-    function playMusic() {
-        const bgMusic = document.getElementById('bgMusic');
-        let track = "Tier1.mp3";
-        const enemy = enemiesData[currentEnemyIndex];
-        
-        if (enemy) {
-            if (enemy.id === 'mordekaiser') track = "morde.mp3";
-            else if (enemy.id === 'thresh') track = "thresh.mp3";
-            else if (enemy.level <= 10) track = "Tier1.mp3";
-            else if (enemy.level <= 24) track = "Tier2.mp3";
-            else track = "Tier3.mp3";
-        }
-        
-        bgMusic.src = track;
-        bgMusic.volume = gameSettings.musicVolume;
-        bgMusic.play().catch(e => {});
-    }
-
     function loadLevel(index) {
         currentEnemyIndex = index;
         const t = translations[gameSettings.lang];
 
+        // Isolde Finali
         if (index >= enemiesData.length) {
             document.getElementById('final-choice-overlay').style.display = 'flex';
             document.getElementById('combat-controls').classList.add('hidden-ui');
@@ -397,19 +413,19 @@
         const enemy = enemiesData[index];
         enemy.hp = enemy.maxHp; 
         enemy.power = 0; 
-        enemy.wUsed = false; 
-        enemy.form = 1; 
+        enemy.wUsed = false; // GP/Yorick heal flag
+        enemy.form = 1; // Belveth form
         mordeRealmActive = false;
-        document.body.className = ""; 
+        document.body.className = ""; // Reset effects
         
         player.ultUsed = false;
         player.stunned = false;
-        player.power = 0; 
+        player.power = 0; // Reset player power per fight
         
         document.getElementById('enemy-name').innerText = `${t.enemies[enemy.id].name.toUpperCase()} (LVL ${enemy.level})`;
         document.getElementById('enemy-img').src = enemy.img;
         
-        playMusic();
+        playMusic(); // Müzik kontrolü (Check inside)
         updateUI();
         
         dialogueQueue = t.enemies[enemy.id].intro;
@@ -419,6 +435,7 @@
         updateDialogueText();
     }
 
+    // --- SAVAŞ MEKANİKLERİ ---
     function useSkill(type) {
         if (turn !== 'player' || player.stunned) return;
         const t = translations[gameSettings.lang];
@@ -437,7 +454,7 @@
 
         player.power = Math.min(100, player.power);
         
-        // LEBLANC PASİF
+        // LEBLANC PASİF (Ayna Görüntüsü)
         if (enemy.id === 'leblanc' && enemy.hp < enemy.maxHp * 0.4 && Math.random() > 0.5) {
             dmg = 0; msg = t.logs.lbClone;
             showFloat(document.getElementById('enemy-box'), "MISS", 'text-mana');
@@ -456,11 +473,11 @@
         log(msg);
         updateUI();
 
-        // BELVETH FORM CHECK
+        // BELVETH TRUE FORM CHECK
         if (enemy.id === 'belveth' && enemy.hp <= 0 && enemy.form === 1) {
             enemy.form = 2;
-            enemy.hp = Math.floor(enemy.maxHp * 0.6); 
-            enemy.damage = Math.floor(enemy.damage * 1.5);
+            enemy.hp = Math.floor(enemy.maxHp * 0.6); // Heal to 60%
+            enemy.damage = Math.floor(enemy.damage * 1.5); // Damage up
             document.body.classList.add('void-active');
             log(t.logs.belvethTrue);
             updateUI();
@@ -478,13 +495,14 @@
         const enemy = enemiesData[currentEnemyIndex];
         const enemyName = t.enemies[enemy.id].name;
         
-        // GÜÇ KAZANIMI (TUR BAŞINDA)
+        // GÜÇ KAZANIMI (DÜŞMAN SALDIRIRKEN)
         let eGain = Math.floor(Math.random()*11)+5;
         enemy.power = Math.min(100, enemy.power + eGain);
         showFloat(document.getElementById('enemy-box'), `+${eGain} MP`, 'mana');
         updateUI();
 
-        // --- AI ---
+        // --- BOSS AI LOGIC ---
+        // MORDEKAISER (Death Realm)
         if (enemy.id === 'mordekaiser' && enemy.hp < enemy.maxHp * 0.5 && !mordeRealmActive) {
             mordeRealmActive = true;
             document.body.classList.add('death-realm-active');
@@ -492,6 +510,7 @@
             log(t.logs.mordeRealm);
         }
 
+        // GANGPLANK
         if (enemy.id === 'gangplank') {
             if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
                 enemy.power = 0; enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50); enemy.wUsed = true;
@@ -505,6 +524,7 @@
             }
         }
 
+        // YORICK (Sustain)
         if (enemy.id === 'yorick' && enemy.hp < enemy.maxHp * 0.3 && enemy.power >= 40) {
             enemy.power = 0;
             let dmg = enemy.damage;
@@ -514,6 +534,7 @@
             performAttack(dmg, t.logs.yorHeal); return;
         }
 
+        // THRESH (Stun every 4th turn approx - using Random for simplicity)
         if (enemy.id === 'thresh' && enemy.power >= 60) {
             enemy.power = 0;
             let dmg = enemy.damage + 10;
@@ -522,6 +543,7 @@
             return;
         }
 
+        // Standard Attack
         performAttack(enemy.damage + Math.floor(Math.random()*10), `${enemyName} ${t.logs.enemyAtk}`);
     }
 
@@ -543,25 +565,11 @@
         if (player.stunned) {
             log("STUNNED! Turn skipped.");
             player.stunned = false;
-            setTimeout(enemyTurn, 1500); 
+            setTimeout(enemyTurn, 1500); // Enemy attacks again
         } else {
             turn = "player";
-            updateUI();
+            updateUI(); // BUTONLARI TEKRAR AKTİF ET
         }
-    }
-
-    function nextLevel() {
-        document.getElementById('overlay').style.display = 'none';
-        currentEnemyIndex++; 
-        loadLevel(currentEnemyIndex);
-    }
-
-    function victory() {
-        document.getElementById('overlay').style.display = 'flex';
-        player.gold += 100;
-        player.level++;
-        player.maxHp += 20;
-        player.hp = player.maxHp;
     }
 
     // --- DIALOGUE & UI HELPERS ---
@@ -599,8 +607,13 @@
         let basicDmg = 15 + (player.level * 5); let qDmg = 30 + (player.level * 8); let wDmg = 45 + (player.level * 10); let rDmg = 100 + (player.level * 20);
         document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
         
+        // --- KRİTİK BUTON DÜZELTMESİ ---
+        // Butonların aktifleşmesi için oyuncu sırası olmalı ve STUNNED olmamalı
         const isPlayerTurn = (turn === 'player' && !player.stunned);
-        document.getElementById('btn-basic').disabled = !isPlayerTurn; document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
+        document.getElementById('btn-basic').disabled = !isPlayerTurn; 
+        document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; 
+        document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; 
+        document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
     }
 
     function makeChoice(choice) {
