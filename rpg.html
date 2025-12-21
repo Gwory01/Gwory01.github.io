@@ -84,12 +84,25 @@
         .controls { background: rgba(0,0,0,0.6); border-top: 2px solid var(--ruined-green); padding: 10px; display: flex; flex-direction: column; gap: 10px; height: auto; min-height: 25vh; transition: opacity 0.5s; }
         .hidden-ui { opacity: 0; pointer-events: none; }
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
-        .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 10px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 5px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
         .skill-btn:active { background: #222; transform: scale(0.98); }
-        .skill-btn:disabled { opacity: 0.3; }
-        .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; color: #ddd; text-align: center; }
-        .skill-cost { font-size: 0.7rem; color: #2ecc71; text-align: center; }
+        
+        /* DISABLED STATE (GÜÇ YETERSİZSE) */
+        .skill-btn:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+            filter: grayscale(100%); 
+            border-color: #333; 
+            background: #000;
+        }
+        
+        .skill-name { font-weight: bold; font-size: 0.75rem; margin-bottom: 2px; color: #ddd; text-align: center; }
+        .skill-cost { font-size: 0.65rem; color: #2ecc71; text-align: center; font-family: 'Roboto', sans-serif; }
+        .skill-btn:disabled .skill-cost { color: #555; } /* Yetersiz güçte yazı da kararsın */
+        
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .ult-btn:disabled { border-color: #333; color: #555; }
+
         .log-box { height: 40px; background: rgba(0,0,0,0.5); border: 1px solid #333; font-size: 0.8rem; color: #ccc; padding: 5px; overflow-y: auto; font-family: 'Roboto', sans-serif; text-align: center; }
 
         #inventory-frame { position: absolute; top: 60px; left: 10px; z-index: 20; display: flex; flex-direction: column; gap: 10px; }
@@ -223,10 +236,22 @@
         <div class="controls hidden-ui" id="combat-controls">
             <div class="log-box" id="combat-log">...</div>
             <div class="skills">
-                <button class="skill-btn" id="btn-basic" onclick="useSkill('basic')"><span class="skill-name" id="skill-name-basic">Blade</span><span class="skill-cost" id="skill-desc-basic">Basic Dmg</span></button>
-                <button class="skill-btn" id="btn-q" onclick="useSkill('q')"><span class="skill-name" id="skill-name-q">Ruined King (Q)</span><span class="skill-cost" id="skill-desc-q">30 Dmg | Heal</span></button>
-                <button class="skill-btn" id="btn-w" onclick="useSkill('w')"><span class="skill-name" id="skill-name-w">Spectral Maw (W)</span><span class="skill-cost" id="skill-desc-w">Stun/Crit</span></button>
-                <button class="skill-btn ult-btn" id="btn-r" onclick="useSkill('r')"><span class="skill-name" id="skill-name-r">HEARTBREAKER</span><span class="skill-cost" id="skill-desc-r">FINISHER</span></button>
+                <button class="skill-btn" id="btn-basic" onclick="useSkill('basic')">
+                    <span class="skill-name" id="skill-name-basic">Blade</span>
+                    <span class="skill-cost" id="skill-desc-basic">Basic Dmg</span>
+                </button>
+                <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
+                    <span class="skill-name" id="skill-name-q">Ruined King (Q)</span>
+                    <span class="skill-cost" id="skill-desc-q">30 Dmg | 20 MP</span>
+                </button>
+                <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
+                    <span class="skill-name" id="skill-name-w">Spectral Maw (W)</span>
+                    <span class="skill-cost" id="skill-desc-w">Stun/Crit | 30 MP</span>
+                </button>
+                <button class="skill-btn ult-btn" id="btn-r" onclick="useSkill('r')">
+                    <span class="skill-name" id="skill-name-r">HEARTBREAKER</span>
+                    <span class="skill-cost" id="skill-desc-r">FINISHER | 1/Round</span>
+                </button>
             </div>
         </div>
     </div>
@@ -264,12 +289,7 @@
         let soundToPlay = null;
         if (type === 'basic') soundToPlay = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
         else if (type === 'w') soundToPlay = sounds.w_skill;
-        
-        if (soundToPlay) {
-            soundToPlay.volume = gameSettings.sfxVolume;
-            soundToPlay.currentTime = 0; 
-            soundToPlay.play().catch(e => {});
-        }
+        if (soundToPlay) { soundToPlay.volume = gameSettings.sfxVolume; soundToPlay.currentTime = 0; soundToPlay.play().catch(e => {}); }
     }
 
     // --- I18N (DİL) ---
@@ -281,10 +301,10 @@
                 settingsTitle: "SETTINGS", settingsClose: "CLOSE", musicVol: "Music Volume", sfxVol: "SFX Volume"
             },
             skills: {
-                basic: { name: "Blade", desc: "Basic Dmg + Power" },
-                q: { name: "Ruined King (Q)", desc: "30 Dmg | Heal" },
-                w: { name: "Spectral Maw (W)", desc: "Crit Next Hit" },
-                r: { name: "HEARTBREAKER", desc: "EXECUTE (100 Power)" }
+                basic: { name: "Basic Attack", desc: "Dmg | +MP" },
+                q: { name: "Blade of the Ruined King", desc: "Dmg | 20 MP" },
+                w: { name: "Spectral Maw", desc: "Crit | 30 MP" },
+                r: { name: "HEARTBREAKER", desc: "EXECUTE | 1/Round" }
             },
             logs: {
                 wait: "Waiting for battle...", start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!",
@@ -334,9 +354,7 @@
                     ] 
                 }
             },
-            bossSkills: {
-                gpQ: "Parrrley", gpW: "Remove Scurvy"
-            }
+            bossSkills: { gpQ: "Parrrley", gpW: "Remove Scurvy" }
         },
         tr: {
             ui: {
@@ -345,10 +363,10 @@
                 settingsTitle: "AYARLAR", settingsClose: "KAPAT", musicVol: "Müzik Sesi", sfxVol: "Efekt Sesi"
             },
             skills: {
-                basic: { name: "Kılıç Darbesi", desc: "Hasar + Güç" },
-                q: { name: "Mahvolmuş Kral (Q)", desc: "30 Hasar | İyileşme" },
-                w: { name: "Hayalet Ağız (W)", desc: "Sonraki Vuruş Kritik" },
-                r: { name: "KALP KIRAN", desc: "BİTİRİCİ (100 Güç)" }
+                basic: { name: "Temel Saldırı", desc: "Hasar | +Güç" },
+                q: { name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç" },
+                w: { name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç" },
+                r: { name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur" }
             },
             logs: {
                 wait: "Savaş bekleniyor...", start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!",
@@ -398,9 +416,7 @@
                     ] 
                 }
             },
-            bossSkills: {
-                gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare"
-            }
+            bossSkills: { gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare" }
         }
     };
 
@@ -412,7 +428,7 @@
         { id: "mordekaiser", hp: 500, maxHp: 500, power: 0, maxPower: 100, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
 
-    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1 };
+    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1, ultUsed: false };
     let currentEnemyIndex = 0;
     let turn = "player";
     let dialogueQueue = [];
@@ -443,16 +459,16 @@
         document.getElementById('ui-settings-close').innerText = t.ui.settingsClose;
         document.getElementById('ui-music-vol').innerText = t.ui.musicVol;
         document.getElementById('ui-sfx-vol').innerText = t.ui.sfxVol;
+        
         document.getElementById('skill-name-basic').innerText = t.skills.basic.name;
-        document.getElementById('skill-desc-basic').innerText = t.skills.basic.desc;
         document.getElementById('skill-name-q').innerText = t.skills.q.name;
-        document.getElementById('skill-desc-q').innerText = t.skills.q.desc;
         document.getElementById('skill-name-w').innerText = t.skills.w.name;
-        document.getElementById('skill-desc-w').innerText = t.skills.w.desc;
         document.getElementById('skill-name-r').innerText = t.skills.r.name;
-        document.getElementById('skill-desc-r').innerText = t.skills.r.desc;
+        
         const enemyData = enemiesData[currentEnemyIndex];
         if(enemyData) document.getElementById('enemy-name').innerText = t.enemies[enemyData.id].name.toUpperCase();
+        
+        updateUI(); // Update skill descriptions with dynamic damage
     }
 
     // --- BAŞLATMA ---
@@ -473,6 +489,7 @@
         enemy.hp = enemy.maxHp; 
         enemy.power = 0; 
         enemy.wUsed = false; 
+        player.ultUsed = false; // Reset ult per round
         
         document.getElementById('enemy-name').innerText = t.enemies[enemy.id].name.toUpperCase();
         document.getElementById('enemy-img').src = enemy.img;
@@ -527,8 +544,9 @@
             dmg = 45 + (player.level * 10);
             msg = t.logs.pW;
         } else if (type === 'r') {
-            if (player.power < 100) { log(t.logs.noPower + " (100)"); return; }
-            player.power = 0;
+            if (player.ultUsed) { log("Ult already used this round!"); return; }
+            player.ultUsed = true;
+            // No power cost for R
             dmg = 100 + (player.level * 20);
             msg = t.logs.pR;
             document.body.classList.add('death-realm-active');
@@ -573,7 +591,6 @@
 
         // GANGPLANK AI
         if (enemy.id === 'gangplank') {
-            // 1. İskörbüte Çare (Can < %40 ve Güç >= 30)
             if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
                 enemy.power = 0;
                 enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50);
@@ -586,7 +603,6 @@
                 checkTurn();
                 return; 
             }
-            // 2. Çakaralmaz Vuruşu (Güç >= 20)
             if (enemy.power >= 20) {
                 enemy.power = 0;
                 let dmg = Math.floor((enemy.damage + Math.floor(Math.random() * 10)) * 1.75);
@@ -628,7 +644,7 @@
 
     function checkTurn() {
         const btns = document.querySelectorAll('.skill-btn');
-        btns.forEach(btn => btn.disabled = (turn !== 'player'));
+        // Player turn butonu global kontrol etmez, updateUI içindeki dinamik kontrol yeterli
     }
 
     function victory() {
@@ -644,7 +660,7 @@
         loadLevel(currentEnemyIndex + 1);
     }
 
-    // --- ENVANTER & SHOP & SETTINGS ---
+    // --- ENVANTER & SHOP ---
     function useInventoryItem(type) {
         if (turn !== 'player') return;
         const t = translations[gameSettings.lang];
@@ -686,7 +702,7 @@
     }
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
 
-    // --- UI GÜNCELLEME ---
+    // --- UI GÜNCELLEME (BUTONLAR BURADA DİNAMİK OLARAK GÜNCELLENİR) ---
     function updateUI() {
         const enemy = enemiesData[currentEnemyIndex];
         const pHpPct = (player.hp / player.maxHp) * 100;
@@ -700,12 +716,31 @@
         const eHpPct = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = eHpPct + "%";
         document.getElementById('enemy-hp-text').innerText = `${Math.ceil(enemy.hp)}/${enemy.maxHp}`;
-        
         const eMpPct = (enemy.power / enemy.maxPower) * 100;
         document.getElementById('enemy-power-bar').style.width = eMpPct + "%";
 
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
+
+        // BUTONLARI GÜNCELLE (Hasar hesaplaması ve Güç Kontrolü)
+        let basicDmg = 15 + (player.level * 5);
+        let qDmg = 30 + (player.level * 8);
+        let wDmg = 45 + (player.level * 10);
+        let rDmg = 100 + (player.level * 20);
+
+        // Dinamik Buton Metinleri (Hasar | Maliyet)
+        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`;
+        document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`;
+        document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`;
+        document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
+
+        // Butonları Kitleme Mantığı (Gray Out)
+        const isPlayerTurn = (turn === 'player');
+        
+        document.getElementById('btn-basic').disabled = !isPlayerTurn;
+        document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20;
+        document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30;
+        document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
     }
 
     function log(msg) {
