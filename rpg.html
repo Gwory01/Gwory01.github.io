@@ -273,9 +273,14 @@
         else { gameSettings.sfxVolume = parseFloat(val); }
         saveSettings();
     }
+    
+    // SES MANTIĞI DÜZELTİLDİ: Sadece 'basic' için BasicAA, 'w' için W_skill çalacak.
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
-        let s = (type === 'basic') ? (Math.random()>0.5?sounds.basic1:sounds.basic2) : (type === 'w'?sounds.w_skill:null);
+        let s = null;
+        if (type === 'basic') s = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
+        else if (type === 'w') s = sounds.w_skill;
+        
         if (s) { s.volume = gameSettings.sfxVolume; s.currentTime=0; s.play().catch(e=>{}); }
     }
 
@@ -301,7 +306,6 @@
         }
 
         // Şarkı değiştiyse çal, aynıysa devam et
-        // getAttribute ile ham string değerini alıyoruz (tam url değil)
         if (bgMusic.getAttribute('src') !== track) {
             bgMusic.src = track;
             bgMusic.volume = gameSettings.musicVolume;
@@ -391,7 +395,7 @@
     let dialogueQueue = [];
     let dialogueIndex = 0;
     let isSellMode = false;
-    let mordeRealmActive = false; // Morde görsel efekti için
+    let mordeRealmActive = false;
 
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
@@ -399,11 +403,39 @@
         loadLevel(0);
     }
 
+    // --- MÜZİK KONTROLÜ (DÜZELTİLDİ) ---
+    function playMusic() {
+        const bgMusic = document.getElementById('bgMusic');
+        let track = "";
+        const enemy = enemiesData[currentEnemyIndex];
+
+        if (enemy) {
+            // TIER 1 (Lvl <= 10)
+            if (enemy.level <= 10) {
+                track = "Tier1.mp3";
+            }
+            // TIER 2 (Lvl <= 25)
+            else if (enemy.level <= 25) {
+                track = "Tier2.mp3";
+            }
+            // TIER 3 (Bosslar) - Özel dosya isimleri
+            else {
+                track = enemy.id + ".mp3"; 
+            }
+        }
+
+        // Şarkı değiştiyse çal, aynıysa devam et
+        if (bgMusic.getAttribute('src') !== track) {
+            bgMusic.src = track;
+            bgMusic.volume = gameSettings.musicVolume;
+            bgMusic.play().catch(e => {});
+        }
+    }
+
     function loadLevel(index) {
         currentEnemyIndex = index;
         const t = translations[gameSettings.lang];
 
-        // Isolde Finali
         if (index >= enemiesData.length) {
             document.getElementById('final-choice-overlay').style.display = 'flex';
             document.getElementById('combat-controls').classList.add('hidden-ui');
@@ -413,19 +445,19 @@
         const enemy = enemiesData[index];
         enemy.hp = enemy.maxHp; 
         enemy.power = 0; 
-        enemy.wUsed = false; // GP/Yorick heal flag
-        enemy.form = 1; // Belveth form
+        enemy.wUsed = false; 
+        enemy.form = 1; 
         mordeRealmActive = false;
-        document.body.className = ""; // Reset effects
+        document.body.className = ""; 
         
         player.ultUsed = false;
         player.stunned = false;
-        player.power = 0; // Reset player power per fight
+        player.power = 0; 
         
         document.getElementById('enemy-name').innerText = `${t.enemies[enemy.id].name.toUpperCase()} (LVL ${enemy.level})`;
         document.getElementById('enemy-img').src = enemy.img;
         
-        playMusic(); // Müzik kontrolü (Check inside)
+        playMusic();
         updateUI();
         
         dialogueQueue = t.enemies[enemy.id].intro;
@@ -435,7 +467,6 @@
         updateDialogueText();
     }
 
-    // --- SAVAŞ MEKANİKLERİ ---
     function useSkill(type) {
         if (turn !== 'player' || player.stunned) return;
         const t = translations[gameSettings.lang];
@@ -454,7 +485,7 @@
 
         player.power = Math.min(100, player.power);
         
-        // LEBLANC PASİF (Ayna Görüntüsü)
+        // LEBLANC PASİF
         if (enemy.id === 'leblanc' && enemy.hp < enemy.maxHp * 0.4 && Math.random() > 0.5) {
             dmg = 0; msg = t.logs.lbClone;
             showFloat(document.getElementById('enemy-box'), "MISS", 'text-mana');
@@ -473,11 +504,11 @@
         log(msg);
         updateUI();
 
-        // BELVETH TRUE FORM CHECK
+        // BELVETH FORM CHECK
         if (enemy.id === 'belveth' && enemy.hp <= 0 && enemy.form === 1) {
             enemy.form = 2;
-            enemy.hp = Math.floor(enemy.maxHp * 0.6); // Heal to 60%
-            enemy.damage = Math.floor(enemy.damage * 1.5); // Damage up
+            enemy.hp = Math.floor(enemy.maxHp * 0.6); 
+            enemy.damage = Math.floor(enemy.damage * 1.5);
             document.body.classList.add('void-active');
             log(t.logs.belvethTrue);
             updateUI();
@@ -501,8 +532,7 @@
         showFloat(document.getElementById('enemy-box'), `+${eGain} MP`, 'mana');
         updateUI();
 
-        // --- BOSS AI LOGIC ---
-        // MORDEKAISER (Death Realm)
+        // --- AI ---
         if (enemy.id === 'mordekaiser' && enemy.hp < enemy.maxHp * 0.5 && !mordeRealmActive) {
             mordeRealmActive = true;
             document.body.classList.add('death-realm-active');
@@ -510,12 +540,15 @@
             log(t.logs.mordeRealm);
         }
 
-        // GANGPLANK
         if (enemy.id === 'gangplank') {
             if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
                 enemy.power = 0; enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50); enemy.wUsed = true;
-                showFloat(document.getElementById('enemy-box'), "+50", 'heal'); log(t.logs.gpW);
-                endEnemyTurn(); return; 
+                showFloat(document.getElementById('enemy-box'), t.bossSkills.gpW, 'heal');
+                showFloat(document.getElementById('enemy-box'), "+50", 'heal');
+                log(t.logs.gpOrange);
+                turn = "player"; 
+                updateUI(); 
+                return; 
             }
             if (enemy.power >= 20) {
                 enemy.power = 0;
@@ -524,7 +557,6 @@
             }
         }
 
-        // YORICK (Sustain)
         if (enemy.id === 'yorick' && enemy.hp < enemy.maxHp * 0.3 && enemy.power >= 40) {
             enemy.power = 0;
             let dmg = enemy.damage;
@@ -534,7 +566,6 @@
             performAttack(dmg, t.logs.yorHeal); return;
         }
 
-        // THRESH (Stun every 4th turn approx - using Random for simplicity)
         if (enemy.id === 'thresh' && enemy.power >= 60) {
             enemy.power = 0;
             let dmg = enemy.damage + 10;
@@ -543,7 +574,6 @@
             return;
         }
 
-        // Standard Attack
         performAttack(enemy.damage + Math.floor(Math.random()*10), `${enemyName} ${t.logs.enemyAtk}`);
     }
 
@@ -565,11 +595,25 @@
         if (player.stunned) {
             log("STUNNED! Turn skipped.");
             player.stunned = false;
-            setTimeout(enemyTurn, 1500); // Enemy attacks again
+            setTimeout(enemyTurn, 1500); 
         } else {
             turn = "player";
-            updateUI(); // BUTONLARI TEKRAR AKTİF ET
+            updateUI();
         }
+    }
+
+    function nextLevel() {
+        document.getElementById('overlay').style.display = 'none';
+        currentEnemyIndex++; 
+        loadLevel(currentEnemyIndex);
+    }
+
+    function victory() {
+        document.getElementById('overlay').style.display = 'flex';
+        player.gold += 100;
+        player.level++;
+        player.maxHp += 20;
+        player.hp = player.maxHp;
     }
 
     // --- DIALOGUE & UI HELPERS ---
@@ -607,13 +651,8 @@
         let basicDmg = 15 + (player.level * 5); let qDmg = 30 + (player.level * 8); let wDmg = 45 + (player.level * 10); let rDmg = 100 + (player.level * 20);
         document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
         
-        // --- KRİTİK BUTON DÜZELTMESİ ---
-        // Butonların aktifleşmesi için oyuncu sırası olmalı ve STUNNED olmamalı
         const isPlayerTurn = (turn === 'player' && !player.stunned);
-        document.getElementById('btn-basic').disabled = !isPlayerTurn; 
-        document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; 
-        document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; 
-        document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
+        document.getElementById('btn-basic').disabled = !isPlayerTurn; document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
     }
 
     function makeChoice(choice) {
