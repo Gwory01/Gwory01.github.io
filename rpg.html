@@ -17,6 +17,7 @@
             --heal-color: #2ecc71;
             --gold-color: #f39c12;
             --sell-color: #e74c3c;
+            --void-purple: #a020f0;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -32,12 +33,20 @@
             overflow: hidden; 
             user-select: none;
             position: relative;
+            transition: filter 1s ease;
         }
-        body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
+        
+        /* MORDEKAISER DEATH REALM EFEKTİ */
+        body.death-realm-active { 
+            filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.2); 
+            box-shadow: inset 0 0 150px #0ac8b9; 
+        }
 
-        /* Sis efekti CSS'i kaldırıldı */
+        /* BELVETH VOID EFEKTİ */
+        body.void-active {
+            filter: hue-rotate(270deg) contrast(1.1);
+        }
 
-        /* --- UI GENEL --- */
         .game-wrapper { 
             width: 100%; height: 100%; max-width: 1000px;
             background: rgba(8, 10, 12, 0.85); 
@@ -63,17 +72,18 @@
         .control-btn-ui { background: rgba(0,0,0,0.7); color: white; border: 1px solid #555; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         .back-btn { position: absolute; top: 10px; left: 10px; z-index: 100; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 12px; border-radius: 4px; }
 
-        /* SAVAŞ ALANI */
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-evenly; align-items: center; position: relative; width: 100%; }
         .character-box { width: 45%; max-width: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        
         .character-img { 
             width: 18vh; height: 18vh; max-width: 180px; max-height: 180px; min-width: 120px; min-height: 120px;
             object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.5s; 
         }
+        
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 20px rgba(214, 48, 49, 0.3); }
-        .character-box h2 { font-size: 1.2rem; margin: 10px 0 5px 0; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; }
+        .character-box h2 { font-size: 1.1rem; margin: 10px 0 5px 0; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; white-space: nowrap; }
         
         .stat-bar { width: 80%; height: 10px; background: #111; margin-top: 5px; border: 1px solid #444; position: relative; border-radius: 2px; }
         .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } 
@@ -86,19 +96,11 @@
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
         .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 5px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
         .skill-btn:active { background: #222; transform: scale(0.98); }
-        
-        /* DISABLED STATE (GÜÇ YETERSİZSE) */
-        .skill-btn:disabled { 
-            opacity: 0.4; 
-            cursor: not-allowed; 
-            filter: grayscale(100%); 
-            border-color: #333; 
-            background: #000;
-        }
+        .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); border-color: #333; background: #000; }
+        .skill-btn:disabled .skill-cost { color: #555; }
         
         .skill-name { font-weight: bold; font-size: 0.75rem; margin-bottom: 2px; color: #ddd; text-align: center; }
         .skill-cost { font-size: 0.65rem; color: #2ecc71; text-align: center; font-family: 'Roboto', sans-serif; }
-        .skill-btn:disabled .skill-cost { color: #555; } /* Yetersiz güçte yazı da kararsın */
         
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
         .ult-btn:disabled { border-color: #333; color: #555; }
@@ -113,8 +115,10 @@
         #overlay, #final-choice-overlay, #cinematic-dialogue { display: none; }
         .dialogue-box { background: #111; border: 2px solid var(--ruined-green); padding: 20px; width: 95%; max-width: 600px; border-radius: 8px; }
         #cinematic-text { font-size: 1rem; line-height: 1.5; color: white; margin-bottom: 20px; font-style: italic; min-height: 50px; font-family: 'Roboto', sans-serif; }
-        .start-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        .start-btn:active { background: var(--ruined-green); color: black; }
+        .start-btn, .choice-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 10px; transition: 0.3s; width: 80%; max-width: 300px; }
+        .start-btn:hover, .choice-btn:hover { background: var(--ruined-green); color: black; }
+        .btn-attack { border-color: var(--hp-red); color: var(--hp-red); } .btn-attack:hover { background: var(--hp-red); color: white; }
+        .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
 
         #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; }
         .shop-content, .settings-content { width: 90%; max-width: 500px; background: #111; border: 2px solid #333; padding: 20px; border-radius: 8px; }
@@ -130,11 +134,13 @@
 
         .float-text { position: absolute; font-weight: bold; font-size: 20px; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
-        .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 26px; } .text-mana { color: #f1c40f; font-size: 16px; }
+        .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 26px; } .text-mana { color: #f1c40f; font-size: 16px; } .text-special { color: #a020f0; font-size: 24px; }
         .attacking { animation: bump 0.2s; } @keyframes bump { 50% { transform: scale(1.1); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        #flash-effect { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; }
-        .ult-flash { animation: flash 1s linear; background: rgba(10, 200, 185, 0.5); } @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+        
+        /* ÖZEL EFEKTLER */
+        .clone-effect { opacity: 0.5; filter: blur(2px); }
+        .stunned-effect { filter: grayscale(100%) brightness(0.5); }
 
         @media screen and (max-width: 768px) {
             .battle-scene { flex-direction: column-reverse; gap: 20px; }
@@ -152,10 +158,10 @@
     <a href="index.html" class="back-btn" id="ui-menu">← Menu</a>
     
     <div id="inventory-frame">
-        <div class="inv-slot" onclick="useInventoryItem('potion')" ontouchstart="showTooltip(this, 'potion')" ontouchend="hideTooltip()" onmouseover="showTooltip(this, 'potion')" onmouseout="hideTooltip()">
+        <div class="inv-slot" onclick="useInventoryItem('potion')" onmouseover="showTooltip(this, 'potion')" onmouseout="hideTooltip()">
             🧪 <span class="inv-count" id="count-potion">0</span>
         </div>
-        <div class="inv-slot" onclick="useInventoryItem('elixir')" ontouchstart="showTooltip(this, 'elixir')" ontouchend="hideTooltip()" onmouseover="showTooltip(this, 'elixir')" onmouseout="hideTooltip()">
+        <div class="inv-slot" onclick="useInventoryItem('elixir')" onmouseover="showTooltip(this, 'elixir')" onmouseout="hideTooltip()">
             ⚡ <span class="inv-count" id="count-elixir">0</span>
         </div>
     </div>
@@ -175,16 +181,16 @@
 
     <div id="settings-modal">
         <div class="settings-content">
-            <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444; padding-bottom:10px;" id="ui-settings-title">SETTINGS</h2>
+            <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444;" id="ui-settings-title">SETTINGS</h2>
             <div class="setting-row"><span id="ui-music-vol">Music Volume</span><input type="range" id="vol-music" min="0" max="1" step="0.1" oninput="updateVolume('music', this.value)"></div>
             <div class="setting-row"><span id="ui-sfx-vol">SFX Volume</span><input type="range" id="vol-sfx" min="0" max="1" step="0.1" oninput="updateVolume('sfx', this.value)"></div>
-            <button class="start-btn" style="width:100%; padding:10px;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
+            <button class="start-btn" style="width:100%;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
         </div>
     </div>
 
     <div id="shop-modal">
         <div class="shop-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444; padding-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444;">
                 <h2 style="color:var(--gold-color); margin:0;" id="ui-shop-title">SHOP</h2>
                 <span id="shop-gold" style="color:white; font-weight:bold;">0 G</span>
             </div>
@@ -204,8 +210,15 @@
         <div id="cinematic-dialogue">
             <div class="dialogue-box">
                 <div id="cinematic-text">...</div>
-                <button class="start-btn" id="ui-next-btn" style="padding: 10px 30px; font-size: 1rem;" onclick="nextDialogue()">NEXT</button>
+                <button class="start-btn" id="ui-next-btn" onclick="nextDialogue()">NEXT</button>
             </div>
+        </div>
+
+        <div id="final-choice-overlay" style="display:none;">
+            <h2 style="color:#fff;">ISOLDE</h2>
+            <p id="isolde-text" style="color:#aaa; font-style:italic;">"My love... let me go."</p>
+            <button class="choice-btn btn-attack" onclick="makeChoice('attack')">STRIKE HER DOWN</button>
+            <button class="choice-btn btn-surrender" onclick="makeChoice('surrender')">SURRENDER TO LOVE</button>
         </div>
 
         <div id="overlay">
@@ -215,7 +228,7 @@
 
         <div class="battle-scene">
             <div class="character-box" id="player-box">
-                <div class="info-btn" ontouchstart="showCharacterTooltip(this, 'player')" ontouchend="hideTooltip()" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</div>
+                <div class="info-btn" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow">
                 <h2>VIEGO</h2>
                 <div class="stat-bar"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
@@ -225,7 +238,7 @@
             <div id="vs-text">VS</div>
 
             <div class="character-box" id="enemy-box">
-                <div class="info-btn" ontouchstart="showCharacterTooltip(this, 'enemy')" ontouchend="hideTooltip()" onmouseover="showCharacterTooltip(this, 'enemy')" onmouseout="hideTooltip()">i</div>
+                <div class="info-btn" onmouseover="showCharacterTooltip(this, 'enemy')" onmouseout="hideTooltip()">i</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 id="enemy-name">ENEMY</h2>
                 <div class="stat-bar"><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
@@ -237,20 +250,16 @@
             <div class="log-box" id="combat-log">...</div>
             <div class="skills">
                 <button class="skill-btn" id="btn-basic" onclick="useSkill('basic')">
-                    <span class="skill-name" id="skill-name-basic">Blade</span>
-                    <span class="skill-cost" id="skill-desc-basic">Basic Dmg</span>
+                    <span class="skill-name" id="skill-name-basic">Blade</span><span class="skill-cost" id="skill-desc-basic">Basic Dmg</span>
                 </button>
                 <button class="skill-btn" id="btn-q" onclick="useSkill('q')">
-                    <span class="skill-name" id="skill-name-q">Ruined King (Q)</span>
-                    <span class="skill-cost" id="skill-desc-q">30 Dmg | 20 MP</span>
+                    <span class="skill-name" id="skill-name-q">Ruined King (Q)</span><span class="skill-cost" id="skill-desc-q">30 Dmg | 20 MP</span>
                 </button>
                 <button class="skill-btn" id="btn-w" onclick="useSkill('w')">
-                    <span class="skill-name" id="skill-name-w">Spectral Maw (W)</span>
-                    <span class="skill-cost" id="skill-desc-w">Stun/Crit | 30 MP</span>
+                    <span class="skill-name" id="skill-name-w">Spectral Maw (W)</span><span class="skill-cost" id="skill-desc-w">Stun/Crit | 30 MP</span>
                 </button>
                 <button class="skill-btn ult-btn" id="btn-r" onclick="useSkill('r')">
-                    <span class="skill-name" id="skill-name-r">HEARTBREAKER</span>
-                    <span class="skill-cost" id="skill-desc-r">FINISHER | 1/Round</span>
+                    <span class="skill-name" id="skill-name-r">HEARTBREAKER</span><span class="skill-cost" id="skill-desc-r">FINISHER | 1/Round</span>
                 </button>
             </div>
         </div>
@@ -258,12 +267,7 @@
 
 <script>
     // --- SES YÖNETİMİ ---
-    const sounds = {
-        basic1: new Audio('BasicAA_1.wav'),
-        basic2: new Audio('BasicAA_2.wav'),
-        w_skill: new Audio('W_skill.wav')
-    };
-
+    const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w_skill: new Audio('W_skill.wav') };
     let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
 
     function loadSettings() {
@@ -275,224 +279,154 @@
         document.getElementById('bgMusic').volume = gameSettings.musicVolume;
         changeLanguage(gameSettings.lang); 
     }
-
     function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify(gameSettings)); }
-
     function updateVolume(type, val) {
         if (type === 'music') { gameSettings.musicVolume = parseFloat(val); document.getElementById('bgMusic').volume = gameSettings.musicVolume; } 
         else { gameSettings.sfxVolume = parseFloat(val); }
         saveSettings();
     }
-
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
-        let soundToPlay = null;
-        if (type === 'basic') soundToPlay = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
-        else if (type === 'w') soundToPlay = sounds.w_skill;
-        if (soundToPlay) { soundToPlay.volume = gameSettings.sfxVolume; soundToPlay.currentTime = 0; soundToPlay.play().catch(e => {}); }
+        let s = (type === 'basic') ? (Math.random()>0.5?sounds.basic1:sounds.basic2) : (type === 'w'?sounds.w_skill:null);
+        if (s) { s.volume = gameSettings.sfxVolume; s.currentTime=0; s.play().catch(e=>{}); }
     }
 
-    // --- I18N (DİL) ---
+    // --- OYUN VERİLERİ (Genişletilmiş) ---
+    const enemiesData = [
+        // TIER 1
+        { id: "gangplank", level: 3, hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
+        { id: "yorick", level: 7, hp: 280, maxHp: 280, power: 0, maxPower: 100, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
+        { id: "akshan", level: 9, hp: 320, maxHp: 320, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Akshan_0.jpg" },
+        { id: "gwen", level: 10, hp: 350, maxHp: 350, power: 0, maxPower: 100, damage: 28, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gwen_0.jpg" },
+        { id: "lucian", level: 12, hp: 400, maxHp: 400, power: 0, maxPower: 100, damage: 30, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
+        
+        // TIER 2
+        { id: "maokai", level: 14, hp: 600, maxHp: 600, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Maokai_0.jpg" },
+        { id: "elise", level: 16, hp: 550, maxHp: 550, power: 0, maxPower: 100, damage: 35, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Elise_0.jpg" },
+        { id: "vladimir", level: 18, hp: 600, maxHp: 600, power: 0, maxPower: 100, damage: 38, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg" },
+        { id: "hecarim", level: 20, hp: 700, maxHp: 700, power: 0, maxPower: 100, damage: 45, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Hecarim_0.jpg" },
+        { id: "illaoi", level: 22, hp: 800, maxHp: 800, power: 0, maxPower: 100, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Illaoi_0.jpg" },
+        { id: "kalista", level: 24, hp: 750, maxHp: 750, power: 0, maxPower: 100, damage: 50, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
+        { id: "ledros", level: 25, hp: 900, maxHp: 900, power: 0, maxPower: 100, damage: 55, img: "https://images.contentstack.io/v3/assets/blt5644e700902b4512/blt569033320f750d42/66f28743e33c87138379434e/Commander_Ledros_T2_Lvl_1.png" }, // Ledros LoR art
+
+        // TIER 3 (BOSSES)
+        { id: "leblanc", level: 26, hp: 800, maxHp: 800, power: 0, maxPower: 100, damage: 70, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
+        { id: "thresh", level: 28, hp: 1200, maxHp: 1200, power: 0, maxPower: 100, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" },
+        { id: "belveth", level: 30, hp: 1500, maxHp: 1500, power: 0, maxPower: 100, damage: 80, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" },
+        { id: "mordekaiser", level: 35, hp: 2500, maxHp: 2500, power: 0, maxPower: 100, damage: 100, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
+    ];
+
+    // --- ÇEVİRİLER ---
     const translations = {
         en: {
-            ui: {
-                menu: "← Menu", title: "THE RUINED KING", sub: "\"She is waiting...\"", start: "START JOURNEY", next: "NEXT", victory: "VICTORY", continue: "CONTINUE",
-                shopTitle: "RUINED SHOP", shopClose: "CLOSE", shopOpen: "🛒 SHOP", sellOff: "SELL: OFF", sellOn: "SELL: ON", buy: "BUY", sell: "SELL",
-                settingsTitle: "SETTINGS", settingsClose: "CLOSE", musicVol: "Music Volume", sfxVol: "SFX Volume"
-            },
-            skills: {
-                basic: { name: "Basic Attack", desc: "Dmg | +MP" },
-                q: { name: "Blade of the Ruined King", desc: "Dmg | 20 MP" },
-                w: { name: "Spectral Maw", desc: "Crit | 30 MP" },
-                r: { name: "HEARTBREAKER", desc: "EXECUTE | 1/Round" }
-            },
-            logs: {
-                wait: "Waiting for battle...", start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!",
-                pR: "HEARTBREAKER!", noPower: "Not enough Power!", enemyAtk: "attacks for", defeat: "DEFEAT... The Mist fades.", usedPot: "Used Potion (+50 HP)",
-                usedElix: "Used Elixir (+50 Power)", notEnoughGold: "Not enough Gold!", won: "Game Over! You conquered all.",
-                gpQ: "Gangplank uses Parrrley! CRITICAL!", gpOrange: "Gangplank eats an Orange and heals!"
-            },
-            tooltips: {
-                viego: "Passive: Soul Eater<br>Ult: Heartbreaker (Executes)", threat: "Threat", potion: { name: "Mist Potion", desc: "Heals 50 HP" },
-                elixir: { name: "Wrath Elixir", desc: "Grants 50 Power" }, sword: { name: "B.F. Sword", desc: "+10 Base Damage" }
-            },
+            ui: { menu: "← Menu", title: "THE RUINED KING", sub: "\"She is waiting...\"", start: "START JOURNEY", next: "NEXT", victory: "VICTORY", continue: "CONTINUE", shopTitle: "RUINED SHOP", shopClose: "CLOSE", shopOpen: "🛒 SHOP", sellOff: "SELL: OFF", sellOn: "SELL: ON", buy: "BUY", sell: "SELL", settingsTitle: "SETTINGS", settingsClose: "CLOSE", musicVol: "Music Volume", sfxVol: "SFX Volume" },
+            skills: { basic: {name: "Basic Attack", desc: "Dmg | +MP"}, q: {name: "Blade of the Ruined King", desc: "Dmg | 20 MP"}, w: {name: "Spectral Maw", desc: "Crit | 30 MP"}, r: {name: "HEARTBREAKER", desc: "EXECUTE | 1/Round"} },
+            logs: { start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.",
+            gpQ: "Gangplank uses Parrrley! CRIT!", gpW: "Gangplank eats Orange!", yorQ: "Yorick's Last Rites!", yorHeal: "Yorick heals from the Mist!", lbClone: "LeBlanc Mirror Image! Miss!", threshHook: "Death Sentence! STUNNED!", belvethTrue: "Bel'Veth transforms into TRUE FORM!", mordeRealm: "Welcome to the DEATH REALM!" },
             enemies: {
-                gangplank: { 
-                    name: "Gangplank", 
-                    intro: [
-                        "Gangplank: You think you can waltz into Bilgewater, ghost?", 
-                        "Viego: I care not for your petty port. I seek her.",
-                        "Gangplank: Everyone pays the tithe here. Even the dead.",
-                        "Viego: I am the King of the Dead. Kneel or break."
-                    ] 
-                },
-                yorick: { 
-                    name: "Yorick", 
-                    intro: [
-                        "Yorick: The Maiden screams in your presence, Ruined King.", 
-                        "Viego: Where is Isolde? The Mist whispers her name!",
-                        "Yorick: The Mist is a poison you unleashed. I will cure it with this shovel.",
-                        "Viego: There is no cure for love, Monk. Only the end."
-                    ] 
-                },
-                lucian: { 
-                    name: "Lucian", 
-                    intro: [
-                        "Lucian: I've hunted shadows all my life. You're just the biggest one.", 
-                        "Viego: Your wife lives because of me! You should thank me.",
-                        "Lucian: Senna is cursed because of you. Today, the Shadow Isles fall.",
-                        "Viego: If I cannot have happiness, no one shall!"
-                    ] 
-                },
-                mordekaiser: { 
-                    name: "Mordekaiser", 
-                    intro: [
-                        "Mordekaiser: A King? You are but a child playing with souls.", 
-                        "Viego: My love transcends death! What is your iron compared to my heart?",
-                        "Mordekaiser: Iron is eternal. Love is a weakness of flesh.",
-                        "Viego: I will shatter your armor and reclaim what is mine!"
-                    ] 
-                }
-            },
-            bossSkills: { gpQ: "Parrrley", gpW: "Remove Scurvy" }
+                gangplank: { name: "Gangplank", intro: ["Gangplank: This is my city!", "Viego: I will take everything."] },
+                yorick: { name: "Yorick", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
+                akshan: { name: "Akshan", intro: ["Akshan: Not another undead tyrant...", "Viego: Step aside, pest."] },
+                gwen: { name: "Gwen", intro: ["Gwen: I remember her smile. You don't deserve her.", "Viego: You are nothing but a doll!"] },
+                lucian: { name: "Lucian & Senna", intro: ["Lucian: For Senna!", "Viego: For Isolde!"] },
+                maokai: { name: "Maokai", intro: ["Maokai: You poisoned the waters!", "Viego: I gave them purpose."] },
+                elise: { name: "Elise", intro: ["Elise: The Spider God hungers.", "Viego: Even gods bow to me."] },
+                vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, the romantic fool.", "Viego: Watch your tongue, uncle."] },
+                hecarim: { name: "Hecarim", intro: ["Hecarim: War is eternal!", "Viego: Serve your King, Hecarim."] },
+                illaoi: { name: "Illaoi", intro: ["Illaoi: You are stagnant.", "Viego: My love is timeless."] },
+                kalista: { name: "Kalista", intro: ["Kalista: Betrayer...", "Viego: I did what I had to do!"] },
+                ledros: { name: "Ledros", intro: ["Ledros: End this madness, my friend.", "Viego: Only when she returns."] },
+                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Are you real, or just a memory?", "Viego: I am the end of your schemes."] },
+                thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience, warden."] },
+                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
+                mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
+            }
         },
         tr: {
-            ui: {
-                menu: "← Menü", title: "MAHVOLMUŞ KRAL", sub: "\"O beni bekliyor...\"", start: "YOLCULUĞA BAŞLA", next: "İLERİ", victory: "ZAFER", continue: "DEVAM ET",
-                shopTitle: "MAHVOLMUŞ MARKET", shopClose: "KAPAT", shopOpen: "🛒 MARKET", sellOff: "SATIŞ: KAPALI", sellOn: "SATIŞ: AÇIK", buy: "SATIN AL", sell: "SAT",
-                settingsTitle: "AYARLAR", settingsClose: "KAPAT", musicVol: "Müzik Sesi", sfxVol: "Efekt Sesi"
-            },
-            skills: {
-                basic: { name: "Temel Saldırı", desc: "Hasar | +Güç" },
-                q: { name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç" },
-                w: { name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç" },
-                r: { name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur" }
-            },
-            logs: {
-                wait: "Savaş bekleniyor...", start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!",
-                pR: "KALP KIRAN!", noPower: "Yetersiz Güç!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ... Sis dağılıyor.", usedPot: "İksir İçildi (+50 Can)",
-                usedElix: "Elixir İçildi (+50 Güç)", notEnoughGold: "Yetersiz Altın!", won: "Oyun Bitti! Hepsini fethettin.",
-                gpQ: "Gangplank Çakaralmaz kullandı! KRİTİK!", gpOrange: "Gangplank Portakal yedi ve iyileşti!"
-            },
-            tooltips: {
-                viego: "Pasif: Ruh Yiyen<br>Ulti: Kalp Kıran (İnfaz)", threat: "Tehdit", potion: { name: "Sis İksiri", desc: "50 Can Yeniler" },
-                elixir: { name: "Öfke İksiri", desc: "50 Güç Verir" }, sword: { name: "A.M. Kılıcı", desc: "+10 Taban Hasar" }
-            },
+            ui: { menu: "← Menü", title: "MAHVOLMUŞ KRAL", sub: "\"O beni bekliyor...\"", start: "YOLCULUĞA BAŞLA", next: "İLERİ", victory: "ZAFER", continue: "DEVAM ET", shopTitle: "MAHVOLMUŞ MARKET", shopClose: "KAPAT", shopOpen: "🛒 MARKET", sellOff: "SATIŞ: KAPALI", sellOn: "SATIŞ: AÇIK", buy: "SATIN AL", sell: "SAT", settingsTitle: "AYARLAR", settingsClose: "KAPAT", musicVol: "Müzik Sesi", sfxVol: "Efekt Sesi" },
+            skills: { basic: {name: "Temel Saldırı", desc: "Hasar | +Güç"}, q: {name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç"}, w: {name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç"}, r: {name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur"} },
+            logs: { start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.",
+            gpQ: "Gangplank Çakaralmaz kullandı! KRİTİK!", gpW: "Gangplank Portakal yedi!", yorQ: "Yorick Son Dua vurdu!", yorHeal: "Yorick Sisten iyileşti!", lbClone: "LeBlanc Ayna Görüntüsü! Iskaladın!", threshHook: "Ölüm Cezası! SERSEMLEDİN!", belvethTrue: "Bel'Veth GERÇEK FORMUNA dönüştü!", mordeRealm: "ÖLÜLER ALEMİNE Hoşgeldin!" },
             enemies: {
-                gangplank: { 
-                    name: "Gangplank", 
-                    intro: [
-                        "Gangplank: Bilgewater'a böyle elini kolunu sallayarak girebileceğini mi sandın hayalet?", 
-                        "Viego: Senin küçük limanın umurumda değil. Ben onu arıyorum.",
-                        "Gangplank: Burada herkes haraç öder. Ölüler bile.",
-                        "Viego: Ben Ölülerin Kralıyım. Diz çök ya da kırıl."
-                    ] 
-                },
-                yorick: { 
-                    name: "Yorick", 
-                    intro: [
-                        "Yorick: Sis'in Hanımı senin varlığında çığlık atıyor, Mahvolmuş Kral.", 
-                        "Viego: Isolde nerede? Sis onun adını fısıldıyor!",
-                        "Yorick: Kara Sis senin yaydığın bir zehir. Ben de onu bu kürekle temizleyeceğim.",
-                        "Viego: Aşkın tedavisi yoktur Keşiş. Sadece sonu vardır."
-                    ] 
-                },
-                lucian: { 
-                    name: "Lucian", 
-                    intro: [
-                        "Lucian: Hayatım boyunca gölgeleri avladım. Sen sadece en büyüğüsün.", 
-                        "Viego: Karın benim sayemde yaşıyor! Bana teşekkür etmelisin.",
-                        "Lucian: Senna senin yüzünden lanetlendi. Bugün Gölge Adalar düşecek.",
-                        "Viego: Eğer ben mutlu olamazsam, kimse olamaz!"
-                    ] 
-                },
-                mordekaiser: { 
-                    name: "Mordekaiser", 
-                    intro: [
-                        "Mordekaiser: Kral mı? Sen sadece ruhlarla oynayan şımarık bir çocuksun.", 
-                        "Viego: Benim aşkım ölümü aşar! Senin demirin benim kalbimin yanında nedir ki?",
-                        "Mordekaiser: Demir ebedidir. Aşk ise etin bir zayıflığıdır.",
-                        "Viego: Zırhını parçalayacağım ve benim olanı geri alacağım!"
-                    ] 
-                }
-            },
-            bossSkills: { gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare" }
+                gangplank: { name: "Gangplank", intro: ["Gangplank: Bu şehir benim!", "Viego: Her şeyi alacağım."] },
+                yorick: { name: "Yorick", intro: ["Yorick: Kara Sis bir lanet.", "Viego: O benim aşkım."] },
+                akshan: { name: "Akshan", intro: ["Akshan: Yine mi bir ölü tiran...", "Viego: Çekil yolumdan böcek."] },
+                gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum. Sen onu hak etmiyorsun.", "Viego: Sen sadece bir oyuncaksın!"] },
+                lucian: { name: "Lucian & Senna", intro: ["Lucian: Senna için!", "Viego: Isolde için!"] },
+                maokai: { name: "Maokai", intro: ["Maokai: Suları zehirledin!", "Viego: Onlara amaç verdim."] },
+                elise: { name: "Elise", intro: ["Elise: Örümcek Tanrı aç.", "Viego: Tanrılar bile bana boyun eğer."] },
+                vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, romantik aptal.", "Viego: Dilini koparırım amca."] },
+                hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Kralına hizmet et Hecarim."] },
+                illaoi: { name: "Illaoi", intro: ["Illaoi: Sen durgunsun.", "Viego: Aşkım zamansız."] },
+                kalista: { name: "Kalista", intro: ["Kalista: Hain...", "Viego: Yapmam gerekeni yaptım!"] },
+                ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir dostum.", "Viego: Sadece o geri döndüğünde."] },
+                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin yoksa bir anı mı?", "Viego: Ben planlarının sonuyum."] },
+                thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama gardiyan."] },
+                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Onu bulmadan asla."] },
+                mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
+            }
         }
     };
 
-    // --- OYUN VERİLERİ ---
-    const enemiesData = [
-        { id: "gangplank", hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, wUsed: false, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
-        { id: "yorick", hp: 250, maxHp: 250, power: 0, maxPower: 100, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
-        { id: "lucian", hp: 300, maxHp: 300, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
-        { id: "mordekaiser", hp: 500, maxHp: 500, power: 0, maxPower: 100, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
-    ];
-
-    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1, ultUsed: false };
+    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1, ultUsed: false, stunned: false };
     let currentEnemyIndex = 0;
     let turn = "player";
     let dialogueQueue = [];
     let dialogueIndex = 0;
     let isSellMode = false;
+    let mordeRealmActive = false; // Morde görsel efekti için
 
-    // --- DİL ---
-    function changeLanguage(lang) {
-        gameSettings.lang = lang;
-        saveSettings();
-        updateTexts();
-    }
-
-    function updateTexts() {
-        const t = translations[gameSettings.lang];
-        document.getElementById('ui-menu').innerText = t.ui.menu;
-        document.getElementById('ui-title').innerText = t.ui.title;
-        document.getElementById('ui-subtitle').innerText = t.ui.sub;
-        document.getElementById('ui-start-btn').innerText = t.ui.start;
-        document.getElementById('ui-next-btn').innerText = t.ui.next;
-        document.getElementById('ui-victory').innerText = t.ui.victory;
-        document.getElementById('ui-continue-btn').innerText = t.ui.continue;
-        document.getElementById('ui-shop-title').innerText = t.ui.shopTitle;
-        document.getElementById('ui-shop-close').innerText = t.ui.shopClose;
-        document.getElementById('btn-open-shop').innerText = t.ui.shopOpen;
-        document.getElementById('sell-mode-btn').innerText = isSellMode ? t.ui.sellOn : t.ui.sellOff;
-        document.getElementById('ui-settings-title').innerText = t.ui.settingsTitle;
-        document.getElementById('ui-settings-close').innerText = t.ui.settingsClose;
-        document.getElementById('ui-music-vol').innerText = t.ui.musicVol;
-        document.getElementById('ui-sfx-vol').innerText = t.ui.sfxVol;
-        
-        document.getElementById('skill-name-basic').innerText = t.skills.basic.name;
-        document.getElementById('skill-name-q').innerText = t.skills.q.name;
-        document.getElementById('skill-name-w').innerText = t.skills.w.name;
-        document.getElementById('skill-name-r').innerText = t.skills.r.name;
-        
-        const enemyData = enemiesData[currentEnemyIndex];
-        if(enemyData) document.getElementById('enemy-name').innerText = t.enemies[enemyData.id].name.toUpperCase();
-        
-        updateUI(); 
-    }
-
-    // --- BAŞLATMA ---
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
+        playMusic();
+        loadLevel(0);
+    }
+
+    function playMusic() {
         const bgMusic = document.getElementById('bgMusic');
-        bgMusic.src = "Tier1.mp3"; 
+        let track = "Tier1.mp3";
+        const enemy = enemiesData[currentEnemyIndex];
+        
+        if (enemy) {
+            if (enemy.id === 'mordekaiser') track = "morde.mp3";
+            else if (enemy.id === 'thresh') track = "thresh.mp3";
+            else if (enemy.level <= 10) track = "Tier1.mp3";
+            else if (enemy.level <= 24) track = "Tier2.mp3";
+            else track = "Tier3.mp3";
+        }
+        
+        bgMusic.src = track;
         bgMusic.volume = gameSettings.musicVolume;
         bgMusic.play().catch(e => {});
-        loadLevel(0);
     }
 
     function loadLevel(index) {
         currentEnemyIndex = index;
         const t = translations[gameSettings.lang];
-        if (index >= enemiesData.length) { alert(t.logs.won); location.reload(); return; }
+
+        // Isolde Finali
+        if (index >= enemiesData.length) {
+            document.getElementById('final-choice-overlay').style.display = 'flex';
+            document.getElementById('combat-controls').classList.add('hidden-ui');
+            return; 
+        }
+        
         const enemy = enemiesData[index];
         enemy.hp = enemy.maxHp; 
         enemy.power = 0; 
-        enemy.wUsed = false; 
-        player.ultUsed = false; 
+        enemy.wUsed = false; // GP/Yorick heal flag
+        enemy.form = 1; // Belveth form
+        mordeRealmActive = false;
+        document.body.className = ""; // Reset effects
         
-        document.getElementById('enemy-name').innerText = t.enemies[enemy.id].name.toUpperCase();
+        player.ultUsed = false;
+        player.stunned = false;
+        player.power = 0; // Reset player power per fight? Optional. Let's keep it.
+        
+        document.getElementById('enemy-name').innerText = `${t.enemies[enemy.id].name.toUpperCase()} (LVL ${enemy.level})`;
         document.getElementById('enemy-img').src = enemy.img;
+        
+        playMusic(); // Müzik kontrolü
         updateUI();
         
         dialogueQueue = t.enemies[enemy.id].intro;
@@ -502,76 +436,54 @@
         updateDialogueText();
     }
 
-    function updateDialogueText() {
-        if (dialogueIndex < dialogueQueue.length) {
-            document.getElementById('cinematic-text').innerText = dialogueQueue[dialogueIndex];
-        } else {
-            document.getElementById('cinematic-dialogue').style.display = 'none';
-            document.getElementById('combat-controls').classList.remove('hidden-ui');
-            log(translations[gameSettings.lang].logs.start);
-            turn = "player";
-            updateUI(); // Başlangıçta buton kontrolü
-        }
-    }
-
-    function nextDialogue() { dialogueIndex++; updateDialogueText(); }
-
-    // --- SAVAŞ SİSTEMİ ---
+    // --- SAVAŞ MEKANİKLERİ ---
     function useSkill(type) {
-        if (turn !== 'player') return;
+        if (turn !== 'player' || player.stunned) return;
         const t = translations[gameSettings.lang];
         const enemy = enemiesData[currentEnemyIndex];
-        let dmg = 0;
-        let msg = "";
+        let dmg = 0; let msg = "";
 
-        if (type === 'basic') {
-            playSfx('basic'); 
-            dmg = 15 + (player.level * 5);
-            msg = t.logs.pStrike;
-        } else if (type === 'q') {
-            if (player.power < 20) { log(t.logs.noPower + " (20)"); return; }
-            playSfx('basic'); 
-            player.power -= 20;
-            dmg = 30 + (player.level * 8);
-            let heal = 10;
-            player.hp = Math.min(player.maxHp, player.hp + heal);
-            showFloat(document.getElementById('player-box'), `+${heal}`, 'heal');
-            msg = t.logs.pQ;
-        } else if (type === 'w') {
-            if (player.power < 30) { log(t.logs.noPower + " (30)"); return; }
-            playSfx('w'); 
-            player.power -= 30;
-            dmg = 45 + (player.level * 10);
-            msg = t.logs.pW;
-        } else if (type === 'r') {
-            if (player.ultUsed) { log("Ult already used this round!"); return; }
-            player.ultUsed = true;
-            dmg = 100 + (player.level * 20);
-            msg = t.logs.pR;
-            document.body.classList.add('death-realm-active');
-            setTimeout(() => document.body.classList.remove('death-realm-active'), 500);
+        if (type === 'basic') { playSfx('basic'); dmg = 15 + (player.level * 5); player.power += 10; msg = t.logs.pStrike; }
+        else if (type === 'q') { player.power -= 20; playSfx('basic'); dmg = 30 + (player.level * 8); let heal = 10; player.hp = Math.min(player.maxHp, player.hp + heal); showFloat(document.getElementById('player-box'), `+${heal}`, 'heal'); msg = t.logs.pQ; }
+        else if (type === 'w') { player.power -= 30; playSfx('w'); dmg = 45 + (player.level * 10); msg = t.logs.pW; }
+        else if (type === 'r') { player.ultUsed = true; dmg = 100 + (player.level * 20); msg = t.logs.pR; document.body.classList.add('death-realm-active'); setTimeout(() => {if(!mordeRealmActive) document.body.classList.remove('death-realm-active')}, 500); }
+
+        player.power = Math.min(100, player.power);
+        
+        // LEBLANC PASİF (Ayna Görüntüsü)
+        if (enemy.id === 'leblanc' && enemy.hp < enemy.maxHp * 0.4 && Math.random() > 0.5) {
+            dmg = 0; msg = t.logs.lbClone;
+            showFloat(document.getElementById('enemy-box'), "MISS", 'text-mana');
         }
 
         enemy.hp -= dmg;
-        showFloat(document.getElementById('enemy-box'), `-${dmg}`, 'damage');
+        if(dmg > 0) {
+            showFloat(document.getElementById('enemy-box'), `-${dmg}`, 'damage');
+            document.getElementById('enemy-box').classList.add('damaged');
+            setTimeout(() => document.getElementById('enemy-box').classList.remove('damaged'), 400);
+        }
         
         document.getElementById('player-box').classList.add('attacking');
         setTimeout(() => document.getElementById('player-box').classList.remove('attacking'), 200);
-        document.getElementById('enemy-box').classList.add('damaged');
-        setTimeout(() => document.getElementById('enemy-box').classList.remove('damaged'), 400);
-
-        log(`${msg} ${dmg} dmg.`);
+        
+        log(msg);
         updateUI();
 
-        if (enemy.hp <= 0) {
-            enemy.hp = 0;
+        // BELVETH TRUE FORM CHECK
+        if (enemy.id === 'belveth' && enemy.hp <= 0 && enemy.form === 1) {
+            enemy.form = 2;
+            enemy.hp = Math.floor(enemy.maxHp * 0.6); // Heal to 60%
+            enemy.damage = Math.floor(enemy.damage * 1.5); // Damage up
+            document.body.classList.add('void-active');
+            log(t.logs.belvethTrue);
             updateUI();
-            setTimeout(victory, 1000);
-        } else {
-            turn = "enemy";
-            updateUI(); // Disable buttons
-            setTimeout(enemyTurn, 1000);
+            turn = "enemy"; 
+            setTimeout(enemyTurn, 1500);
+            return;
         }
+
+        if (enemy.hp <= 0) { enemy.hp = 0; updateUI(); setTimeout(victory, 1000); } 
+        else { turn = "enemy"; updateUI(); setTimeout(enemyTurn, 1000); }
     }
 
     function enemyTurn() {
@@ -579,6 +491,7 @@
         const enemy = enemiesData[currentEnemyIndex];
         const enemyName = t.enemies[enemy.id].name;
         
+        // Rastgele Güç (5-15)
         let pRegen = Math.floor(Math.random() * 11) + 5;
         let eRegen = Math.floor(Math.random() * 11) + 5;
         player.power = Math.min(100, player.power + pRegen);
@@ -587,197 +500,149 @@
         showFloat(document.getElementById('enemy-box'), `+${eRegen} MP`, 'mana');
         updateUI();
 
-        // GANGPLANK AI
+        // --- BOSS AI LOGIC ---
+        
+        // MORDEKAISER (Death Realm)
+        if (enemy.id === 'mordekaiser' && enemy.hp < enemy.maxHp * 0.5 && !mordeRealmActive) {
+            mordeRealmActive = true;
+            document.body.classList.add('death-realm-active');
+            // Player stats steal effect (simulated by dmg reduction or morde buff)
+            enemy.damage += 20;
+            log(t.logs.mordeRealm);
+        }
+
+        // GANGPLANK
         if (enemy.id === 'gangplank') {
             if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
-                enemy.power = 0;
-                enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50);
-                enemy.wUsed = true;
-                showFloat(document.getElementById('enemy-box'), t.bossSkills.gpW, 'heal');
-                showFloat(document.getElementById('enemy-box'), "+50", 'heal');
-                log(t.logs.gpOrange);
-                
-                turn = "player"; 
-                updateUI(); // RE-ENABLE BUTTONS
-                return; 
+                enemy.power = 0; enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50); enemy.wUsed = true;
+                showFloat(document.getElementById('enemy-box'), "+50", 'heal'); log(t.logs.gpW);
+                endEnemyTurn(); return; 
             }
             if (enemy.power >= 20) {
                 enemy.power = 0;
-                let dmg = Math.floor((enemy.damage + Math.floor(Math.random() * 10)) * 1.75);
-                player.hp -= dmg;
-                showFloat(document.getElementById('enemy-box'), t.bossSkills.gpQ, 'crit');
-                showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
-                log(`${enemyName} ${t.logs.gpQ} ${dmg} dmg!`);
-                updateUI(); // Update HP
-                
-                if (player.hp <= 0) { player.hp = 0; updateUI(); log(t.logs.defeat); setTimeout(() => location.reload(), 2000); return; }
-                
-                turn = "player";
-                updateUI(); // RE-ENABLE BUTTONS
-                return;
+                let dmg = Math.floor((enemy.damage + 5) * 1.75);
+                performAttack(dmg, t.logs.gpQ, 'crit'); return;
             }
         }
 
-        // STANDART SALDIRI
-        let dmg = enemy.damage + Math.floor(Math.random() * 10);
+        // YORICK (Sustain)
+        if (enemy.id === 'yorick' && enemy.hp < enemy.maxHp * 0.3 && enemy.power >= 40) {
+            enemy.power = 0;
+            let dmg = enemy.damage;
+            let heal = 40;
+            enemy.hp += heal;
+            showFloat(document.getElementById('enemy-box'), `+${heal}`, 'heal');
+            performAttack(dmg, t.logs.yorHeal); return;
+        }
+
+        // THRESH (Stun every 4th turn approx - using Random for simplicity or power)
+        if (enemy.id === 'thresh' && enemy.power >= 60) {
+            enemy.power = 0;
+            let dmg = enemy.damage + 10;
+            player.stunned = true; // Oyuncu bir tur bekler
+            performAttack(dmg, t.logs.threshHook, 'special'); 
+            // Stun effect handling in next turn
+            return;
+        }
+
+        // Standard Attack
+        performAttack(enemy.damage + Math.floor(Math.random()*10), `${enemyName} ${t.logs.enemyAtk}`);
+    }
+
+    function performAttack(dmg, msg, type = 'damage') {
         player.hp -= dmg;
-        showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
-        
+        showFloat(document.getElementById('player-box'), `-${dmg}`, type);
         document.getElementById('enemy-box').classList.add('attacking');
         setTimeout(() => document.getElementById('enemy-box').classList.remove('attacking'), 200);
         document.getElementById('player-box').classList.add('damaged');
         setTimeout(() => document.getElementById('player-box').classList.remove('damaged'), 400);
-
-        log(`${enemyName} ${t.logs.enemyAtk} ${dmg}.`);
+        log(`${msg} ${dmg}.`);
         updateUI();
+        
+        if (player.hp <= 0) { player.hp = 0; updateUI(); log(translations[gameSettings.lang].logs.defeat); setTimeout(() => location.reload(), 2000); }
+        else { endEnemyTurn(); }
+    }
 
-        if (player.hp <= 0) {
-            player.hp = 0;
-            updateUI();
-            log(t.logs.defeat);
-            setTimeout(() => location.reload(), 2000); 
+    function endEnemyTurn() {
+        if (player.stunned) {
+            log("STUNNED! Turn skipped.");
+            player.stunned = false;
+            setTimeout(enemyTurn, 1500); // Enemy attacks again
         } else {
             turn = "player";
-            updateUI(); // RE-ENABLE BUTTONS
+            updateUI();
         }
     }
 
-    function victory() {
-        document.getElementById('overlay').style.display = 'flex';
-        player.gold += 100;
-        player.level++;
-        player.maxHp += 20;
-        player.hp = player.maxHp;
+    // --- DIALOGUE & UI HELPERS ---
+    function updateDialogueText() {
+        if (dialogueIndex < dialogueQueue.length) { document.getElementById('cinematic-text').innerText = dialogueQueue[dialogueIndex]; } 
+        else {
+            document.getElementById('cinematic-dialogue').style.display = 'none';
+            document.getElementById('combat-controls').classList.remove('hidden-ui');
+            log(translations[gameSettings.lang].logs.start);
+            turn = "player"; updateUI();
+        }
     }
-
-    function nextLevel() {
-        document.getElementById('overlay').style.display = 'none';
-        loadLevel(currentEnemyIndex + 1);
-    }
-
-    // --- ENVANTER & SHOP & SETTINGS ---
-    function useInventoryItem(type) {
-        if (turn !== 'player') return;
+    function nextDialogue() { dialogueIndex++; updateDialogueText(); }
+    
+    function changeLanguage(lang) { gameSettings.lang = lang; saveSettings(); updateTexts(); }
+    function updateTexts() {
         const t = translations[gameSettings.lang];
-        if (type === 'potion' && player.potions > 0) {
-            player.potions--; player.hp = Math.min(player.maxHp, player.hp + 50);
-            showFloat(document.getElementById('player-box'), "+50", 'heal'); log(t.logs.usedPot); playSfx('magic');
-        } else if (type === 'elixir' && player.elixirs > 0) {
-            player.elixirs--; player.power = Math.min(player.maxPower, player.power + 50);
-            showFloat(document.getElementById('player-box'), "+50 Power", 'heal'); log(t.logs.usedElix); playSfx('magic');
+        document.getElementById('ui-menu').innerText = t.ui.menu; document.getElementById('ui-title').innerText = t.ui.title; document.getElementById('ui-subtitle').innerText = t.ui.sub; document.getElementById('ui-start-btn').innerText = t.ui.start; document.getElementById('ui-next-btn').innerText = t.ui.next; document.getElementById('ui-victory').innerText = t.ui.victory; document.getElementById('ui-continue-btn').innerText = t.ui.continue; document.getElementById('ui-shop-title').innerText = t.ui.shopTitle; document.getElementById('ui-shop-close').innerText = t.ui.shopClose; document.getElementById('btn-open-shop').innerText = t.ui.shopOpen; document.getElementById('sell-mode-btn').innerText = isSellMode ? t.ui.sellOn : t.ui.sellOff; document.getElementById('ui-settings-title').innerText = t.ui.settingsTitle; document.getElementById('ui-settings-close').innerText = t.ui.settingsClose; document.getElementById('ui-music-vol').innerText = t.ui.musicVol; document.getElementById('ui-sfx-vol').innerText = t.ui.sfxVol;
+        document.getElementById('skill-name-basic').innerText = t.skills.basic.name; document.getElementById('skill-name-q').innerText = t.skills.q.name; document.getElementById('skill-name-w').innerText = t.skills.w.name; document.getElementById('skill-name-r').innerText = t.skills.r.name;
+        if(currentEnemyIndex < enemiesData.length) {
+            const enemy = enemiesData[currentEnemyIndex];
+            document.getElementById('enemy-name').innerText = `${t.enemies[enemy.id].name.toUpperCase()} (LVL ${enemy.level})`;
         }
         updateUI();
     }
 
-    function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
-    function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-    function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
-
-    function openShop() {
-        const modal = document.getElementById('shop-modal');
-        const container = document.getElementById('shop-container');
-        document.getElementById('shop-gold').innerText = player.gold + " G";
-        const t = translations[gameSettings.lang];
-        const items = [ { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } ];
-        container.innerHTML = "";
-        items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'shop-item';
-            let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`;
-            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`;
-            container.appendChild(div);
-        });
-        modal.style.display = 'flex';
-    }
-
-    function handleShop(id, price) {
-        const t = translations[gameSettings.lang];
-        if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } 
-        else { if (player.gold >= price) { player.gold -= price; if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; openShop(); updateUI(); } else { alert(t.logs.notEnoughGold); } }
-    }
-    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
-
-    // --- UI GÜNCELLEME ---
     function updateUI() {
-        const enemy = enemiesData[currentEnemyIndex];
-        const pHpPct = (player.hp / player.maxHp) * 100;
-        document.getElementById('player-hp-bar').style.width = pHpPct + "%";
-        document.getElementById('player-hp-text').innerText = `${Math.ceil(player.hp)}/${player.maxHp}`;
+        const enemy = enemiesData[currentEnemyIndex] || {hp:0, maxHp:100, power:0, maxPower:100};
+        const pHpPct = (player.hp / player.maxHp) * 100; document.getElementById('player-hp-bar').style.width = pHpPct + "%"; document.getElementById('player-hp-text').innerText = `${Math.ceil(player.hp)}/${player.maxHp}`;
+        const pMpPct = (player.power / player.maxPower) * 100; document.getElementById('player-power-bar').style.width = pMpPct + "%"; document.getElementById('player-power-text').innerText = `${Math.floor(player.power)}/${player.maxPower}`;
+        const eHpPct = (enemy.hp / enemy.maxHp) * 100; document.getElementById('enemy-hp-bar').style.width = eHpPct + "%"; document.getElementById('enemy-hp-text').innerText = `${Math.ceil(enemy.hp)}/${enemy.maxHp}`;
+        const eMpPct = (enemy.power / enemy.maxPower) * 100; document.getElementById('enemy-power-bar').style.width = eMpPct + "%";
+        document.getElementById('count-potion').innerText = player.potions; document.getElementById('count-elixir').innerText = player.elixirs;
         
-        const pMpPct = (player.power / player.maxPower) * 100;
-        document.getElementById('player-power-bar').style.width = pMpPct + "%";
-        document.getElementById('player-power-text').innerText = `${Math.floor(player.power)}/${player.maxPower}`;
-
-        const eHpPct = (enemy.hp / enemy.maxHp) * 100;
-        document.getElementById('enemy-hp-bar').style.width = eHpPct + "%";
-        document.getElementById('enemy-hp-text').innerText = `${Math.ceil(enemy.hp)}/${enemy.maxHp}`;
-        const eMpPct = (enemy.power / enemy.maxPower) * 100;
-        document.getElementById('enemy-power-bar').style.width = eMpPct + "%";
-
-        document.getElementById('count-potion').innerText = player.potions;
-        document.getElementById('count-elixir').innerText = player.elixirs;
-
-        let basicDmg = 15 + (player.level * 5);
-        let qDmg = 30 + (player.level * 8);
-        let wDmg = 45 + (player.level * 10);
-        let rDmg = 100 + (player.level * 20);
-
-        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`;
-        document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`;
-        document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`;
-        document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
-
-        const isPlayerTurn = (turn === 'player');
+        let basicDmg = 15 + (player.level * 5); let qDmg = 30 + (player.level * 8); let wDmg = 45 + (player.level * 10); let rDmg = 100 + (player.level * 20);
+        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
         
-        document.getElementById('btn-basic').disabled = !isPlayerTurn;
-        document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20;
-        document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30;
-        document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
+        const isPlayerTurn = (turn === 'player' && !player.stunned);
+        document.getElementById('btn-basic').disabled = !isPlayerTurn; document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
     }
 
-    function log(msg) {
-        const box = document.getElementById('combat-log');
-        box.innerHTML = `> ${msg}<br>` + box.innerHTML;
+    // --- ISOLDE CHOICE ---
+    function makeChoice(choice) {
+        if(choice === 'attack') alert("You chose vengeance. The Ruination continues forever.");
+        else alert("You chose peace. The Mist fades, and Viego finally rests.");
+        location.reload();
     }
 
-    function showFloat(target, text, type) {
-        const el = document.createElement('div');
-        el.className = `float-text text-${type}`;
-        el.innerText = text;
-        const rect = target.getBoundingClientRect();
-        el.style.left = (rect.left + rect.width/2 - 20) + 'px';
-        el.style.top = (rect.top) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
-    }
-
+    // --- STANDARD UTILS ---
+    function log(msg) { const b = document.getElementById('combat-log'); b.innerHTML = `> ${msg}<br>` + b.innerHTML; }
+    function showFloat(target, text, type) { const el = document.createElement('div'); el.className = `float-text text-${type}`; el.innerText = text; const rect = target.getBoundingClientRect(); el.style.left = (rect.left + rect.width/2 - 20) + 'px'; el.style.top = rect.top + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
     function showCharacterTooltip(el, who) {
-        const tip = document.getElementById('inv-tooltip');
-        const t = translations[gameSettings.lang];
+        const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
         let html = "";
         if (who === 'player') html = `<div class="tooltip-title">VIEGO</div>${t.tooltips.viego}`;
         else { const enemy = enemiesData[currentEnemyIndex]; html = `<div class="tooltip-title">${t.enemies[enemy.id].name.toUpperCase()}</div>Dmg: ${enemy.damage}<br><span class="info-strong">${t.tooltips.threat}:</span> High`; }
-        tip.innerHTML = html;
-        tip.style.display = 'block';
-        const rect = el.getBoundingClientRect();
-        let left = rect.left - 200; if (left < 10) left = 10; 
-        tip.style.top = (rect.bottom + 5) + 'px'; tip.style.left = left + 'px';
+        tip.innerHTML = html; tip.style.display = 'block';
+        const rect = el.getBoundingClientRect(); let left = rect.left - 200; if (left < 10) left = 10; tip.style.top = (rect.bottom + 5) + 'px'; tip.style.left = left + 'px';
     }
-    
     function showTooltip(el, type) {
-        const tip = document.getElementById('inv-tooltip');
-        const t = translations[gameSettings.lang];
-        let text = ""; let title = "";
-        if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
-        tip.innerHTML = `<div class="tooltip-title">${title}</div>${text}`;
-        tip.style.display = 'block';
-        const rect = el.getBoundingClientRect();
-        tip.style.left = (rect.right + 10) + 'px'; tip.style.top = rect.top + 'px';
+        const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
+        let text = "", title = ""; if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
+        tip.innerHTML = `<div class="tooltip-title">${title}</div>${text}`; tip.style.display = 'block'; const rect = el.getBoundingClientRect(); tip.style.left = (rect.right + 10) + 'px'; tip.style.top = rect.top + 'px';
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
-
-    // SIS EFEKTİ KODU KALDIRILDI
-
+    function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+    function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+    function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
+    function openShop() { const modal = document.getElementById('shop-modal'); const container = document.getElementById('shop-container'); document.getElementById('shop-gold').innerText = player.gold + " G"; const t = translations[gameSettings.lang]; const items = [ { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } ]; container.innerHTML = ""; items.forEach(item => { const div = document.createElement('div'); div.className = 'shop-item'; let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`; container.appendChild(div); }); modal.style.display = 'flex'; }
+    function handleShop(id, price) { if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } else { if (player.gold >= price) { player.gold -= price; if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; openShop(); updateUI(); } else { alert(translations[gameSettings.lang].logs.notEnoughGold); } } }
+    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
     window.onload = function() { loadSettings(); }
 </script>
 </body>
