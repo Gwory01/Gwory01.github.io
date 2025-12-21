@@ -35,7 +35,7 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        #mist-canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.6; }
+        /* Sis efekti CSS'i kaldırıldı */
 
         /* --- UI GENEL --- */
         .game-wrapper { 
@@ -776,29 +776,7 @@
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
 
-    // --- MIST (SHADER) ---
-    const bgCanvas = document.body.appendChild(document.createElement("canvas"));
-    bgCanvas.id = "mist-canvas-bg";
-    const gl = bgCanvas.getContext("webgl2");
-    if(gl) {
-        const vsSource = `#version 300 es
-        precision mediump float; const vec2 p[6]=vec2[6](vec2(-1,-1),vec2(1,-1),vec2(-1,1),vec2(-1,1),vec2(1,-1),vec2(1,1)); out vec2 uv; void main(){uv=p[gl_VertexID]*0.5+0.5;gl_Position=vec4(p[gl_VertexID],0,1);}`;
-        const fsSource = `#version 300 es
-        precision highp float; uniform float time; in vec2 uv; out vec4 color;
-        float n(vec2 p){return fract(sin(dot(p,vec2(1,300)))*43758.54);}
-        float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.;a*=.5;}return v;}
-        void main(){vec2 p=uv;float t=time*0.1;float f=fbm(p*3.+t);
-        color=vec4(0.04,0.78,0.72,smoothstep(0.2,0.9,f)*0.3);}`;
-        const createShader = (ty, src) => { const s=gl.createShader(ty); gl.shaderSource(s,src); gl.compileShader(s); return s; };
-        const prog = gl.createProgram(); 
-        gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
-        gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
-        gl.linkProgram(prog); gl.useProgram(prog);
-        const tLoc = gl.getUniformLocation(prog, "time");
-        const start = Date.now();
-        const render = () => { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; gl.viewport(0,0,bgCanvas.width, bgCanvas.height); gl.uniform1f(tLoc, (Date.now()-start)/1000); gl.drawArrays(gl.TRIANGLES, 0, 6); requestAnimationFrame(render); };
-        render();
-    }
+    // SIS EFEKTİ KODU KALDIRILDI
 
     window.onload = function() { loadSettings(); }
 </script>
