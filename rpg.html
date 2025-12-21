@@ -45,10 +45,10 @@
             position: relative; z-index: 10;
         }
 
-        /* --- INFO BUTONU DÜZELTMESİ --- */
+        /* --- INFO BUTONU --- */
         .info-btn { 
             position: absolute; 
-            top: 10px; right: 20px; /* Karakter kutusunun sağ üst köşesi */
+            top: 10px; right: 20px; 
             width: 28px; height: 28px; 
             background: #000; border: 2px solid var(--ruined-green); 
             color: var(--ruined-green); border-radius: 50%; 
@@ -63,7 +63,7 @@
             position: absolute; top: 10px; right: 10px; z-index: 100;
             display: flex; gap: 10px; align-items: center; 
         }
-        .control-btn-ui { background: rgba(0,0,0,0.7); color: white; border: 1px solid #555; padding: 8px 12px; border-radius: 4px; font-size: 12px; }
+        .control-btn-ui { background: rgba(0,0,0,0.7); color: white; border: 1px solid #555; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         .back-btn { position: absolute; top: 10px; left: 10px; z-index: 100; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 12px; border-radius: 4px; }
 
         /* --- SAVAŞ ALANI --- */
@@ -119,8 +119,8 @@
         }
         .skill-btn:active { background: #222; transform: scale(0.98); }
         .skill-btn:disabled { opacity: 0.3; }
-        .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; color: #ddd; }
-        .skill-cost { font-size: 0.7rem; color: #2ecc71; }
+        .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; color: #ddd; text-align: center; }
+        .skill-cost { font-size: 0.7rem; color: #2ecc71; text-align: center; }
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
 
         .log-box { 
@@ -137,7 +137,7 @@
         .inv-slot { 
             width: 40px; height: 40px; background: rgba(0,0,0,0.8); 
             border: 1px solid #444; border-radius: 4px; 
-            display: flex; justify-content: center; align-items: center; font-size: 20px; 
+            display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer;
         }
         .inv-count { position: absolute; bottom: 0; right: 0; font-size: 10px; background: black; color: white; padding: 1px 3px; }
 
@@ -171,12 +171,13 @@
         }
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; overflow-y: auto; flex-grow: 1; margin-top: 20px; }
         .shop-item { background: #111; border: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 4px 8px; font-size: 12px; cursor: pointer; }
 
         /* TOOLTIP */
         #inv-tooltip { 
-            position: absolute; background: rgba(0,0,0,0.95); border: 1px solid var(--ruined-green); 
+            position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); 
             padding: 10px; font-size: 12px; z-index: 5000; pointer-events: none; 
-            display: none; width: 200px; text-align: left; font-family: 'Roboto'; color: #ddd;
+            display: none; width: 220px; text-align: left; font-family: 'Roboto'; color: #ddd;
             border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
         .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 5px; padding-bottom: 5px; font-size: 14px; }
@@ -187,6 +188,8 @@
         .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; }
         .attacking { animation: bump 0.2s; } @keyframes bump { 50% { transform: scale(1.1); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        #flash-effect { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; }
+        .ult-flash { animation: flash 1s linear; background: rgba(10, 200, 185, 0.5); } @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
 
         /* MOBIL DİKEY MOD */
         @media screen and (max-width: 768px) {
@@ -202,7 +205,7 @@
 </head>
 <body>
 
-    <a href="index.html" class="back-btn">← Menu</a>
+    <a href="index.html" class="back-btn" id="ui-menu">← Menu</a>
     
     <div id="inventory-frame">
         <div class="inv-slot" onclick="useInventoryItem('potion')" ontouchstart="showTooltip(this, 'potion')" ontouchend="hideTooltip()" onmouseover="showTooltip(this, 'potion')" onmouseout="hideTooltip()">
@@ -215,7 +218,11 @@
 
     <div class="top-bar-controls">
         <button class="control-btn-ui" onclick="location.reload()">🔄</button>
-        <button class="control-btn-ui" onclick="openShop()">🛒 SHOP</button>
+        <button class="control-btn-ui" id="btn-open-shop" onclick="openShop()">🛒 SHOP</button>
+        <select class="control-btn-ui" id="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+        </select>
     </div>
 
     <div id="inv-tooltip"></div>
@@ -224,31 +231,34 @@
 
     <div id="shop-modal">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="color:var(--gold-color); margin:0;">SHOP</h2>
+            <h2 style="color:var(--gold-color); margin:0;" id="ui-shop-title">SHOP</h2>
             <span id="shop-gold" style="color:white; font-weight:bold;">0 G</span>
         </div>
+        <div style="text-align:right; margin-bottom:5px;">
+             <button id="sell-mode-btn" class="control-btn-ui" onclick="toggleSellMode()">SELL: OFF</button>
+        </div>
         <div class="shop-grid" id="shop-container"></div>
-        <button class="start-btn" style="padding:10px; width:100%; margin-top:10px;" onclick="closeShop()">CLOSE</button>
+        <button class="start-btn" id="ui-shop-close" style="padding:10px; width:100%; margin-top:10px;" onclick="closeShop()">CLOSE</button>
     </div>
 
     <div class="game-wrapper">
         
         <div id="start-screen">
-            <h1 style="color:white; margin-bottom:5px;">THE RUINED KING</h1>
-            <p style="color:#aaa; font-style:italic;">"She is waiting..."</p>
-            <button class="start-btn" onclick="initGame()">START JOURNEY</button>
+            <h1 style="color:white; margin-bottom:5px;" id="ui-title">THE RUINED KING</h1>
+            <p style="color:#aaa; font-style:italic;" id="ui-subtitle">"She is waiting..."</p>
+            <button class="start-btn" id="ui-start-btn" onclick="initGame()">START JOURNEY</button>
         </div>
 
         <div id="cinematic-dialogue">
             <div class="dialogue-box">
                 <div id="cinematic-text">...</div>
-                <button class="start-btn" style="padding: 10px 30px; font-size: 1rem;" onclick="nextDialogue()">NEXT</button>
+                <button class="start-btn" id="ui-next-btn" style="padding: 10px 30px; font-size: 1rem;" onclick="nextDialogue()">NEXT</button>
             </div>
         </div>
 
         <div id="overlay">
-            <h2 style="color:var(--ruined-green); font-size:2.5rem;">VICTORY</h2>
-            <button class="start-btn" onclick="nextLevel()">CONTINUE</button>
+            <h2 style="color:var(--ruined-green); font-size:2.5rem;" id="ui-victory">VICTORY</h2>
+            <button class="start-btn" id="ui-continue-btn" onclick="nextLevel()">CONTINUE</button>
         </div>
 
         <div class="battle-scene">
@@ -270,24 +280,135 @@
         </div>
 
         <div class="controls hidden-ui" id="combat-controls">
-            <div class="log-box" id="combat-log">Waiting for battle...</div>
+            <div class="log-box" id="combat-log">...</div>
             <div class="skills">
-                <button class="skill-btn" id="btn-basic" onclick="useSkill('basic')"><span class="skill-name">Blade</span><span class="skill-cost">Basic Dmg</span></button>
-                <button class="skill-btn" id="btn-q" onclick="useSkill('q')"><span class="skill-name">Ruined King (Q)</span><span class="skill-cost">30 Dmg | Heal</span></button>
-                <button class="skill-btn" id="btn-w" onclick="useSkill('w')"><span class="skill-name">Spectral Maw (W)</span><span class="skill-cost">Stun/Crit</span></button>
-                <button class="skill-btn ult-btn" id="btn-r" onclick="useSkill('r')"><span class="skill-name">HEARTBREAKER</span><span class="skill-cost">FINISHER</span></button>
+                <button class="skill-btn" id="btn-basic" onclick="useSkill('basic')"><span class="skill-name" id="skill-name-basic">Blade</span><span class="skill-cost" id="skill-desc-basic">Basic Dmg</span></button>
+                <button class="skill-btn" id="btn-q" onclick="useSkill('q')"><span class="skill-name" id="skill-name-q">Ruined King (Q)</span><span class="skill-cost" id="skill-desc-q">30 Dmg | Heal</span></button>
+                <button class="skill-btn" id="btn-w" onclick="useSkill('w')"><span class="skill-name" id="skill-name-w">Spectral Maw (W)</span><span class="skill-cost" id="skill-desc-w">Stun/Crit</span></button>
+                <button class="skill-btn ult-btn" id="btn-r" onclick="useSkill('r')"><span class="skill-name" id="skill-name-r">HEARTBREAKER</span><span class="skill-cost" id="skill-desc-r">FINISHER</span></button>
             </div>
         </div>
     </div>
 
 <script>
-    // --- VERİLER VE AYARLAR ---
+    // --- ÇOKLU DİL VERİTABANI (I18N) ---
+    let currentLang = 'en';
+
+    const translations = {
+        en: {
+            ui: {
+                menu: "← Menu",
+                title: "THE RUINED KING",
+                sub: "\"She is waiting...\"",
+                start: "START JOURNEY",
+                next: "NEXT",
+                victory: "VICTORY",
+                continue: "CONTINUE",
+                shopTitle: "RUINED SHOP",
+                shopClose: "CLOSE",
+                shopOpen: "🛒 SHOP",
+                sellOff: "SELL: OFF",
+                sellOn: "SELL: ON",
+                buy: "BUY",
+                sell: "SELL"
+            },
+            skills: {
+                basic: { name: "Blade", desc: "Basic Dmg + Power" },
+                q: { name: "Ruined King (Q)", desc: "30 Dmg | Heal" },
+                w: { name: "Spectral Maw (W)", desc: "Crit Next Hit" },
+                r: { name: "HEARTBREAKER", desc: "EXECUTE (100 Power)" }
+            },
+            logs: {
+                wait: "Waiting for battle...",
+                start: "Battle Started!",
+                pStrike: "Viego strikes!",
+                pQ: "Blade of the Ruined King hits!",
+                pW: "Spectral Maw hits! Next hit CRITS!",
+                pR: "HEARTBREAKER!",
+                noPower: "Not enough Power!",
+                enemyAtk: "attacks for",
+                defeat: "DEFEAT... The Mist fades.",
+                usedPot: "Used Potion (+50 HP)",
+                usedElix: "Used Elixir (+50 Power)",
+                notEnoughGold: "Not enough Gold!",
+                won: "Game Over! You conquered all."
+            },
+            tooltips: {
+                viego: "Passive: Soul Eater<br>Ult: Heartbreaker (Executes)",
+                threat: "Threat",
+                potion: { name: "Mist Potion", desc: "Heals 50 HP" },
+                elixir: { name: "Wrath Elixir", desc: "Grants 50 Power" },
+                sword: { name: "B.F. Sword", desc: "+10 Base Damage" }
+            },
+            enemies: {
+                gangplank: { name: "Gangplank", intro: ["Gangplank: This is my city!", "Viego: I will take everything."] },
+                yorick: { name: "Yorick", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
+                lucian: { name: "Lucian", intro: ["Lucian: Stop this madness, Viego!", "Viego: Never!"] },
+                mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
+            }
+        },
+        tr: {
+            ui: {
+                menu: "← Menü",
+                title: "MAHVOLMUŞ KRAL",
+                sub: "\"O beni bekliyor...\"",
+                start: "YOLCULUĞA BAŞLA",
+                next: "İLERİ",
+                victory: "ZAFER",
+                continue: "DEVAM ET",
+                shopTitle: "MAHVOLMUŞ MARKET",
+                shopClose: "KAPAT",
+                shopOpen: "🛒 MARKET",
+                sellOff: "SATIŞ: KAPALI",
+                sellOn: "SATIŞ: AÇIK",
+                buy: "SATIN AL",
+                sell: "SAT"
+            },
+            skills: {
+                basic: { name: "Kılıç Darbesi", desc: "Hasar + Güç" },
+                q: { name: "Mahvolmuş Kral (Q)", desc: "30 Hasar | İyileşme" },
+                w: { name: "Hayalet Ağız (W)", desc: "Sonraki Vuruş Kritik" },
+                r: { name: "KALP KIRAN", desc: "BİTİRİCİ (100 Güç)" }
+            },
+            logs: {
+                wait: "Savaş bekleniyor...",
+                start: "Savaş Başladı!",
+                pStrike: "Viego saldırdı!",
+                pQ: "Mahvolmuş Kralın Kılıcı!",
+                pW: "Hayalet Ağız çarptı! Kritik hazır!",
+                pR: "KALP KIRAN!",
+                noPower: "Yetersiz Güç!",
+                enemyAtk: "saldırdı ve vurdu:",
+                defeat: "YENİLGİ... Sis dağılıyor.",
+                usedPot: "İksir İçildi (+50 Can)",
+                usedElix: "Elixir İçildi (+50 Güç)",
+                notEnoughGold: "Yetersiz Altın!",
+                won: "Oyun Bitti! Hepsini fethettin."
+            },
+            tooltips: {
+                viego: "Pasif: Ruh Yiyen<br>Ulti: Kalp Kıran (İnfaz)",
+                threat: "Tehdit",
+                potion: { name: "Sis İksiri", desc: "50 Can Yeniler" },
+                elixir: { name: "Öfke İksiri", desc: "50 Güç Verir" },
+                sword: { name: "A.M. Kılıcı", desc: "+10 Taban Hasar" }
+            },
+            enemies: {
+                gangplank: { name: "Gangplank", intro: ["Gangplank: Bu şehir benim!", "Viego: Her şeyi alacağım."] },
+                yorick: { name: "Yorick", intro: ["Yorick: Kara Sis bir lanet.", "Viego: O benim aşkım."] },
+                lucian: { name: "Lucian", intro: ["Lucian: Bu deliliğe son ver Viego!", "Viego: Asla!"] },
+                mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
+            }
+        }
+    };
+
+    // --- OYUN VERİLERİ ---
     const bgMusic = document.getElementById('bgMusic');
-    const enemies = [
-        { id: "gangplank", name: "Gangplank", hp: 200, maxHp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg", intro: ["Gangplank: This is my city!", "Viego: I will take everything."] },
-        { id: "yorick", name: "Yorick", hp: 250, maxHp: 250, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
-        { id: "lucian", name: "Lucian", hp: 300, maxHp: 300, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg", intro: ["Lucian: Stop this madness, Viego!", "Viego: Never!"] },
-        { id: "mordekaiser", name: "Mordekaiser", hp: 500, maxHp: 500, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
+    // Düşman verileri (Metinler dil objesinden gelecek)
+    const enemiesData = [
+        { id: "gangplank", hp: 200, maxHp: 200, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
+        { id: "yorick", hp: 250, maxHp: 250, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
+        { id: "lucian", hp: 300, maxHp: 300, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
+        { id: "mordekaiser", hp: 500, maxHp: 500, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Mordekaiser_0.jpg" }
     ];
 
     let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1, ownedPassives: [] };
@@ -295,51 +416,87 @@
     let turn = "player";
     let dialogueQueue = [];
     let dialogueIndex = 0;
+    let isSellMode = false;
+
+    // --- DİL DEĞİŞTİRME ---
+    function changeLanguage(lang) {
+        currentLang = lang;
+        updateTexts();
+    }
+
+    function updateTexts() {
+        const t = translations[currentLang];
+        
+        // UI Texts
+        document.getElementById('ui-menu').innerText = t.ui.menu;
+        document.getElementById('ui-title').innerText = t.ui.title;
+        document.getElementById('ui-subtitle').innerText = t.ui.sub;
+        document.getElementById('ui-start-btn').innerText = t.ui.start;
+        document.getElementById('ui-next-btn').innerText = t.ui.next;
+        document.getElementById('ui-victory').innerText = t.ui.victory;
+        document.getElementById('ui-continue-btn').innerText = t.ui.continue;
+        document.getElementById('ui-shop-title').innerText = t.ui.shopTitle;
+        document.getElementById('ui-shop-close').innerText = t.ui.shopClose;
+        document.getElementById('btn-open-shop').innerText = t.ui.shopOpen;
+        document.getElementById('sell-mode-btn').innerText = isSellMode ? t.ui.sellOn : t.ui.sellOff;
+
+        // Skills
+        document.getElementById('skill-name-basic').innerText = t.skills.basic.name;
+        document.getElementById('skill-desc-basic').innerText = t.skills.basic.desc;
+        document.getElementById('skill-name-q').innerText = t.skills.q.name;
+        document.getElementById('skill-desc-q').innerText = t.skills.q.desc;
+        document.getElementById('skill-name-w').innerText = t.skills.w.name;
+        document.getElementById('skill-desc-w').innerText = t.skills.w.desc;
+        document.getElementById('skill-name-r').innerText = t.skills.r.name;
+        document.getElementById('skill-desc-r').innerText = t.skills.r.desc;
+
+        // Enemy Name Update (If in battle)
+        const enemyData = enemiesData[currentEnemyIndex];
+        if(enemyData) {
+            document.getElementById('enemy-name').innerText = t.enemies[enemyData.id].name.toUpperCase();
+        }
+    }
 
     // --- BAŞLATMA (INIT) ---
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
-        
-        // Müzik Başlatma (Kullanıcı etkileşimi olduğu için burada çalışır)
-        // Not: Gerçek bir dosya olmadığı için hata vermemesi için try-catch
         try {
-            bgMusic.src = "Tier1.mp3"; // Placeholder
+            bgMusic.src = "Tier1.mp3"; 
             bgMusic.volume = 0.2;
-            bgMusic.play().catch(e => console.log("Music play failed (expected if no file):", e));
+            bgMusic.play().catch(e => {});
         } catch(e) {}
-
         loadLevel(0);
     }
 
     function loadLevel(index) {
         currentEnemyIndex = index;
-        if (index >= enemies.length) { alert("Game Over! You won."); location.reload(); return; }
+        const t = translations[currentLang];
+
+        if (index >= enemiesData.length) { alert(t.logs.won); location.reload(); return; }
         
-        const enemy = enemies[index];
-        enemy.hp = enemy.maxHp; // Reset enemy HP
+        const enemy = enemiesData[index];
+        enemy.hp = enemy.maxHp; 
         
-        document.getElementById('enemy-name').innerText = enemy.name.toUpperCase();
+        document.getElementById('enemy-name').innerText = t.enemies[enemy.id].name.toUpperCase();
         document.getElementById('enemy-img').src = enemy.img;
         
         updateUI();
         
-        // Diyalog Başlat
-        dialogueQueue = enemy.intro;
+        // Diyalog Başlat (Dil seçeneğine göre)
+        dialogueQueue = t.enemies[enemy.id].intro;
         dialogueIndex = 0;
-        document.getElementById('combat-controls').classList.add('hidden-ui'); // Kontrolleri gizle
+        document.getElementById('combat-controls').classList.add('hidden-ui'); 
         document.getElementById('cinematic-dialogue').style.display = 'flex';
         updateDialogueText();
     }
 
-    // --- DİYALOG SİSTEMİ (DÜZELTİLDİ) ---
     function updateDialogueText() {
         if (dialogueIndex < dialogueQueue.length) {
             document.getElementById('cinematic-text').innerText = dialogueQueue[dialogueIndex];
         } else {
-            // Diyalog bitti
             document.getElementById('cinematic-dialogue').style.display = 'none';
-            document.getElementById('combat-controls').classList.remove('hidden-ui'); // Kontrolleri aç
-            log("Battle Started!");
+            document.getElementById('combat-controls').classList.remove('hidden-ui');
+            log(translations[currentLang].logs.start);
             turn = "player";
             checkTurn();
         }
@@ -353,33 +510,33 @@
     // --- SAVAŞ SİSTEMİ ---
     function useSkill(type) {
         if (turn !== 'player') return;
-        
-        const enemy = enemies[currentEnemyIndex];
+        const t = translations[currentLang];
+        const enemy = enemiesData[currentEnemyIndex];
         let dmg = 0;
         let msg = "";
 
         if (type === 'basic') {
             dmg = 15 + (player.level * 5);
             player.power += 10;
-            msg = "Viego strikes!";
+            msg = t.logs.pStrike;
         } else if (type === 'q') {
-            if (player.power < 20) { log("Not enough power! (Need 20)"); return; }
+            if (player.power < 20) { log(t.logs.noPower + " (20)"); return; }
             player.power -= 20;
             dmg = 30 + (player.level * 8);
             let heal = 10;
             player.hp = Math.min(player.maxHp, player.hp + heal);
             showFloat(document.getElementById('player-box'), `+${heal}`, 'heal');
-            msg = "Blade of the Ruined King!";
+            msg = t.logs.pQ;
         } else if (type === 'w') {
-            if (player.power < 30) { log("Not enough power! (Need 30)"); return; }
+            if (player.power < 30) { log(t.logs.noPower + " (30)"); return; }
             player.power -= 30;
             dmg = 45 + (player.level * 10);
-            msg = "Spectral Maw hits!";
+            msg = t.logs.pW;
         } else if (type === 'r') {
-            if (player.power < 100) { log("Need 100 Power for Ult!"); return; }
+            if (player.power < 100) { log(t.logs.noPower + " (100)"); return; }
             player.power = 0;
             dmg = 100 + (player.level * 20);
-            msg = "HEARTBREAKER!";
+            msg = t.logs.pR;
             document.body.classList.add('death-realm-active');
             setTimeout(() => document.body.classList.remove('death-realm-active'), 500);
         }
@@ -393,7 +550,7 @@
         document.getElementById('enemy-box').classList.add('damaged');
         setTimeout(() => document.getElementById('enemy-box').classList.remove('damaged'), 400);
 
-        log(`${msg} Dealt ${dmg} dmg.`);
+        log(`${msg} ${dmg} dmg.`);
         updateUI();
 
         if (enemy.hp <= 0) {
@@ -408,7 +565,9 @@
     }
 
     function enemyTurn() {
-        const enemy = enemies[currentEnemyIndex];
+        const t = translations[currentLang];
+        const enemy = enemiesData[currentEnemyIndex];
+        const enemyName = t.enemies[enemy.id].name;
         let dmg = enemy.damage + Math.floor(Math.random() * 10);
         
         player.hp -= dmg;
@@ -419,14 +578,14 @@
         document.getElementById('player-box').classList.add('damaged');
         setTimeout(() => document.getElementById('player-box').classList.remove('damaged'), 400);
 
-        log(`${enemy.name} attacks for ${dmg} damage.`);
+        log(`${enemyName} ${t.logs.enemyAtk} ${dmg}.`);
         updateUI();
 
         if (player.hp <= 0) {
             player.hp = 0;
             updateUI();
-            log("DEFEAT...");
-            setTimeout(() => location.reload(), 2000); // Basit restart
+            log(t.logs.defeat);
+            setTimeout(() => location.reload(), 2000); 
         } else {
             turn = "player";
             checkTurn();
@@ -454,39 +613,49 @@
     // --- ENVANTER & SHOP ---
     function useInventoryItem(type) {
         if (turn !== 'player') return;
+        const t = translations[currentLang];
+        
         if (type === 'potion' && player.potions > 0) {
             player.potions--;
             player.hp = Math.min(player.maxHp, player.hp + 50);
             showFloat(document.getElementById('player-box'), "+50", 'heal');
-            log("Used Potion.");
+            log(t.logs.usedPot);
         } else if (type === 'elixir' && player.elixirs > 0) {
             player.elixirs--;
             player.power = Math.min(player.maxPower, player.power + 50);
             showFloat(document.getElementById('player-box'), "+50 Power", 'heal');
-            log("Used Elixir.");
+            log(t.logs.usedElix);
         }
         updateUI();
+    }
+
+    function toggleSellMode() {
+        isSellMode = !isSellMode;
+        updateTexts();
+        openShop();
     }
 
     function openShop() {
         const modal = document.getElementById('shop-modal');
         const container = document.getElementById('shop-container');
         document.getElementById('shop-gold').innerText = player.gold + " G";
+        const t = translations[currentLang];
         
-        // Örnek itemler
         const items = [
-            { id: 'potion', name: "Potion", price: 50, icon: "🧪" },
-            { id: 'elixir', name: "Elixir", price: 50, icon: "⚡" },
-            { id: 'sword', name: "B.F. Sword", price: 300, icon: "⚔️" }
+            { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" },
+            { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" },
+            { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" }
         ];
 
         container.innerHTML = "";
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'shop-item';
+            let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`;
+            
             div.innerHTML = `
                 <div style="color:white;">${item.icon} ${item.name}</div>
-                <button class="buy-btn" onclick="buyItem('${item.id}', ${item.price})">BUY ${item.price}G</button>
+                <button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>
             `;
             container.appendChild(div);
         });
@@ -494,22 +663,29 @@
         modal.style.display = 'flex';
     }
 
-    function buyItem(id, price) {
-        if (player.gold >= price) {
-            player.gold -= price;
-            if (id === 'potion') player.potions++;
-            if (id === 'elixir') player.elixirs++;
-            openShop(); // Yenile
-            updateUI();
+    function handleShop(id, price) {
+        const t = translations[currentLang];
+        if (isSellMode) {
+            // Basit satış mantığı
+            if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; }
+            else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; }
+            openShop(); updateUI();
         } else {
-            alert("Not enough gold!");
+            if (player.gold >= price) {
+                player.gold -= price;
+                if (id === 'potion') player.potions++;
+                if (id === 'elixir') player.elixirs++;
+                openShop(); updateUI();
+            } else {
+                alert(t.logs.notEnoughGold);
+            }
         }
     }
-    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
 
     // --- UI GÜNCELLEME ---
     function updateUI() {
-        const enemy = enemies[currentEnemyIndex];
+        const enemy = enemiesData[currentEnemyIndex];
         
         // Player HP
         const pHpPct = (player.hp / player.maxHp) * 100;
@@ -521,7 +697,7 @@
         document.getElementById('enemy-hp-bar').style.width = eHpPct + "%";
         document.getElementById('enemy-hp-text').innerText = `${Math.ceil(enemy.hp)}/${enemy.maxHp}`;
 
-        // Envanter Sayıları
+        // Envanter
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
     }
@@ -545,35 +721,38 @@
     // --- TOOLTIP ---
     function showCharacterTooltip(el, who) {
         const tip = document.getElementById('inv-tooltip');
+        const t = translations[currentLang];
         let html = "";
+        
         if (who === 'player') {
-            html = `<div class="tooltip-title">VIEGO (Lvl ${player.level})</div>
-                    <span class="info-weak">PASSIVE:</span> Soul Eater<br>
-                    <span class="info-strong">ULT:</span> Heartbreaker (Executes)`;
+            html = `<div class="tooltip-title">VIEGO</div>${t.tooltips.viego}`;
         } else {
-            const enemy = enemies[currentEnemyIndex];
-            html = `<div class="tooltip-title">${enemy.name.toUpperCase()}</div>
+            const enemy = enemiesData[currentEnemyIndex];
+            const enemyName = t.enemies[enemy.id].name.toUpperCase();
+            html = `<div class="tooltip-title">${enemyName}</div>
                     Dmg: ${enemy.damage}<br>
-                    <span class="info-strong">Threat:</span> High`;
+                    <span class="info-strong">${t.tooltips.threat}:</span> High`;
         }
         tip.innerHTML = html;
         tip.style.display = 'block';
         
         const rect = el.getBoundingClientRect();
+        let left = rect.left - 200;
+        if (left < 10) left = 10; 
         tip.style.top = (rect.bottom + 5) + 'px';
-        
-        // Ekranın sağına taşıyorsa sola al
-        if (rect.left > window.innerWidth / 2) {
-            tip.style.left = (rect.left - 200) + 'px';
-        } else {
-            tip.style.left = rect.left + 'px';
-        }
+        tip.style.left = left + 'px';
     }
     
     function showTooltip(el, type) {
         const tip = document.getElementById('inv-tooltip');
-        let text = type === 'potion' ? "Heals 50 HP" : "Grants 50 Power";
-        tip.innerHTML = `<div class="tooltip-title">${type.toUpperCase()}</div>${text}`;
+        const t = translations[currentLang];
+        let text = "";
+        let title = "";
+
+        if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; }
+        else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
+
+        tip.innerHTML = `<div class="tooltip-title">${title}</div>${text}`;
         tip.style.display = 'block';
         const rect = el.getBoundingClientRect();
         tip.style.left = (rect.right + 10) + 'px';
@@ -582,15 +761,42 @@
 
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
 
-    // --- MIST EFFECT (SHADER) ---
-    // Performans için basit canvas kodu (Önceki kodun aynısı, çalışıyor)
+    // --- MIST EFFECT (Canvas) ---
     const bgCanvas = document.body.appendChild(document.createElement("canvas"));
     bgCanvas.id = "mist-canvas-bg";
     const gl = bgCanvas.getContext("webgl2");
     if(gl) {
-        // Shader setup skipped for brevity in this fix block, 
-        // assuming standard CSS background works if WebGL fails.
-        // Full WebGL code from previous response can be pasted here if needed.
+        // Basic setup for mist
+        const vsSource = `#version 300 es
+        precision mediump float; const vec2 p[6]=vec2[6](vec2(-1,-1),vec2(1,-1),vec2(-1,1),vec2(-1,1),vec2(1,-1),vec2(1,1)); out vec2 uv; void main(){uv=p[gl_VertexID]*0.5+0.5;gl_Position=vec4(p[gl_VertexID],0,1);}`;
+        const fsSource = `#version 300 es
+        precision highp float; uniform float time; in vec2 uv; out vec4 color;
+        float n(vec2 p){return fract(sin(dot(p,vec2(1,300)))*43758.54);}
+        float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.;a*=.5;}return v;}
+        void main(){vec2 p=uv;float t=time*0.1;float f=fbm(p*3.+t);
+        color=vec4(0.04,0.78,0.72,smoothstep(0.2,0.9,f)*0.3);}`;
+        
+        const createShader = (ty, src) => { const s=gl.createShader(ty); gl.shaderSource(s,src); gl.compileShader(s); return s; };
+        const prog = gl.createProgram(); 
+        gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
+        gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
+        gl.linkProgram(prog); gl.useProgram(prog);
+        
+        const tLoc = gl.getUniformLocation(prog, "time");
+        const start = Date.now();
+        const render = () => {
+            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
+            gl.viewport(0,0,bgCanvas.width, bgCanvas.height);
+            gl.uniform1f(tLoc, (Date.now()-start)/1000);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            requestAnimationFrame(render);
+        };
+        render();
+    }
+
+    // İlk yüklemede metinleri ayarla
+    window.onload = function() {
+        updateTexts();
     }
 
 </script>
