@@ -468,7 +468,7 @@
         const enemyData = enemiesData[currentEnemyIndex];
         if(enemyData) document.getElementById('enemy-name').innerText = t.enemies[enemyData.id].name.toUpperCase();
         
-        updateUI(); // Update skill descriptions with dynamic damage
+        updateUI(); 
     }
 
     // --- BAŞLATMA ---
@@ -489,7 +489,7 @@
         enemy.hp = enemy.maxHp; 
         enemy.power = 0; 
         enemy.wUsed = false; 
-        player.ultUsed = false; // Reset ult per round
+        player.ultUsed = false; 
         
         document.getElementById('enemy-name').innerText = t.enemies[enemy.id].name.toUpperCase();
         document.getElementById('enemy-img').src = enemy.img;
@@ -510,7 +510,7 @@
             document.getElementById('combat-controls').classList.remove('hidden-ui');
             log(translations[gameSettings.lang].logs.start);
             turn = "player";
-            checkTurn();
+            updateUI(); // Başlangıçta buton kontrolü
         }
     }
 
@@ -546,7 +546,6 @@
         } else if (type === 'r') {
             if (player.ultUsed) { log("Ult already used this round!"); return; }
             player.ultUsed = true;
-            // No power cost for R
             dmg = 100 + (player.level * 20);
             msg = t.logs.pR;
             document.body.classList.add('death-realm-active');
@@ -570,7 +569,7 @@
             setTimeout(victory, 1000);
         } else {
             turn = "enemy";
-            checkTurn();
+            updateUI(); // Disable buttons
             setTimeout(enemyTurn, 1000);
         }
     }
@@ -580,7 +579,6 @@
         const enemy = enemiesData[currentEnemyIndex];
         const enemyName = t.enemies[enemy.id].name;
         
-        // RASTGELE GÜÇ KAZANIMI (5-15)
         let pRegen = Math.floor(Math.random() * 11) + 5;
         let eRegen = Math.floor(Math.random() * 11) + 5;
         player.power = Math.min(100, player.power + pRegen);
@@ -598,9 +596,9 @@
                 showFloat(document.getElementById('enemy-box'), t.bossSkills.gpW, 'heal');
                 showFloat(document.getElementById('enemy-box'), "+50", 'heal');
                 log(t.logs.gpOrange);
-                updateUI();
+                
                 turn = "player"; 
-                checkTurn();
+                updateUI(); // RE-ENABLE BUTTONS
                 return; 
             }
             if (enemy.power >= 20) {
@@ -610,10 +608,12 @@
                 showFloat(document.getElementById('enemy-box'), t.bossSkills.gpQ, 'crit');
                 showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
                 log(`${enemyName} ${t.logs.gpQ} ${dmg} dmg!`);
-                updateUI();
+                updateUI(); // Update HP
+                
                 if (player.hp <= 0) { player.hp = 0; updateUI(); log(t.logs.defeat); setTimeout(() => location.reload(), 2000); return; }
+                
                 turn = "player";
-                checkTurn();
+                updateUI(); // RE-ENABLE BUTTONS
                 return;
             }
         }
@@ -638,13 +638,8 @@
             setTimeout(() => location.reload(), 2000); 
         } else {
             turn = "player";
-            checkTurn();
+            updateUI(); // RE-ENABLE BUTTONS
         }
-    }
-
-    function checkTurn() {
-        const btns = document.querySelectorAll('.skill-btn');
-        // Player turn butonu global kontrol etmez, updateUI içindeki dinamik kontrol yeterli
     }
 
     function victory() {
@@ -660,7 +655,7 @@
         loadLevel(currentEnemyIndex + 1);
     }
 
-    // --- ENVANTER & SHOP ---
+    // --- ENVANTER & SHOP & SETTINGS ---
     function useInventoryItem(type) {
         if (turn !== 'player') return;
         const t = translations[gameSettings.lang];
@@ -702,7 +697,7 @@
     }
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
 
-    // --- UI GÜNCELLEME (BUTONLAR BURADA DİNAMİK OLARAK GÜNCELLENİR) ---
+    // --- UI GÜNCELLEME ---
     function updateUI() {
         const enemy = enemiesData[currentEnemyIndex];
         const pHpPct = (player.hp / player.maxHp) * 100;
@@ -722,19 +717,16 @@
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
 
-        // BUTONLARI GÜNCELLE (Hasar hesaplaması ve Güç Kontrolü)
         let basicDmg = 15 + (player.level * 5);
         let qDmg = 30 + (player.level * 8);
         let wDmg = 45 + (player.level * 10);
         let rDmg = 100 + (player.level * 20);
 
-        // Dinamik Buton Metinleri (Hasar | Maliyet)
         document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`;
         document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`;
         document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`;
         document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
 
-        // Butonları Kitleme Mantığı (Gray Out)
         const isPlayerTurn = (turn === 'player');
         
         document.getElementById('btn-basic').disabled = !isPlayerTurn;
