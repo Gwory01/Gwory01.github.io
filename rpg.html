@@ -23,8 +23,7 @@
 
         body {
             background-color: var(--dark-bg);
-            /* Arka plan resmi biraz daha karartıldı ki sis efekti belli olsun */
-            background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,20,20,0.95)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -36,23 +35,14 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- ARKA PLAN SİSİ DÜZELTİLDİ --- */
-        #mist-canvas-bg { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            z-index: 1; /* Arka planın üstünde, UI'ın altında */
-            pointer-events: none; 
-            mix-blend-mode: screen; /* Sisi harmanla */
-            opacity: 0.5;
-        }
+        #mist-canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.6; }
 
-        /* --- UI GENEL (Z-Index artırıldı) --- */
+        /* --- UI GENEL --- */
         .game-wrapper { 
             width: 100%; height: 100%; max-width: 1000px;
             background: rgba(8, 10, 12, 0.85); 
             display: flex; flex-direction: column; 
-            position: relative; z-index: 10; /* Sisin üstünde */
+            position: relative; z-index: 10;
         }
 
         /* INFO BUTONU */
@@ -79,45 +69,99 @@
         .battle-scene { flex-grow: 1; display: flex; justify-content: space-evenly; align-items: center; position: relative; width: 100%; }
         .character-box { width: 45%; max-width: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .character-img { 
-            width: 18vh; height: 18vh; max-width: 180px; max-height: 180px; min-width: 120px; min-height: 120px;
-            object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; 
+            width: 18vh; height: 18vh; 
+            max-width: 180px; max-height: 180px;
+            min-width: 120px; min-height: 120px;
+            object-fit: cover; object-position: center top; 
+            border-radius: 50%; border: 3px solid #444; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+            transition: all 0.2s; 
         }
         .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
         .enemy-glow { border-color: #d63031; box-shadow: 0 0 20px rgba(214, 48, 49, 0.3); }
+        
         .character-box h2 { font-size: 1.2rem; margin: 10px 0 5px 0; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; }
+
+        /* STAT BARS (HP & POWER) */
         .stat-bar { width: 80%; height: 10px; background: #111; margin-top: 5px; border: 1px solid #444; position: relative; border-radius: 2px; }
-        .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } 
+        .fill { height: 100%; transition: width 0.4s ease-out; } 
+        .hp-fill { background-color: var(--hp-red); } 
+        /* YENİ GÜÇ BARI STİLİ */
+        .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 5px var(--power-yellow); }
+        
         .bar-text { font-size: 9px; font-weight: bold; position: absolute; top: -15px; right: 0; color: #aaa; }
+        
         #vs-text { font-size: 1.5rem; color: #444; font-weight: bold; }
 
         /* KONTROLLER */
-        .controls { background: rgba(0,0,0,0.6); border-top: 2px solid var(--ruined-green); padding: 10px; display: flex; flex-direction: column; gap: 10px; height: auto; min-height: 25vh; transition: opacity 0.5s; }
+        .controls { 
+            background: rgba(0,0,0,0.6); 
+            border-top: 2px solid var(--ruined-green); 
+            padding: 10px; 
+            display: flex; flex-direction: column; gap: 10px;
+            height: auto; min-height: 25vh;
+            transition: opacity 0.5s;
+        }
         .hidden-ui { opacity: 0; pointer-events: none; }
+
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
-        .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 10px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .skill-btn { 
+            background: #111; border: 1px solid #333; color: #aaa; 
+            font-family: 'Cinzel'; padding: 10px; border-radius: 4px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
         .skill-btn:active { background: #222; transform: scale(0.98); }
         .skill-btn:disabled { opacity: 0.3; }
         .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; color: #ddd; text-align: center; }
         .skill-cost { font-size: 0.7rem; color: #2ecc71; text-align: center; }
         .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
-        .log-box { height: 40px; background: rgba(0,0,0,0.5); border: 1px solid #333; font-size: 0.8rem; color: #ccc; padding: 5px; overflow-y: auto; font-family: 'Roboto', sans-serif; text-align: center; }
+
+        .log-box { 
+            height: 40px; background: rgba(0,0,0,0.5); border: 1px solid #333; 
+            font-size: 0.8rem; color: #ccc; padding: 5px; overflow-y: auto; 
+            font-family: 'Roboto', sans-serif; text-align: center;
+        }
 
         /* ENVANTER */
-        #inventory-frame { position: absolute; top: 60px; left: 10px; z-index: 20; display: flex; flex-direction: column; gap: 10px; }
-        .inv-slot { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; }
+        #inventory-frame { 
+            position: absolute; top: 60px; left: 10px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .inv-slot { 
+            width: 40px; height: 40px; background: rgba(0,0,0,0.8); 
+            border: 1px solid #444; border-radius: 4px; 
+            display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer;
+        }
         .inv-count { position: absolute; bottom: 0; right: 0; font-size: 10px; background: black; color: white; padding: 1px 3px; }
 
         /* MODALLAR */
-        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.95); z-index: 200; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            text-align: center; padding: 20px;
+        }
         #overlay, #final-choice-overlay, #cinematic-dialogue { display: none; }
-        .dialogue-box { background: #111; border: 2px solid var(--ruined-green); padding: 20px; width: 90%; max-width: 500px; border-radius: 8px; }
+        
+        .dialogue-box { 
+            background: #111; border: 2px solid var(--ruined-green); padding: 20px; 
+            width: 90%; max-width: 500px; border-radius: 8px;
+        }
         #cinematic-text { font-size: 1.1rem; color: white; margin-bottom: 20px; font-style: italic; min-height: 50px; }
-        .start-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        
+        .start-btn { 
+            background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); 
+            padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; 
+            transition: 0.3s;
+        }
         .start-btn:active { background: var(--ruined-green); color: black; }
 
         /* SHOP & SETTINGS MODAL */
-        #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; }
+        #shop-modal, #settings-modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.95); z-index: 3000; 
+            display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; 
+        }
         .shop-content, .settings-content { width: 90%; max-width: 500px; background: #111; border: 2px solid #333; padding: 20px; border-radius: 8px; }
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 50vh; overflow-y: auto; margin-top: 20px; }
         .shop-item { background: #1a1a1a; border: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -127,7 +171,12 @@
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
         /* TOOLTIP */
-        #inv-tooltip { position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); padding: 10px; font-size: 12px; z-index: 5000; pointer-events: none; display: none; width: 220px; text-align: left; font-family: 'Roboto'; color: #ddd; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        #inv-tooltip { 
+            position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); 
+            padding: 10px; font-size: 12px; z-index: 5000; pointer-events: none; 
+            display: none; width: 220px; text-align: left; font-family: 'Roboto'; color: #ddd;
+            border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
         .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 5px; padding-bottom: 5px; font-size: 14px; }
 
         /* EFEKTLER */
@@ -175,6 +224,7 @@
     <div id="inv-tooltip"></div>
 
     <audio id="bgMusic" loop preload="auto"></audio>
+
     <div id="settings-modal">
         <div class="settings-content">
             <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444; padding-bottom:10px;" id="ui-settings-title">SETTINGS</h2>
@@ -232,7 +282,17 @@
                 <div class="info-btn" ontouchstart="showCharacterTooltip(this, 'player')" ontouchend="hideTooltip()" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow">
                 <h2>VIEGO</h2>
-                <div class="stat-bar"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
+                
+                <div class="stat-bar">
+                    <div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div>
+                    <span class="bar-text" id="player-hp-text">150/150</span>
+                </div>
+                
+                <div class="stat-bar" style="margin-top:2px; border-color:var(--power-yellow);">
+                    <div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div>
+                    <span class="bar-text" id="player-power-text" style="color:var(--power-yellow); top:-2px;">0/100</span>
+                </div>
+
             </div>
 
             <div id="vs-text">VS</div>
@@ -257,17 +317,13 @@
     </div>
 
 <script>
-    // --- SES YÖNETİMİ (DÜZELTİLDİ) ---
-    // Ses dosyalarının HTML dosyası ile aynı klasörde olması gerekir.
-    
-    // SFX Nesnelerini Tanımla
+    // --- SES YÖNETİMİ ---
     const sounds = {
         basic1: new Audio('BasicAA_1.wav'),
         basic2: new Audio('BasicAA_2.wav'),
         w_skill: new Audio('W_skill.wav')
     };
 
-    // Ayarlar
     let gameSettings = {
         musicVolume: 0.3,
         sfxVolume: 0.5,
@@ -279,15 +335,10 @@
         if (saved) {
             gameSettings = JSON.parse(saved);
         }
-        // UI güncelle
         document.getElementById('vol-music').value = gameSettings.musicVolume;
         document.getElementById('vol-sfx').value = gameSettings.sfxVolume;
         document.getElementById('lang-select').value = gameSettings.lang;
-        
-        // Müzik sesini ayarla
         document.getElementById('bgMusic').volume = gameSettings.musicVolume;
-        
-        // Dili ayarla
         changeLanguage(gameSettings.lang); 
     }
 
@@ -305,26 +356,25 @@
         saveSettings();
     }
 
-    // --- YENİ SES ÇALMA FONKSİYONU ---
+    // --- SFX MANTIĞI (DÜZELTİLDİ) ---
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
 
         let soundToPlay = null;
 
+        // İsteğe göre: Sadece basic (viego düz vuruş) ve W yeteneği ses çalacak
         if (type === 'basic') {
             // Rastgele vuruş sesi seç
             soundToPlay = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
         } else if (type === 'w') {
             soundToPlay = sounds.w_skill;
-        } else if (type === 'q' || type === 'r') {
-            // Diğer skiller için şimdilik basic ses (veya dosya varsa eklenebilir)
-            soundToPlay = sounds.basic1; 
         }
+        // Rakip (enemy) sırası için herhangi bir çağrı yapılmayacak.
 
         if (soundToPlay) {
             soundToPlay.volume = gameSettings.sfxVolume;
-            soundToPlay.currentTime = 0; // Sesi başa sar
-            soundToPlay.play().catch(e => console.log("SFX Error:", e));
+            soundToPlay.currentTime = 0; 
+            soundToPlay.play().catch(e => console.log("SFX Error (File missing?):", e));
         }
     }
 
@@ -449,11 +499,10 @@
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
         
-        // Müzik Başlatma
         const bgMusic = document.getElementById('bgMusic');
-        bgMusic.src = "Tier1.mp3"; // Burada dosyanın adı doğru olmalı
+        bgMusic.src = "Tier1.mp3"; 
         bgMusic.volume = gameSettings.musicVolume;
-        bgMusic.play().catch(e => console.log("Müzik çalma hatası (Dosya yoksa normaldir):", e));
+        bgMusic.play().catch(e => {});
 
         loadLevel(0);
     }
@@ -505,13 +554,13 @@
         let msg = "";
 
         if (type === 'basic') {
-            playSfx('basic'); // Düz vuruş sesi
+            playSfx('basic'); // SES ÇALAR
             dmg = 15 + (player.level * 5);
             player.power += 10;
             msg = t.logs.pStrike;
         } else if (type === 'q') {
             if (player.power < 20) { log(t.logs.noPower + " (20)"); return; }
-            playSfx('basic'); // Q için de basic sesi kullandık
+            // Q için ses isteği yoktu, sessiz
             player.power -= 20;
             dmg = 30 + (player.level * 8);
             let heal = 10;
@@ -520,13 +569,13 @@
             msg = t.logs.pQ;
         } else if (type === 'w') {
             if (player.power < 30) { log(t.logs.noPower + " (30)"); return; }
-            playSfx('w'); // W için özel ses
+            playSfx('w'); // SES ÇALAR
             player.power -= 30;
             dmg = 45 + (player.level * 10);
             msg = t.logs.pW;
         } else if (type === 'r') {
             if (player.power < 100) { log(t.logs.noPower + " (100)"); return; }
-            playSfx('basic'); // Ulti için basic ses (dosya varsa değiştirilebilir)
+            // R için ses isteği yoktu, sessiz
             player.power = 0;
             dmg = 100 + (player.level * 20);
             msg = t.logs.pR;
@@ -563,8 +612,7 @@
         const enemyName = t.enemies[enemy.id].name;
         let dmg = enemy.damage + Math.floor(Math.random() * 10);
         
-        // Düşman saldırısında basic ses çalabiliriz
-        playSfx('basic');
+        // Rakip sesi ÇALMAZ
 
         player.hp -= dmg;
         showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
@@ -677,15 +725,23 @@
     }
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
 
-    // --- UI GÜNCELLEME ---
+    // --- UI GÜNCELLEME (GÜÇ BARI ENTEGRE EDİLDİ) ---
     function updateUI() {
         const enemy = enemiesData[currentEnemyIndex];
+        
         const pHpPct = (player.hp / player.maxHp) * 100;
         document.getElementById('player-hp-bar').style.width = pHpPct + "%";
         document.getElementById('player-hp-text').innerText = `${Math.ceil(player.hp)}/${player.maxHp}`;
+        
+        // GÜÇ BARI GÜNCELLEMESİ
+        const pMpPct = (player.power / player.maxPower) * 100;
+        document.getElementById('player-power-bar').style.width = pMpPct + "%";
+        document.getElementById('player-power-text').innerText = `${Math.floor(player.power)}/${player.maxPower}`;
+
         const eHpPct = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = eHpPct + "%";
         document.getElementById('enemy-hp-text').innerText = `${Math.ceil(enemy.hp)}/${enemy.maxHp}`;
+        
         document.getElementById('count-potion').innerText = player.potions;
         document.getElementById('count-elixir').innerText = player.elixirs;
     }
@@ -743,75 +799,31 @@
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
 
-    // --- MIST (SHADER - DÜZELTİLDİ) ---
+    // --- MIST (SHADER) ---
     const bgCanvas = document.body.appendChild(document.createElement("canvas"));
     bgCanvas.id = "mist-canvas-bg";
     const gl = bgCanvas.getContext("webgl2");
-    
-    if (gl) {
-        // Shader Kaynak Kodları (Sözdizimi hataları giderildi)
+    if(gl) {
         const vsSource = `#version 300 es
-        precision mediump float;
-        const vec2 p[6] = vec2[6](
-            vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0),
-            vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0)
-        );
-        out vec2 uv;
-        void main() {
-            uv = p[gl_VertexID] * 0.5 + 0.5;
-            gl_Position = vec4(p[gl_VertexID], 0.0, 1.0);
-        }`;
-
+        precision mediump float; const vec2 p[6]=vec2[6](vec2(-1,-1),vec2(1,-1),vec2(-1,1),vec2(-1,1),vec2(1,-1),vec2(1,1)); out vec2 uv; void main(){uv=p[gl_VertexID]*0.5+0.5;gl_Position=vec4(p[gl_VertexID],0,1);}`;
         const fsSource = `#version 300 es
-        precision highp float;
-        uniform float time;
-        in vec2 uv;
-        out vec4 color;
-
-        float n(vec2 p) { return fract(sin(dot(p, vec2(1.0, 300.0))) * 43758.54); }
-        float fbm(vec2 p) {
-            float v = 0.0;
-            float a = 0.5;
-            for(int i = 0; i < 4; i++) {
-                v += a * n(p);
-                p *= 2.0;
-                a *= 0.5;
-            }
-            return v;
-        }
-
-        void main() {
-            vec2 p = uv;
-            float t = time * 0.1;
-            float f = fbm(p * 3.0 + t);
-            // Ruined Green Mist Color
-            color = vec4(0.04, 0.78, 0.72, smoothstep(0.2, 0.9, f) * 0.3);
-        }`;
+        precision highp float; uniform float time; in vec2 uv; out vec4 color;
+        float n(vec2 p){return fract(sin(dot(p,vec2(1,300)))*43758.54);}
+        float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.;a*=.5;}return v;}
+        void main(){vec2 p=uv;float t=time*0.1;float f=fbm(p*3.+t);
+        color=vec4(0.04,0.78,0.72,smoothstep(0.2,0.9,f)*0.3);}`;
         
-        const createShader = (ty, src) => { 
-            const s = gl.createShader(ty); 
-            gl.shaderSource(s, src); 
-            gl.compileShader(s); 
-            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(s));
-            }
-            return s; 
-        };
-        
+        const createShader = (ty, src) => { const s=gl.createShader(ty); gl.shaderSource(s,src); gl.compileShader(s); return s; };
         const prog = gl.createProgram(); 
         gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
         gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
-        gl.linkProgram(prog); 
-        gl.useProgram(prog);
-        
+        gl.linkProgram(prog); gl.useProgram(prog);
         const tLoc = gl.getUniformLocation(prog, "time");
         const start = Date.now();
-        
         const render = () => {
-            bgCanvas.width = window.innerWidth; 
-            bgCanvas.height = window.innerHeight;
-            gl.viewport(0, 0, bgCanvas.width, bgCanvas.height);
-            gl.uniform1f(tLoc, (Date.now() - start) / 1000);
+            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
+            gl.viewport(0,0,bgCanvas.width, bgCanvas.height);
+            gl.uniform1f(tLoc, (Date.now()-start)/1000);
             gl.drawArrays(gl.TRIANGLES, 0, 6);
             requestAnimationFrame(render);
         };
