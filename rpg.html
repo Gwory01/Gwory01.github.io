@@ -23,7 +23,8 @@
 
         body {
             background-color: var(--dark-bg);
-            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,20,20,0.9)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
+            /* Arka plan resmi biraz daha karartıldı ki sis efekti belli olsun */
+            background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,20,20,0.95)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -35,14 +36,23 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        #mist-canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.6; }
+        /* --- ARKA PLAN SİSİ DÜZELTİLDİ --- */
+        #mist-canvas-bg { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: 1; /* Arka planın üstünde, UI'ın altında */
+            pointer-events: none; 
+            mix-blend-mode: screen; /* Sisi harmanla */
+            opacity: 0.5;
+        }
 
-        /* --- UI GENEL --- */
+        /* --- UI GENEL (Z-Index artırıldı) --- */
         .game-wrapper { 
             width: 100%; height: 100%; max-width: 1000px;
             background: rgba(8, 10, 12, 0.85); 
             display: flex; flex-direction: column; 
-            position: relative; z-index: 10;
+            position: relative; z-index: 10; /* Sisin üstünde */
         }
 
         /* INFO BUTONU */
@@ -55,6 +65,7 @@
             display: flex; justify-content: center; align-items: center; font-size: 16px;
             box-shadow: 0 0 10px var(--ruined-green);
         }
+        .info-btn:active { transform: scale(0.9); }
 
         /* HEADER */
         .top-bar-controls { 
@@ -112,7 +123,6 @@
         .shop-item { background: #1a1a1a; border: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
         .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 4px 8px; font-size: 12px; cursor: pointer; }
 
-        /* SETTINGS SLIDERS */
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
@@ -165,7 +175,6 @@
     <div id="inv-tooltip"></div>
 
     <audio id="bgMusic" loop preload="auto"></audio>
-
     <div id="settings-modal">
         <div class="settings-content">
             <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444; padding-bottom:10px;" id="ui-settings-title">SETTINGS</h2>
@@ -248,10 +257,17 @@
     </div>
 
 <script>
-    // --- SES SİSTEMİ (Web Audio API) ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // --- SES YÖNETİMİ (DÜZELTİLDİ) ---
+    // Ses dosyalarının HTML dosyası ile aynı klasörde olması gerekir.
     
-    // Varsayılan ayarlar
+    // SFX Nesnelerini Tanımla
+    const sounds = {
+        basic1: new Audio('BasicAA_1.wav'),
+        basic2: new Audio('BasicAA_2.wav'),
+        w_skill: new Audio('W_skill.wav')
+    };
+
+    // Ayarlar
     let gameSettings = {
         musicVolume: 0.3,
         sfxVolume: 0.5,
@@ -267,8 +283,12 @@
         document.getElementById('vol-music').value = gameSettings.musicVolume;
         document.getElementById('vol-sfx').value = gameSettings.sfxVolume;
         document.getElementById('lang-select').value = gameSettings.lang;
+        
+        // Müzik sesini ayarla
         document.getElementById('bgMusic').volume = gameSettings.musicVolume;
-        changeLanguage(gameSettings.lang); // Dili ayarla
+        
+        // Dili ayarla
+        changeLanguage(gameSettings.lang); 
     }
 
     function saveSettings() {
@@ -285,40 +305,26 @@
         saveSettings();
     }
 
+    // --- YENİ SES ÇALMA FONKSİYONU ---
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
-        
-        // Basit Sentezleyici (Dosyasız Ses)
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        if (type === 'hit') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            gainNode.gain.setValueAtTime(gameSettings.sfxVolume, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
-        } else if (type === 'magic') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
-            gainNode.gain.setValueAtTime(gameSettings.sfxVolume * 0.5, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
-        } else if (type === 'ult') {
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 1);
-            gainNode.gain.setValueAtTime(gameSettings.sfxVolume, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 1);
+
+        let soundToPlay = null;
+
+        if (type === 'basic') {
+            // Rastgele vuruş sesi seç
+            soundToPlay = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
+        } else if (type === 'w') {
+            soundToPlay = sounds.w_skill;
+        } else if (type === 'q' || type === 'r') {
+            // Diğer skiller için şimdilik basic ses (veya dosya varsa eklenebilir)
+            soundToPlay = sounds.basic1; 
+        }
+
+        if (soundToPlay) {
+            soundToPlay.volume = gameSettings.sfxVolume;
+            soundToPlay.currentTime = 0; // Sesi başa sar
+            soundToPlay.play().catch(e => console.log("SFX Error:", e));
         }
     }
 
@@ -443,12 +449,12 @@
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
         
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        try {
-            bgMusic.src = "https://assets.mixkit.co/music/preview/mixkit-medieval-battle-2688.mp3"; // Örnek Stok Müzik
-            bgMusic.play().catch(e => {});
-        } catch(e) {}
+        // Müzik Başlatma
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.src = "Tier1.mp3"; // Burada dosyanın adı doğru olmalı
+        bgMusic.volume = gameSettings.musicVolume;
+        bgMusic.play().catch(e => console.log("Müzik çalma hatası (Dosya yoksa normaldir):", e));
+
         loadLevel(0);
     }
 
@@ -499,13 +505,13 @@
         let msg = "";
 
         if (type === 'basic') {
-            playSfx('hit');
+            playSfx('basic'); // Düz vuruş sesi
             dmg = 15 + (player.level * 5);
             player.power += 10;
             msg = t.logs.pStrike;
         } else if (type === 'q') {
             if (player.power < 20) { log(t.logs.noPower + " (20)"); return; }
-            playSfx('hit');
+            playSfx('basic'); // Q için de basic sesi kullandık
             player.power -= 20;
             dmg = 30 + (player.level * 8);
             let heal = 10;
@@ -514,13 +520,13 @@
             msg = t.logs.pQ;
         } else if (type === 'w') {
             if (player.power < 30) { log(t.logs.noPower + " (30)"); return; }
-            playSfx('magic');
+            playSfx('w'); // W için özel ses
             player.power -= 30;
             dmg = 45 + (player.level * 10);
             msg = t.logs.pW;
         } else if (type === 'r') {
             if (player.power < 100) { log(t.logs.noPower + " (100)"); return; }
-            playSfx('ult');
+            playSfx('basic'); // Ulti için basic ses (dosya varsa değiştirilebilir)
             player.power = 0;
             dmg = 100 + (player.level * 20);
             msg = t.logs.pR;
@@ -557,7 +563,9 @@
         const enemyName = t.enemies[enemy.id].name;
         let dmg = enemy.damage + Math.floor(Math.random() * 10);
         
-        playSfx('hit');
+        // Düşman saldırısında basic ses çalabiliriz
+        playSfx('basic');
+
         player.hp -= dmg;
         showFloat(document.getElementById('player-box'), `-${dmg}`, 'damage');
         
@@ -608,13 +616,11 @@
             player.hp = Math.min(player.maxHp, player.hp + 50);
             showFloat(document.getElementById('player-box'), "+50", 'heal');
             log(t.logs.usedPot);
-            playSfx('magic');
         } else if (type === 'elixir' && player.elixirs > 0) {
             player.elixirs--;
             player.power = Math.min(player.maxPower, player.power + 50);
             showFloat(document.getElementById('player-box'), "+50 Power", 'heal');
             log(t.logs.usedElix);
-            playSfx('magic');
         }
         updateUI();
     }
@@ -664,7 +670,6 @@
                 if (id === 'potion') player.potions++;
                 if (id === 'elixir') player.elixirs++;
                 openShop(); updateUI();
-                playSfx('magic');
             } else {
                 alert(t.logs.notEnoughGold);
             }
@@ -738,31 +743,75 @@
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
 
-    // --- MIST (SHADER) ---
+    // --- MIST (SHADER - DÜZELTİLDİ) ---
     const bgCanvas = document.body.appendChild(document.createElement("canvas"));
     bgCanvas.id = "mist-canvas-bg";
     const gl = bgCanvas.getContext("webgl2");
-    if(gl) {
+    
+    if (gl) {
+        // Shader Kaynak Kodları (Sözdizimi hataları giderildi)
         const vsSource = `#version 300 es
-        precision mediump float; const vec2 p[6]=vec2[6](vec2(-1,-1),vec2(1,-1),vec2(-1,1),vec2(-1,1),vec2(1,-1),vec2(1,1)); out vec2 uv; void main(){uv=p[gl_VertexID]*0.5+0.5;gl_Position=vec4(p[gl_VertexID],0,1);}`;
+        precision mediump float;
+        const vec2 p[6] = vec2[6](
+            vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0),
+            vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, 1.0)
+        );
+        out vec2 uv;
+        void main() {
+            uv = p[gl_VertexID] * 0.5 + 0.5;
+            gl_Position = vec4(p[gl_VertexID], 0.0, 1.0);
+        }`;
+
         const fsSource = `#version 300 es
-        precision highp float; uniform float time; in vec2 uv; out vec4 color;
-        float n(vec2 p){return fract(sin(dot(p,vec2(1,300)))*43758.54);}
-        float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.;a*=.5;}return v;}
-        void main(){vec2 p=uv;float t=time*0.1;float f=fbm(p*3.+t);
-        color=vec4(0.04,0.78,0.72,smoothstep(0.2,0.9,f)*0.3);}`;
+        precision highp float;
+        uniform float time;
+        in vec2 uv;
+        out vec4 color;
+
+        float n(vec2 p) { return fract(sin(dot(p, vec2(1.0, 300.0))) * 43758.54); }
+        float fbm(vec2 p) {
+            float v = 0.0;
+            float a = 0.5;
+            for(int i = 0; i < 4; i++) {
+                v += a * n(p);
+                p *= 2.0;
+                a *= 0.5;
+            }
+            return v;
+        }
+
+        void main() {
+            vec2 p = uv;
+            float t = time * 0.1;
+            float f = fbm(p * 3.0 + t);
+            // Ruined Green Mist Color
+            color = vec4(0.04, 0.78, 0.72, smoothstep(0.2, 0.9, f) * 0.3);
+        }`;
         
-        const createShader = (ty, src) => { const s=gl.createShader(ty); gl.shaderSource(s,src); gl.compileShader(s); return s; };
+        const createShader = (ty, src) => { 
+            const s = gl.createShader(ty); 
+            gl.shaderSource(s, src); 
+            gl.compileShader(s); 
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(s));
+            }
+            return s; 
+        };
+        
         const prog = gl.createProgram(); 
         gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
         gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
-        gl.linkProgram(prog); gl.useProgram(prog);
+        gl.linkProgram(prog); 
+        gl.useProgram(prog);
+        
         const tLoc = gl.getUniformLocation(prog, "time");
         const start = Date.now();
+        
         const render = () => {
-            bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
-            gl.viewport(0,0,bgCanvas.width, bgCanvas.height);
-            gl.uniform1f(tLoc, (Date.now()-start)/1000);
+            bgCanvas.width = window.innerWidth; 
+            bgCanvas.height = window.innerHeight;
+            gl.viewport(0, 0, bgCanvas.width, bgCanvas.height);
+            gl.uniform1f(tLoc, (Date.now() - start) / 1000);
             gl.drawArrays(gl.TRIANGLES, 0, 6);
             requestAnimationFrame(render);
         };
