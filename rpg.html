@@ -11,20 +11,22 @@
         :root {
             --ruined-green: #0ac8b9;
             --dark-bg: #05080a;
+            --panel-bg: rgba(16, 20, 24, 0.95);
+            --border-color: #4a5a6a;
+            --gold-border: #c8aa6e;
             --power-yellow: #f1c40f;
             --hp-red: #c0392b;
             --crit-color: #ffcc00;
             --heal-color: #2ecc71;
             --gold-color: #f39c12;
             --sell-color: #e74c3c;
-            --shield-grey: #95a5a6;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--dark-bg);
-            background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,20,20,0.95)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -36,122 +38,221 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
+        /* --- RPG STİLİ ARAYÜZ --- */
         .game-wrapper { 
-            width: 100%; height: 100%; max-width: 1000px;
-            background: rgba(8, 10, 12, 0.85); 
+            width: 98%; height: 95%; max-width: 1100px;
+            background: var(--panel-bg); 
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; 
             position: relative; z-index: 10;
+            padding: 5px;
         }
 
-        /* --- INFO BUTONU (SOL ÜST) --- */
+        /* Köşe Süslemeleri */
+        .game-wrapper::before { content: ""; position: absolute; top: -2px; left: -2px; width: 20px; height: 20px; border-top: 2px solid var(--gold-border); border-left: 2px solid var(--gold-border); z-index: 11; }
+        .game-wrapper::after { content: ""; position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 2px solid var(--gold-border); border-right: 2px solid var(--gold-border); z-index: 11; }
+
+        /* --- BUTONLAR --- */
         .info-btn { 
-            position: absolute; 
-            top: 10px; left: 10px; /* SOL ÜST KÖŞE */
+            position: absolute; top: 10px; left: 10px; 
             width: 24px; height: 24px; 
-            background: rgba(0, 0, 0, 0.9); 
-            border: 1px solid var(--ruined-green); 
-            color: var(--ruined-green); border-radius: 50%; 
+            background: #111; border: 1px solid var(--gold-border); 
+            color: var(--gold-border); border-radius: 50%; 
             font-weight: bold; cursor: help; z-index: 50; 
             display: flex; justify-content: center; align-items: center; font-size: 14px;
-            box-shadow: 0 0 8px var(--ruined-green);
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
-        .info-btn:hover { transform: scale(1.1); background: var(--ruined-green); color: black; }
+        .info-btn:hover { background: var(--gold-border); color: #000; box-shadow: 0 0 10px var(--gold-border); }
 
         .top-bar-controls { 
-            position: absolute; top: 10px; right: 10px; z-index: 100;
+            position: absolute; top: 15px; right: 20px; z-index: 100;
             display: flex; gap: 10px; align-items: center; 
         }
-        .control-btn-ui { background: rgba(0,0,0,0.7); color: white; border: 1px solid #555; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-        .back-btn { position: absolute; top: 10px; left: 10px; z-index: 100; color: var(--ruined-green); text-decoration: none; border: 1px solid var(--ruined-green); padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 12px; border-radius: 4px; }
+        .control-btn-ui { 
+            background: linear-gradient(to bottom, #333, #111); 
+            color: #ddd; border: 1px solid #555; 
+            padding: 8px 15px; border-radius: 2px; font-size: 12px; cursor: pointer; 
+            font-family: 'Cinzel', serif; letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .control-btn-ui:hover { border-color: var(--ruined-green); color: var(--ruined-green); }
+        .back-btn { position: absolute; top: 15px; left: 20px; z-index: 100; color: #aaa; text-decoration: none; border: 1px solid #444; padding: 6px 12px; background: rgba(0,0,0,0.8); font-size: 12px; font-family: 'Roboto'; }
 
-        .battle-scene { flex-grow: 1; display: flex; justify-content: space-evenly; align-items: center; position: relative; width: 100%; }
-        .character-box { width: 45%; max-width: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        
-        .character-img { 
-            width: 18vh; height: 18vh; max-width: 180px; max-height: 180px; min-width: 120px; min-height: 120px;
-            object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #444; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; 
+        /* --- SAVAŞ ALANI (Unit Frames) --- */
+        .battle-scene { 
+            flex-grow: 1; display: flex; 
+            justify-content: space-around; align-items: center; 
+            position: relative; width: 100%; 
+            padding: 20px;
         }
         
-        .viego-glow { border-color: var(--ruined-green); box-shadow: 0 0 20px rgba(10, 200, 185, 0.3); }
-        .enemy-glow { border-color: #d63031; box-shadow: 0 0 20px rgba(214, 48, 49, 0.3); }
-        .character-box h2 { font-size: 1.1rem; margin: 10px 0 5px 0; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; white-space: nowrap; }
+        .character-box { 
+            width: 40%; max-width: 320px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 4px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: border-color 0.3s;
+        }
+        .character-box:hover { border-color: var(--ruined-green); }
         
-        .stat-bar { width: 80%; height: 10px; background: #111; margin-top: 5px; border: 1px solid #444; position: relative; border-radius: 2px; }
-        .fill { height: 100%; transition: width 0.4s ease-out; } .hp-fill { background-color: var(--hp-red); } 
-        .power-fill { background-color: var(--power-yellow); box-shadow: 0 0 5px var(--power-yellow); }
-        .bar-text { font-size: 9px; font-weight: bold; position: absolute; top: -15px; right: 0; color: #aaa; }
-        #vs-text { font-size: 1.5rem; color: #444; font-weight: bold; }
+        .character-img { 
+            width: 140px; height: 140px; 
+            object-fit: cover; object-position: center top; 
+            border-radius: 50%; border: 3px solid #333; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); 
+            transition: all 0.2s; margin-bottom: 10px;
+        }
+        
+        .viego-glow { border-color: var(--ruined-green); }
+        .enemy-glow { border-color: #d63031; }
+        
+        .character-box h2 { 
+            font-size: 1.1rem; margin: 5px 0; 
+            color: #fff; text-shadow: 0 2px 4px #000; 
+            letter-spacing: 2px; border-bottom: 1px solid #444; padding-bottom: 5px; width: 100%; text-align: center;
+        }
+        
+        /* BARLAR */
+        .stat-bar { 
+            width: 100%; height: 12px; 
+            background: #111; margin-top: 6px; 
+            border: 1px solid #333; position: relative; 
+            border-radius: 2px; 
+        }
+        .fill { height: 100%; transition: width 0.4s ease-out; } 
+        .hp-fill { background: linear-gradient(to right, #900, #c0392b); } 
+        .power-fill { background: linear-gradient(to right, #b7950b, #f1c40f); box-shadow: 0 0 5px #f1c40f; }
+        .bar-text { 
+            font-size: 10px; font-weight: bold; 
+            position: absolute; top: -1px; left: 50%; transform: translateX(-50%); 
+            color: #fff; text-shadow: 1px 1px 2px black; line-height: 12px; letter-spacing: 1px;
+        }
+        #vs-text { font-size: 2rem; color: #444; font-weight: bold; font-style: italic; opacity: 0.5; }
 
-        .controls { background: rgba(0,0,0,0.6); border-top: 2px solid var(--ruined-green); padding: 10px; display: flex; flex-direction: column; gap: 10px; height: auto; min-height: 25vh; transition: opacity 0.5s; }
+        /* --- KONTROLLER ve LOG (Genişletilmiş) --- */
+        .controls { 
+            background: rgba(10, 12, 15, 0.9); 
+            border-top: 3px double var(--border-color); 
+            padding: 15px; 
+            display: grid; grid-template-columns: 3fr 2fr; gap: 15px;
+            height: 220px; /* Sabit yükseklik */
+        }
         .hidden-ui { opacity: 0; pointer-events: none; }
-        .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
-        .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 5px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
-        .skill-btn:active { background: #222; transform: scale(0.98); }
-        .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); border-color: #333; background: #000; }
-        .skill-btn:disabled .skill-cost { color: #555; }
+
+        .skills { 
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; 
+        }
+        .skill-btn { 
+            background: linear-gradient(to bottom, #2c3e50, #1a252f); 
+            border: 1px solid #444; color: #ccc; 
+            font-family: 'Cinzel'; padding: 5px; border-radius: 2px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            transition: 0.2s; position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: #fff; background: linear-gradient(to bottom, #34495e, #2c3e50); }
+        .skill-btn:active { transform: translateY(2px); }
+        .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); background: #111; border-color: #222; }
         
-        .skill-name { font-weight: bold; font-size: 0.75rem; margin-bottom: 2px; color: #ddd; text-align: center; }
-        .skill-cost { font-size: 0.65rem; color: #2ecc71; text-align: center; font-family: 'Roboto', sans-serif; }
-        
-        .ult-btn { border-color: var(--ruined-green); color: var(--ruined-green); }
-        .ult-btn:disabled { border-color: #333; color: #555; }
+        .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 4px; text-shadow: 1px 1px 0 #000; }
+        .skill-cost { font-size: 0.65rem; color: #aaa; font-family: 'Roboto', sans-serif; }
+        .skill-btn:hover .skill-cost { color: var(--ruined-green); }
 
-        .log-box { height: 40px; background: rgba(0,0,0,0.5); border: 1px solid #333; font-size: 0.8rem; color: #ccc; padding: 5px; overflow-y: auto; font-family: 'Roboto', sans-serif; text-align: center; }
+        .ult-btn { border-color: #2ecc71; }
+        .ult-btn:hover:not(:disabled) { border-color: #2ecc71; background: linear-gradient(to bottom, #0d3822, #082015); }
 
-        #inventory-frame { position: absolute; top: 60px; left: 10px; z-index: 20; display: flex; flex-direction: column; gap: 10px; }
-        .inv-slot { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; }
-        .inv-count { position: absolute; bottom: 0; right: 0; font-size: 10px; background: black; color: white; padding: 1px 3px; }
+        /* BATTLE LOG (RPG STİLİ) */
+        .log-box { 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.6); 
+            border: 1px solid #444; 
+            border-radius: 2px;
+            padding: 10px; 
+            font-size: 0.85rem; color: #ccc; 
+            font-family: 'Roboto', sans-serif; 
+            overflow-y: auto; 
+            display: flex; flex-direction: column-reverse; /* Yeni mesajlar altta (klasik terminal) veya üstte */
+            line-height: 1.6;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        .log-entry { border-bottom: 1px solid #222; padding: 2px 0; }
+        .log-turn { color: var(--gold-border); font-weight: bold; margin-top: 5px; }
 
+        /* --- ENVANTER (İksirler) --- */
+        #inventory-frame { 
+            position: absolute; top: 70px; left: 20px; z-index: 20; 
+            display: flex; flex-direction: column; gap: 15px; 
+            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 4px; border: 1px solid #333;
+        }
+        .inv-slot { 
+            width: 45px; height: 45px; 
+            background: #151515; border: 1px solid #444; 
+            border-radius: 4px; position: relative; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center; font-size: 22px; 
+            transition: 0.2s;
+        }
+        .inv-slot:hover { border-color: var(--power-yellow); background: #222; transform: scale(1.05); }
+        .inv-count { 
+            position: absolute; bottom: -5px; right: -5px; 
+            font-size: 11px; background: #333; color: #fff; 
+            padding: 1px 4px; border-radius: 2px; border: 1px solid #555; font-family: 'Roboto';
+        }
+
+        /* MODALLAR */
         #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #overlay, #final-choice-overlay, #cinematic-dialogue { display: none; }
-        .dialogue-box { background: #111; border: 2px solid var(--ruined-green); padding: 20px; width: 95%; max-width: 600px; border-radius: 8px; }
-        #cinematic-text { font-size: 1rem; line-height: 1.5; color: white; margin-bottom: 20px; font-style: italic; min-height: 50px; font-family: 'Roboto', sans-serif; }
-        .start-btn, .choice-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 40px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 10px; transition: 0.3s; width: 80%; max-width: 300px; }
-        .start-btn:hover, .choice-btn:hover { background: var(--ruined-green); color: black; }
-        .btn-attack { border-color: var(--hp-red); color: var(--hp-red); } .btn-attack:hover { background: var(--hp-red); color: white; }
-        .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
+        .dialogue-box { background: #111; border: 2px solid var(--ruined-green); padding: 20px; width: 95%; max-width: 600px; border-radius: 8px; box-shadow: 0 0 30px rgba(10, 200, 185, 0.2); }
+        #cinematic-text { font-size: 1.1rem; line-height: 1.6; color: #e0e0e0; margin-bottom: 20px; font-style: italic; min-height: 50px; font-family: 'Roboto', sans-serif; }
+        .start-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 50px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; letter-spacing: 2px; }
+        .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 20px var(--ruined-green); }
 
-        #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; }
-        .shop-content, .settings-content { width: 90%; max-width: 500px; background: #111; border: 2px solid #333; padding: 20px; border-radius: 8px; }
+        /* SHOP & SETTINGS MODAL */
+        #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .shop-content, .settings-content { width: 90%; max-width: 500px; background: #151515; border: 2px solid var(--border-color); padding: 25px; border-radius: 4px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 50vh; overflow-y: auto; margin-top: 20px; }
-        .shop-item { background: #1a1a1a; border: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .buy-btn { background: #333; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 4px 8px; font-size: 12px; cursor: pointer; }
+        .shop-item { background: #0a0a0a; border: 1px solid #333; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .buy-btn { background: #222; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'Cinzel'; }
+        .buy-btn:hover { background: var(--gold-color); color: #000; }
 
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
-        /* YENİ TOOLTIP TASARIMI */
+        /* TOOLTIP (Gelişmiş) */
         #inv-tooltip { 
-            position: absolute; background: rgba(10, 12, 15, 0.98); 
-            border: 1px solid var(--ruined-green); padding: 12px; 
-            font-size: 12px; z-index: 5000; pointer-events: none; 
-            display: none; width: 240px; text-align: left; 
-            font-family: 'Roboto'; color: #ddd; border-radius: 4px; 
-            box-shadow: 0 0 25px rgba(10, 200, 185, 0.2); 
+            position: absolute; background: rgba(15, 20, 25, 0.98); 
+            border: 1px solid var(--gold-border); padding: 15px; 
+            font-size: 13px; z-index: 5000; pointer-events: none; 
+            display: none; width: 250px; text-align: left; 
+            font-family: 'Roboto'; color: #ccc; border-radius: 4px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8); 
         }
-        .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 8px; padding-bottom: 5px; font-size: 14px; font-family: 'Cinzel'; }
-        .tooltip-body { line-height: 1.4; color: #ccc; }
-        .tooltip-highlight { color: #f1c40f; font-weight: bold; }
-        .tooltip-weakness { color: #e74c3c; font-weight: bold; margin-top: 5px; display: block; }
+        .tooltip-title { color: var(--gold-border); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 8px; padding-bottom: 5px; font-size: 15px; font-family: 'Cinzel'; letter-spacing: 1px; }
 
-        .float-text { position: absolute; font-weight: bold; font-size: 20px; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
-        .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 26px; } .text-mana { color: #f1c40f; font-size: 16px; } .text-special { color: #a020f0; font-size: 24px; }
-        .attacking { animation: bump 0.2s; } @keyframes bump { 50% { transform: scale(1.1); } }
+        .float-text { position: absolute; font-weight: bold; font-size: 22px; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-70px); } }
+        .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 30px; } .text-mana { color: #f1c40f; font-size: 18px; } .text-special { color: #a020f0; font-size: 24px; }
+        .attacking { animation: bump 0.15s; } @keyframes bump { 50% { transform: scale(1.05); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         
         body.void-active { filter: hue-rotate(270deg) contrast(1.1); }
         
         @media screen and (max-width: 768px) {
-            .battle-scene { flex-direction: column-reverse; gap: 20px; }
-            .character-box { width: 90%; }
+            .game-wrapper { width: 100%; height: 100%; border: none; }
+            .battle-scene { flex-direction: column-reverse; gap: 15px; padding: 10px; }
+            .character-box { width: 95%; padding: 10px; }
             #enemy-box { justify-content: flex-end; }
             #player-box { justify-content: flex-start; }
-            .controls { height: auto; }
-            .skills { grid-template-columns: 1fr 1fr; }
-            #vs-text { transform: rotate(90deg); margin: 10px; font-size: 1.2rem; }
+            .controls { display: flex; flex-direction: column; height: auto; min-height: 250px; }
+            .skills { grid-template-columns: 1fr 1fr; height: 160px; }
+            .log-box { height: 80px; }
+            #vs-text { display: none; }
+            .character-img { width: 100px; height: 100px; }
         }
     </style>
 </head>
@@ -186,13 +287,13 @@
             <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444;" id="ui-settings-title">SETTINGS</h2>
             <div class="setting-row"><span id="ui-music-vol">Music Volume</span><input type="range" id="vol-music" min="0" max="1" step="0.1" oninput="updateVolume('music', this.value)"></div>
             <div class="setting-row"><span id="ui-sfx-vol">SFX Volume</span><input type="range" id="vol-sfx" min="0" max="1" step="0.1" oninput="updateVolume('sfx', this.value)"></div>
-            <button class="start-btn" style="width:100%;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
+            <button class="start-btn" style="width:100%; padding: 10px;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
         </div>
     </div>
 
     <div id="shop-modal">
         <div class="shop-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444; padding-bottom: 10px;">
                 <h2 style="color:var(--gold-color); margin:0;" id="ui-shop-title">SHOP</h2>
                 <span id="shop-gold" style="color:white; font-weight:bold;">0 G</span>
             </div>
@@ -204,8 +305,8 @@
 
     <div class="game-wrapper">
         <div id="start-screen">
-            <h1 style="color:white; margin-bottom:5px;" id="ui-title">THE RUINED KING</h1>
-            <p style="color:#aaa; font-style:italic;" id="ui-subtitle">"She is waiting..."</p>
+            <h1 style="color:white; margin-bottom:5px; font-size: 3rem; text-shadow: 0 0 20px #000;" id="ui-title">THE RUINED KING</h1>
+            <p style="color:#aaa; font-style:italic; font-size: 1.2rem;" id="ui-subtitle">"She is waiting..."</p>
             <button class="start-btn" id="ui-start-btn" onclick="initGame()">START JOURNEY</button>
         </div>
 
@@ -217,20 +318,20 @@
         </div>
 
         <div id="final-choice-overlay" style="display:none;">
-            <h2 style="color:#fff;">ISOLDE</h2>
-            <p id="isolde-text" style="color:#aaa; font-style:italic;">"My love... let me go."</p>
+            <h2 style="color:#fff; font-size: 2.5rem;">ISOLDE</h2>
+            <p id="isolde-text" style="color:#aaa; font-style:italic; font-size: 1.2rem; margin-bottom: 30px;">"My love... let me go."</p>
             <button class="choice-btn btn-attack" onclick="makeChoice('attack')">STRIKE HER DOWN</button>
             <button class="choice-btn btn-surrender" onclick="makeChoice('surrender')">SURRENDER TO LOVE</button>
         </div>
 
         <div id="overlay">
-            <h2 style="color:var(--ruined-green); font-size:2.5rem;" id="ui-victory">VICTORY</h2>
+            <h2 style="color:var(--ruined-green); font-size:3rem; text-shadow: 0 0 20px var(--ruined-green);" id="ui-victory">VICTORY</h2>
             <button class="start-btn" id="ui-continue-btn" onclick="nextLevel()">CONTINUE</button>
         </div>
 
         <div class="battle-scene">
             <div class="character-box" id="player-box">
-                <div class="info-btn" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">i</div>
+                <div class="info-btn" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">?</div>
                 <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg" class="character-img viego-glow">
                 <h2>VIEGO</h2>
                 <div class="stat-bar"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
@@ -240,7 +341,7 @@
             <div id="vs-text">VS</div>
 
             <div class="character-box" id="enemy-box">
-                <div class="info-btn" onmouseover="showCharacterTooltip(this, 'enemy')" onmouseout="hideTooltip()">i</div>
+                <div class="info-btn" onmouseover="showCharacterTooltip(this, 'enemy')" onmouseout="hideTooltip()">?</div>
                 <img src="" class="character-img enemy-glow" id="enemy-img">
                 <h2 id="enemy-name">ENEMY</h2>
                 <div class="stat-bar"><div class="fill hp-fill" id="enemy-hp-bar" style="width: 100%;"></div><span class="bar-text" id="enemy-hp-text">100/100</span></div>
@@ -249,7 +350,6 @@
         </div>
 
         <div class="controls hidden-ui" id="combat-controls">
-            <div class="log-box" id="combat-log">...</div>
             <div class="skills">
                 <button class="skill-btn" id="btn-basic" onclick="useSkill('basic')">
                     <span class="skill-name" id="skill-name-basic">Blade</span><span class="skill-cost" id="skill-desc-basic">Basic Dmg</span>
@@ -263,6 +363,9 @@
                 <button class="skill-btn ult-btn" id="btn-r" onclick="useSkill('r')">
                     <span class="skill-name" id="skill-name-r">HEARTBREAKER</span><span class="skill-cost" id="skill-desc-r">FINISHER | 1/Round</span>
                 </button>
+            </div>
+            <div class="log-box" id="combat-log">
+                <div class="log-entry">Waiting for battle...</div>
             </div>
         </div>
     </div>
@@ -307,13 +410,11 @@
     }
 
     const enemiesData = [
-        // TIER 1
         { id: "gangplank", level: 3, hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 7, hp: 280, maxHp: 280, power: 0, maxPower: 100, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
         { id: "akshan", level: 9, hp: 320, maxHp: 320, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Akshan_0.jpg" },
         { id: "gwen", level: 10, hp: 350, maxHp: 350, power: 0, maxPower: 100, damage: 28, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gwen_0.jpg" },
         { id: "lucian", level: 12, hp: 400, maxHp: 400, power: 0, maxPower: 100, damage: 30, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
-        // TIER 2
         { id: "maokai", level: 14, hp: 600, maxHp: 600, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Maokai_0.jpg" },
         { id: "elise", level: 16, hp: 550, maxHp: 550, power: 0, maxPower: 100, damage: 35, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Elise_0.jpg" },
         { id: "vladimir", level: 18, hp: 600, maxHp: 600, power: 0, maxPower: 100, damage: 38, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Vladimir_0.jpg" },
@@ -321,7 +422,6 @@
         { id: "illaoi", level: 22, hp: 800, maxHp: 800, power: 0, maxPower: 100, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Illaoi_0.jpg" },
         { id: "kalista", level: 24, hp: 750, maxHp: 750, power: 0, maxPower: 100, damage: 50, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
         { id: "ledros", level: 25, hp: 900, maxHp: 900, power: 0, maxPower: 100, damage: 55, img: "https://images.contentstack.io/v3/assets/blt5644e700902b4512/blt569033320f750d42/66f28743e33c87138379434e/Commander_Ledros_T2_Lvl_1.png" }, 
-        // TIER 3
         { id: "leblanc", level: 26, hp: 800, maxHp: 800, power: 0, maxPower: 100, damage: 70, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
         { id: "thresh", level: 28, hp: 1200, maxHp: 1200, power: 0, maxPower: 100, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" },
         { id: "belveth", level: 30, hp: 1500, maxHp: 1500, power: 0, maxPower: 100, damage: 80, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" },
@@ -370,7 +470,8 @@
                 thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience."] },
                 belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
-            }
+            },
+            bossSkills: { gpQ: "Parrrley", gpW: "Remove Scurvy" }
         },
         tr: {
             ui: { menu: "← Menü", title: "MAHVOLMUŞ KRAL", sub: "\"O beni bekliyor...\"", start: "YOLCULUĞA BAŞLA", next: "İLERİ", victory: "ZAFER", continue: "DEVAM ET", shopTitle: "MAHVOLMUŞ MARKET", shopClose: "KAPAT", shopOpen: "🛒 MARKET", sellOff: "SATIŞ: KAPALI", sellOn: "SATIŞ: AÇIK", buy: "SATIN AL", sell: "SAT", settingsTitle: "AYARLAR", settingsClose: "KAPAT", musicVol: "Müzik Sesi", sfxVol: "Efekt Sesi" },
@@ -413,11 +514,12 @@
                 thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama."] },
                 belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Onu bulmadan asla."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
-            }
+            },
+            bossSkills: { gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare" }
         }
     };
 
-    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 2, elixirs: 1, gold: 0, level: 1, ultUsed: false, stunned: false };
+    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 0, elixirs: 0, gold: 0, level: 1, ultUsed: false, stunned: false };
     let currentEnemyIndex = 0;
     let turn = "player";
     let dialogueQueue = [];
@@ -650,24 +752,33 @@
         location.reload();
     }
 
-    function log(msg) { const b = document.getElementById('combat-log'); b.innerHTML = `> ${msg}<br>` + b.innerHTML; }
+    function log(msg) { 
+        const box = document.getElementById('combat-log');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerText = `> ${msg}`;
+        box.insertBefore(entry, box.firstChild);
+    }
+    
     function showFloat(target, text, type) { const el = document.createElement('div'); el.className = `float-text text-${type}`; el.innerText = text; const rect = target.getBoundingClientRect(); el.style.left = (rect.left + rect.width/2 - 20) + 'px'; el.style.top = rect.top + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
     
     function showCharacterTooltip(el, who) {
         const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
         let html = "";
         
-        // Show specific hints for each character
         if (who === 'player') {
-            html = `<div class="tooltip-title">VIEGO</div>${t.hints.viego}`;
+            html = `<div class="tooltip-title">VIEGO</div>
+                    <div class="tooltip-body">${t.hints.viego}</div>`;
         } else {
             const enemy = enemiesData[currentEnemyIndex];
             const enemyName = t.enemies[enemy.id].name.toUpperCase();
-            // Get hint for specific enemy ID
-            const hint = t.hints[enemy.id] || "No info.";
+            const hint = t.hints[enemy.id] || "No intel available.";
             
             html = `<div class="tooltip-title">${enemyName}</div>
-                    <div class="tooltip-body">${hint}</div>`;
+                    <div class="tooltip-body">
+                        Damage: ${enemy.damage}<br>
+                        ${hint}
+                    </div>`;
         }
         tip.innerHTML = html; tip.style.display = 'block';
         const rect = el.getBoundingClientRect(); let left = rect.left + 30; if (left > window.innerWidth - 200) left = rect.left - 220; tip.style.top = (rect.bottom + 5) + 'px'; tip.style.left = left + 'px';
