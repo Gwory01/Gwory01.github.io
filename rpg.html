@@ -17,6 +17,7 @@
             --heal-color: #2ecc71;
             --gold-color: #f39c12;
             --sell-color: #e74c3c;
+            --shield-grey: #95a5a6;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -42,16 +43,20 @@
             position: relative; z-index: 10;
         }
 
+        /* --- INFO BUTONU (SOL ÜST) --- */
         .info-btn { 
-            position: absolute; top: 10px; right: 20px; 
-            width: 28px; height: 28px; 
-            background: #000; border: 2px solid var(--ruined-green); 
+            position: absolute; 
+            top: 10px; left: 10px; /* SOL ÜST KÖŞE */
+            width: 24px; height: 24px; 
+            background: rgba(0, 0, 0, 0.9); 
+            border: 1px solid var(--ruined-green); 
             color: var(--ruined-green); border-radius: 50%; 
             font-weight: bold; cursor: help; z-index: 50; 
-            display: flex; justify-content: center; align-items: center; font-size: 16px;
-            box-shadow: 0 0 10px var(--ruined-green);
+            display: flex; justify-content: center; align-items: center; font-size: 14px;
+            box-shadow: 0 0 8px var(--ruined-green);
+            transition: transform 0.2s;
         }
-        .info-btn:active { transform: scale(0.9); }
+        .info-btn:hover { transform: scale(1.1); background: var(--ruined-green); color: black; }
 
         .top-bar-controls { 
             position: absolute; top: 10px; right: 10px; z-index: 100;
@@ -84,8 +89,6 @@
         .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-grow: 1; }
         .skill-btn { background: #111; border: 1px solid #333; color: #aaa; font-family: 'Cinzel'; padding: 5px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
         .skill-btn:active { background: #222; transform: scale(0.98); }
-        
-        /* DISABLED STATE */
         .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); border-color: #333; background: #000; }
         .skill-btn:disabled .skill-cost { color: #555; }
         
@@ -119,8 +122,19 @@
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
-        #inv-tooltip { position: absolute; background: rgba(10, 12, 15, 0.98); border: 1px solid var(--ruined-green); padding: 10px; font-size: 12px; z-index: 5000; pointer-events: none; display: none; width: 220px; text-align: left; font-family: 'Roboto'; color: #ddd; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 5px; padding-bottom: 5px; font-size: 14px; }
+        /* YENİ TOOLTIP TASARIMI */
+        #inv-tooltip { 
+            position: absolute; background: rgba(10, 12, 15, 0.98); 
+            border: 1px solid var(--ruined-green); padding: 12px; 
+            font-size: 12px; z-index: 5000; pointer-events: none; 
+            display: none; width: 240px; text-align: left; 
+            font-family: 'Roboto'; color: #ddd; border-radius: 4px; 
+            box-shadow: 0 0 25px rgba(10, 200, 185, 0.2); 
+        }
+        .tooltip-title { color: var(--ruined-green); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 8px; padding-bottom: 5px; font-size: 14px; font-family: 'Cinzel'; }
+        .tooltip-body { line-height: 1.4; color: #ccc; }
+        .tooltip-highlight { color: #f1c40f; font-weight: bold; }
+        .tooltip-weakness { color: #e74c3c; font-weight: bold; margin-top: 5px; display: block; }
 
         .float-text { position: absolute; font-weight: bold; font-size: 20px; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
@@ -128,7 +142,6 @@
         .attacking { animation: bump 0.2s; } @keyframes bump { 50% { transform: scale(1.1); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         
-        /* ÖZEL EFEKTLER */
         body.void-active { filter: hue-rotate(270deg) contrast(1.1); }
         
         @media screen and (max-width: 768px) {
@@ -255,7 +268,6 @@
     </div>
 
 <script>
-    // --- SES YÖNETİMİ ---
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w_skill: new Audio('W_skill.wav') };
     let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
 
@@ -279,31 +291,21 @@
         let s = null;
         if (type === 'basic') s = Math.random() > 0.5 ? sounds.basic1 : sounds.basic2;
         else if (type === 'w') s = sounds.w_skill;
-        // Q ve R için ses yok (istek üzerine)
-        
         if (s) { s.volume = gameSettings.sfxVolume; s.currentTime=0; s.play().catch(e=>{}); }
     }
 
-    // --- MÜZİK KONTROLÜ (DÜZELTİLDİ) ---
     function playMusic() {
         const bgMusic = document.getElementById('bgMusic');
         let track = "";
         const enemy = enemiesData[currentEnemyIndex];
-
         if (enemy) {
             if (enemy.level <= 10) track = "Tier1.mp3";
             else if (enemy.level <= 25) track = "Tier2.mp3";
             else track = enemy.id + ".mp3"; 
         }
-
-        if (bgMusic.getAttribute('src') !== track) {
-            bgMusic.src = track;
-            bgMusic.volume = gameSettings.musicVolume;
-            bgMusic.play().catch(e => {});
-        }
+        if (bgMusic.getAttribute('src') !== track) { bgMusic.src = track; bgMusic.volume = gameSettings.musicVolume; bgMusic.play().catch(e => {}); }
     }
 
-    // --- OYUN VERİLERİ ---
     const enemiesData = [
         // TIER 1
         { id: "gangplank", level: 3, hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
@@ -311,7 +313,6 @@
         { id: "akshan", level: 9, hp: 320, maxHp: 320, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Akshan_0.jpg" },
         { id: "gwen", level: 10, hp: 350, maxHp: 350, power: 0, maxPower: 100, damage: 28, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gwen_0.jpg" },
         { id: "lucian", level: 12, hp: 400, maxHp: 400, power: 0, maxPower: 100, damage: 30, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lucian_0.jpg" },
-        
         // TIER 2
         { id: "maokai", level: 14, hp: 600, maxHp: 600, power: 0, maxPower: 100, damage: 25, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Maokai_0.jpg" },
         { id: "elise", level: 16, hp: 550, maxHp: 550, power: 0, maxPower: 100, damage: 35, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Elise_0.jpg" },
@@ -320,8 +321,7 @@
         { id: "illaoi", level: 22, hp: 800, maxHp: 800, power: 0, maxPower: 100, damage: 40, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Illaoi_0.jpg" },
         { id: "kalista", level: 24, hp: 750, maxHp: 750, power: 0, maxPower: 100, damage: 50, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kalista_0.jpg" },
         { id: "ledros", level: 25, hp: 900, maxHp: 900, power: 0, maxPower: 100, damage: 55, img: "https://images.contentstack.io/v3/assets/blt5644e700902b4512/blt569033320f750d42/66f28743e33c87138379434e/Commander_Ledros_T2_Lvl_1.png" }, 
-
-        // TIER 3 (BOSSES)
+        // TIER 3
         { id: "leblanc", level: 26, hp: 800, maxHp: 800, power: 0, maxPower: 100, damage: 70, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leblanc_0.jpg" },
         { id: "thresh", level: 28, hp: 1200, maxHp: 1200, power: 0, maxPower: 100, damage: 60, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Thresh_0.jpg" },
         { id: "belveth", level: 30, hp: 1500, maxHp: 1500, power: 0, maxPower: 100, damage: 80, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Belveth_0.jpg" },
@@ -334,11 +334,30 @@
             skills: { basic: {name: "Basic Attack", desc: "Dmg | +MP"}, q: {name: "Blade of the Ruined King", desc: "Dmg | 20 MP"}, w: {name: "Spectral Maw", desc: "Crit | 30 MP"}, r: {name: "HEARTBREAKER", desc: "EXECUTE | 1/Round"} },
             logs: { start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.",
             gpQ: "Gangplank uses Parrrley! CRIT!", gpW: "Gangplank eats Orange!", yorQ: "Yorick's Last Rites!", yorHeal: "Yorick heals from the Mist!", lbClone: "LeBlanc Mirror Image! Miss!", threshHook: "Death Sentence! STUNNED!", belvethTrue: "Bel'Veth transforms into TRUE FORM!", mordeRealm: "Welcome to the DEATH REALM!" },
+            hints: {
+                viego: "Passive: Hit to gain Power.<br>Ult: Executes. Uses NO Power but 1 use/round.",
+                gangplank: "Ability: High Damage at 20 Power.<br>Weakness: Heals at Low HP. Burst him down!",
+                yorick: "Ability: Sustains through combat.<br>Strategy: Keep your HP high.",
+                akshan: "Ability: Quick attacks.<br>Strategy: Standard duel.",
+                gwen: "Ability: Immune to some effects.<br>Strategy: Aggressive play.",
+                lucian: "Ability: Double shot potential.<br>Strategy: Outlast his burst.",
+                maokai: "Ability: Tanky and heals.<br>Strategy: Use Q to sustain.",
+                elise: "Ability: Stuns and bites.<br>Strategy: Save W for big hits.",
+                vladimir: "Ability: Drains your HP.<br>Strategy: Use potions early.",
+                hecarim: "Ability: Ramps up damage.<br>Strategy: Kill him fast.",
+                illaoi: "Ability: Test of Spirit.<br>Strategy: Don't let her heal.",
+                kalista: "Ability: Spears stack damage.<br>Strategy: finish quickly.",
+                ledros: "Ability: Cuts HP by %. <br>Strategy: High HP won't save you.",
+                leblanc: "Ability: Mirror Image (Miss chance).<br>Strategy: Pray to hit.",
+                thresh: "Ability: STUNS at 60 Power.<br>Strategy: Watch his Power bar!",
+                belveth: "Ability: TRUE FORM at death.<br>Strategy: Save Ult for Form 2.",
+                mordekaiser: "Ability: DEATH REALM at 50% HP.<br>Strategy: Survive the Realm."
+            },
             enemies: {
                 gangplank: { name: "Gangplank", intro: ["Gangplank: This is my city!", "Viego: I will take everything."] },
                 yorick: { name: "Yorick", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
                 akshan: { name: "Akshan", intro: ["Akshan: Not another undead tyrant...", "Viego: Step aside, pest."] },
-                gwen: { name: "Gwen", intro: ["Gwen: I remember her smile. You don't deserve her.", "Viego: You are nothing but a doll!"] },
+                gwen: { name: "Gwen", intro: ["Gwen: I remember her smile...", "Viego: You are nothing but a doll!"] },
                 lucian: { name: "Lucian & Senna", intro: ["Lucian: For Senna!", "Viego: For Isolde!"] },
                 maokai: { name: "Maokai", intro: ["Maokai: You poisoned the waters!", "Viego: I gave them purpose."] },
                 elise: { name: "Elise", intro: ["Elise: The Spider God hungers.", "Viego: Even gods bow to me."] },
@@ -346,9 +365,9 @@
                 hecarim: { name: "Hecarim", intro: ["Hecarim: War is eternal!", "Viego: Serve your King, Hecarim."] },
                 illaoi: { name: "Illaoi", intro: ["Illaoi: You are stagnant.", "Viego: My love is timeless."] },
                 kalista: { name: "Kalista", intro: ["Kalista: Betrayer...", "Viego: I did what I had to do!"] },
-                ledros: { name: "Ledros", intro: ["Ledros: End this madness, my friend.", "Viego: Only when she returns."] },
-                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Are you real, or just a memory?", "Viego: I am the end of your schemes."] },
-                thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience, warden."] },
+                ledros: { name: "Ledros", intro: ["Ledros: End this madness.", "Viego: Only when she returns."] },
+                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Are you real?", "Viego: I am the end of your schemes."] },
+                thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience."] },
                 belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
             }
@@ -358,11 +377,30 @@
             skills: { basic: {name: "Temel Saldırı", desc: "Hasar | +Güç"}, q: {name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç"}, w: {name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç"}, r: {name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur"} },
             logs: { start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.",
             gpQ: "Gangplank Çakaralmaz kullandı! KRİTİK!", gpW: "Gangplank Portakal yedi!", yorQ: "Yorick Son Dua vurdu!", yorHeal: "Yorick Sisten iyileşti!", lbClone: "LeBlanc Ayna Görüntüsü! Iskaladın!", threshHook: "Ölüm Cezası! SERSEMLEDİN!", belvethTrue: "Bel'Veth GERÇEK FORMUNA dönüştü!", mordeRealm: "ÖLÜLER ALEMİNE Hoşgeldin!" },
+            hints: {
+                viego: "Pasif: Vurdukça Güç kazan.<br>Ulti: İnfaz eder. Güç İSTEMEZ ama turda 1 kere.",
+                gangplank: "Yetenek: 20 Güçte yüksek hasar.<br>Zayıflık: Canı azken iyileşir. Hızlı bitir!",
+                yorick: "Yetenek: Sisten güç alır.<br>Strateji: Canını yüksek tut.",
+                akshan: "Yetenek: Hızlı saldırılar.<br>Strateji: Standart düello.",
+                gwen: "Yetenek: Kutsal Sis.<br>Strateji: Agresif oyna.",
+                lucian: "Yetenek: Çifte vuruş.<br>Strateji: Hasarını karşıla.",
+                maokai: "Yetenek: Tank ve iyileşme.<br>Strateji: Q ile can yenile.",
+                elise: "Yetenek: Örümcek ısırığı.<br>Strateji: W yeteneğini sakla.",
+                vladimir: "Yetenek: Kan emer.<br>Strateji: İksirlerini erken kullan.",
+                hecarim: "Yetenek: Savaş uzadıkça güçlenir.<br>Strateji: Hızlı öldür.",
+                illaoi: "Yetenek: Ruh Testi.<br>Strateji: İyileşmesine izin verme.",
+                kalista: "Yetenek: Mızraklar birikir.<br>Strateji: Uzun savaştan kaçın.",
+                ledros: "Yetenek: Canı % ile vurur.<br>Strateji: Yüksek can seni kurtarmaz.",
+                leblanc: "Yetenek: Ayna Görüntüsü (Iska şansı).<br>Strateji: Şansına güven.",
+                thresh: "Yetenek: 60 Güçte SERSEMLETİR.<br>Strateji: Güç barını takip et!",
+                belveth: "Yetenek: Ölünce GERÇEK FORMA geçer.<br>Strateji: Ultini 2. forma sakla.",
+                mordekaiser: "Yetenek: %50 Canda ÖLÜLER ALEMİ.<br>Strateji: Alemde hayatta kal."
+            },
             enemies: {
                 gangplank: { name: "Gangplank", intro: ["Gangplank: Bu şehir benim!", "Viego: Her şeyi alacağım."] },
                 yorick: { name: "Yorick", intro: ["Yorick: Kara Sis bir lanet.", "Viego: O benim aşkım."] },
                 akshan: { name: "Akshan", intro: ["Akshan: Yine mi bir ölü tiran...", "Viego: Çekil yolumdan böcek."] },
-                gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum. Sen onu hak etmiyorsun.", "Viego: Sen sadece bir oyuncaksın!"] },
+                gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum...", "Viego: Sen sadece bir oyuncaksın!"] },
                 lucian: { name: "Lucian & Senna", intro: ["Lucian: Senna için!", "Viego: Isolde için!"] },
                 maokai: { name: "Maokai", intro: ["Maokai: Suları zehirledin!", "Viego: Onlara amaç verdim."] },
                 elise: { name: "Elise", intro: ["Elise: Örümcek Tanrı aç.", "Viego: Tanrılar bile bana boyun eğer."] },
@@ -370,9 +408,9 @@
                 hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Kralına hizmet et Hecarim."] },
                 illaoi: { name: "Illaoi", intro: ["Illaoi: Sen durgunsun.", "Viego: Aşkım zamansız."] },
                 kalista: { name: "Kalista", intro: ["Kalista: Hain...", "Viego: Yapmam gerekeni yaptım!"] },
-                ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir dostum.", "Viego: Sadece o geri döndüğünde."] },
-                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin yoksa bir anı mı?", "Viego: Ben planlarının sonuyum."] },
-                thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama gardiyan."] },
+                ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
+                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin?", "Viego: Ben planlarının sonuyum."] },
+                thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama."] },
                 belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Onu bulmadan asla."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
             }
@@ -614,14 +652,27 @@
 
     function log(msg) { const b = document.getElementById('combat-log'); b.innerHTML = `> ${msg}<br>` + b.innerHTML; }
     function showFloat(target, text, type) { const el = document.createElement('div'); el.className = `float-text text-${type}`; el.innerText = text; const rect = target.getBoundingClientRect(); el.style.left = (rect.left + rect.width/2 - 20) + 'px'; el.style.top = rect.top + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
+    
     function showCharacterTooltip(el, who) {
         const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
         let html = "";
-        if (who === 'player') html = `<div class="tooltip-title">VIEGO</div>${t.tooltips.viego}`;
-        else { const enemy = enemiesData[currentEnemyIndex]; html = `<div class="tooltip-title">${t.enemies[enemy.id].name.toUpperCase()}</div>Dmg: ${enemy.damage}<br><span class="info-strong">${t.tooltips.threat}:</span> High`; }
+        
+        // Show specific hints for each character
+        if (who === 'player') {
+            html = `<div class="tooltip-title">VIEGO</div>${t.hints.viego}`;
+        } else {
+            const enemy = enemiesData[currentEnemyIndex];
+            const enemyName = t.enemies[enemy.id].name.toUpperCase();
+            // Get hint for specific enemy ID
+            const hint = t.hints[enemy.id] || "No info.";
+            
+            html = `<div class="tooltip-title">${enemyName}</div>
+                    <div class="tooltip-body">${hint}</div>`;
+        }
         tip.innerHTML = html; tip.style.display = 'block';
-        const rect = el.getBoundingClientRect(); let left = rect.left - 200; if (left < 10) left = 10; tip.style.top = (rect.bottom + 5) + 'px'; tip.style.left = left + 'px';
+        const rect = el.getBoundingClientRect(); let left = rect.left + 30; if (left > window.innerWidth - 200) left = rect.left - 220; tip.style.top = (rect.bottom + 5) + 'px'; tip.style.left = left + 'px';
     }
+    
     function showTooltip(el, type) {
         const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
         let text = "", title = ""; if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
