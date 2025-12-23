@@ -432,8 +432,9 @@
         en: {
             ui: { menu: "← Menu", title: "THE RUINED KING", sub: "\"She is waiting...\"", start: "START JOURNEY", next: "NEXT", victory: "VICTORY", continue: "CONTINUE", shopTitle: "RUINED SHOP", shopClose: "CLOSE", shopOpen: "🛒 SHOP", sellOff: "SELL: OFF", sellOn: "SELL: ON", buy: "BUY", sell: "SELL", settingsTitle: "SETTINGS", settingsClose: "CLOSE", musicVol: "Music Volume", sfxVol: "SFX Volume" },
             skills: { basic: {name: "Basic Attack", desc: "Dmg | +MP"}, q: {name: "Blade of the Ruined King", desc: "Dmg | 20 MP"}, w: {name: "Spectral Maw", desc: "Crit | 30 MP"}, r: {name: "HEARTBREAKER", desc: "EXECUTE | 1/Round"} },
-            logs: { start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.",
+            logs: { start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.", notEnoughGold: "Not enough gold!",
             gpQ: "Gangplank uses Parrrley! CRIT!", gpW: "Gangplank eats Orange!", yorQ: "Yorick's Last Rites!", yorHeal: "Yorick heals from the Mist!", lbClone: "LeBlanc Mirror Image! Miss!", threshHook: "Death Sentence! STUNNED!", belvethTrue: "Bel'Veth transforms into TRUE FORM!", mordeRealm: "Welcome to the DEATH REALM!" },
+            tooltips: { potion: {name: "Health Potion", desc: "Restores 50 HP"}, elixir: {name: "Power Elixir", desc: "Grants 50 Power"}, sword: {name: "Ruined Blade", desc: "A memento."} },
             hints: {
                 viego: "Passive: Hit to gain Power.<br>Ult: Executes. Uses NO Power but 1 use/round.",
                 gangplank: "Ability: High Damage at 20 Power.<br>Weakness: Heals at Low HP. Burst him down!",
@@ -476,8 +477,9 @@
         tr: {
             ui: { menu: "← Menü", title: "MAHVOLMUŞ KRAL", sub: "\"O beni bekliyor...\"", start: "YOLCULUĞA BAŞLA", next: "İLERİ", victory: "ZAFER", continue: "DEVAM ET", shopTitle: "MAHVOLMUŞ MARKET", shopClose: "KAPAT", shopOpen: "🛒 MARKET", sellOff: "SATIŞ: KAPALI", sellOn: "SATIŞ: AÇIK", buy: "SATIN AL", sell: "SAT", settingsTitle: "AYARLAR", settingsClose: "KAPAT", musicVol: "Müzik Sesi", sfxVol: "Efekt Sesi" },
             skills: { basic: {name: "Temel Saldırı", desc: "Hasar | +Güç"}, q: {name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç"}, w: {name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç"}, r: {name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur"} },
-            logs: { start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.",
+            logs: { start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.", notEnoughGold: "Yeterli altının yok!",
             gpQ: "Gangplank Çakaralmaz kullandı! KRİTİK!", gpW: "Gangplank Portakal yedi!", yorQ: "Yorick Son Dua vurdu!", yorHeal: "Yorick Sisten iyileşti!", lbClone: "LeBlanc Ayna Görüntüsü! Iskaladın!", threshHook: "Ölüm Cezası! SERSEMLEDİN!", belvethTrue: "Bel'Veth GERÇEK FORMUNA dönüştü!", mordeRealm: "ÖLÜLER ALEMİNE Hoşgeldin!" },
+            tooltips: { potion: {name: "Can İksiri", desc: "50 Can yeniler"}, elixir: {name: "Güç İksiri", desc: "50 Güç verir"}, sword: {name: "Mahvolmuş Kılıç", desc: "Bir hatıra."} },
             hints: {
                 viego: "Pasif: Vurdukça Güç kazan.<br>Ulti: İnfaz eder. Güç İSTEMEZ ama turda 1 kere.",
                 gangplank: "Yetenek: 20 Güçte yüksek hasar.<br>Zayıflık: Canı azken iyileşir. Hızlı bitir!",
@@ -568,25 +570,95 @@
         updateDialogueText();
     }
 
+    // --- LOG SİSTEMİ (GÜNCELLENDİ) ---
+    function log(msg, key = null, params = null) { 
+        const box = document.getElementById('combat-log');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerText = `> ${msg}`;
+        if (key) {
+            entry.dataset.key = key;
+            if (params) {
+                entry.dataset.params = JSON.stringify(params);
+            }
+        }
+        box.insertBefore(entry, box.firstChild);
+    }
+
+    function updateLogLanguage() {
+        const t = translations[gameSettings.lang];
+        const entries = document.querySelectorAll('.log-entry');
+        
+        entries.forEach(entry => {
+            const key = entry.dataset.key;
+            if (!key) return;
+
+            let params = {};
+            if (entry.dataset.params) {
+                try { params = JSON.parse(entry.dataset.params); } catch(e){}
+            }
+
+            let newText = "";
+            if (key === 'enemyAtk') {
+                newText = `${params.name} ${t.logs.enemyAtk} ${params.dmg}.`;
+            } else if (params.dmg && t.logs[key]) {
+                 newText = `${t.logs[key]} ${params.dmg}.`;
+            } else if (t.logs[key]) {
+                newText = t.logs[key];
+            }
+
+            if (newText) {
+                entry.innerText = `> ${newText}`;
+            }
+        });
+    }
+
     function useSkill(type) {
         if (turn !== 'player' || player.stunned) return;
         const t = translations[gameSettings.lang];
         const enemy = enemiesData[currentEnemyIndex];
-        let dmg = 0; let msg = "";
+        let dmg = 0; let msg = ""; let logKey = "";
 
         let pGain = Math.floor(Math.random()*11)+5;
         player.power = Math.min(100, player.power + pGain);
         showFloat(document.getElementById('player-box'), `+${pGain} MP`, 'mana');
 
-        if (type === 'basic') { playSfx('basic'); dmg = 15 + (player.level * 5); msg = t.logs.pStrike; }
-        else if (type === 'q') { player.power -= 20; playSfx('basic'); dmg = 30 + (player.level * 8); let heal = 10; player.hp = Math.min(player.maxHp, player.hp + heal); showFloat(document.getElementById('player-box'), `+${heal}`, 'heal'); msg = t.logs.pQ; }
-        else if (type === 'w') { player.power -= 30; playSfx('w'); dmg = 45 + (player.level * 10); msg = t.logs.pW; }
-        else if (type === 'r') { player.ultUsed = true; dmg = 100 + (player.level * 20); msg = t.logs.pR; document.body.classList.add('death-realm-active'); setTimeout(() => {if(!mordeRealmActive) document.body.classList.remove('death-realm-active')}, 500); }
+        if (type === 'basic') { 
+            playSfx('basic'); 
+            dmg = 15 + (player.level * 5); 
+            msg = t.logs.pStrike; 
+            logKey = 'pStrike';
+        }
+        else if (type === 'q') { 
+            player.power -= 20; 
+            playSfx('basic'); 
+            dmg = 30 + (player.level * 8); 
+            let heal = 10; 
+            player.hp = Math.min(player.maxHp, player.hp + heal); 
+            showFloat(document.getElementById('player-box'), `+${heal}`, 'heal'); 
+            msg = t.logs.pQ; 
+            logKey = 'pQ';
+        }
+        else if (type === 'w') { 
+            player.power -= 30; 
+            playSfx('w'); 
+            dmg = 45 + (player.level * 10); 
+            msg = t.logs.pW; 
+            logKey = 'pW';
+        }
+        else if (type === 'r') { 
+            player.ultUsed = true; 
+            dmg = 100 + (player.level * 20); 
+            msg = t.logs.pR; 
+            logKey = 'pR';
+            document.body.classList.add('death-realm-active'); 
+            setTimeout(() => {if(!mordeRealmActive) document.body.classList.remove('death-realm-active')}, 500); 
+        }
 
         player.power = Math.min(100, player.power);
         
         if (enemy.id === 'leblanc' && enemy.hp < enemy.maxHp * 0.4 && Math.random() > 0.5) {
-            dmg = 0; msg = t.logs.lbClone;
+            dmg = 0; msg = t.logs.lbClone; logKey = 'lbClone';
             showFloat(document.getElementById('enemy-box'), "MISS", 'text-mana');
         }
 
@@ -600,7 +672,7 @@
         document.getElementById('player-box').classList.add('attacking');
         setTimeout(() => document.getElementById('player-box').classList.remove('attacking'), 200);
         
-        log(msg);
+        log(msg, logKey);
         updateUI();
 
         if (enemy.id === 'belveth' && enemy.hp <= 0 && enemy.form === 1) {
@@ -608,7 +680,7 @@
             enemy.hp = Math.floor(enemy.maxHp * 0.6); 
             enemy.damage = Math.floor(enemy.damage * 1.5);
             document.body.classList.add('void-active');
-            log(t.logs.belvethTrue);
+            log(t.logs.belvethTrue, 'belvethTrue');
             updateUI();
             turn = "enemy"; 
             setTimeout(enemyTurn, 1500);
@@ -633,19 +705,21 @@
             mordeRealmActive = true;
             document.body.classList.add('death-realm-active');
             enemy.damage += 20;
-            log(t.logs.mordeRealm);
+            log(t.logs.mordeRealm, 'mordeRealm');
         }
 
         if (enemy.id === 'gangplank') {
             if (enemy.hp < (enemy.maxHp * 0.4) && enemy.power >= 30 && !enemy.wUsed) {
                 enemy.power = 0; enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50); enemy.wUsed = true;
-                showFloat(document.getElementById('enemy-box'), "+50", 'heal'); log(t.logs.gpW);
+                showFloat(document.getElementById('enemy-box'), "+50", 'heal'); 
+                log(t.logs.gpW, 'gpW');
                 endEnemyTurn(); return; 
             }
             if (enemy.power >= 20) {
                 enemy.power = 0;
                 let dmg = Math.floor((enemy.damage + 5) * 1.75);
-                performAttack(dmg, t.logs.gpQ, 'crit'); return;
+                performAttack(dmg, 'gpQ', {}, 'crit'); 
+                return;
             }
         }
 
@@ -655,31 +729,48 @@
             let heal = 40;
             enemy.hp += heal;
             showFloat(document.getElementById('enemy-box'), `+${heal}`, 'heal');
-            performAttack(dmg, t.logs.yorHeal); return;
+            performAttack(dmg, 'yorHeal'); 
+            return;
         }
 
         if (enemy.id === 'thresh' && enemy.power >= 60) {
             enemy.power = 0;
             let dmg = enemy.damage + 10;
             player.stunned = true; 
-            performAttack(dmg, t.logs.threshHook, 'special'); 
+            performAttack(dmg, 'threshHook', {}, 'special');
             return;
         }
 
-        performAttack(enemy.damage + Math.floor(Math.random()*10), `${enemyName} ${t.logs.enemyAtk}`);
+        performAttack(enemy.damage + Math.floor(Math.random()*10), 'enemyAtk', {name: enemyName});
     }
 
-    function performAttack(dmg, msg, type = 'damage') {
+    function performAttack(dmg, key, params = {}, type = 'damage') {
+        const t = translations[gameSettings.lang];
         player.hp -= dmg;
         showFloat(document.getElementById('player-box'), `-${dmg}`, type);
         document.getElementById('enemy-box').classList.add('attacking');
         setTimeout(() => document.getElementById('enemy-box').classList.remove('attacking'), 200);
         document.getElementById('player-box').classList.add('damaged');
         setTimeout(() => document.getElementById('player-box').classList.remove('damaged'), 400);
-        log(`${msg} ${dmg}.`);
+        
+        let msg = "";
+        if (key === 'enemyAtk') {
+            msg = `${params.name} ${t.logs.enemyAtk} ${dmg}.`;
+            params.dmg = dmg;
+        } else {
+            msg = `${t.logs[key]} ${dmg}.`;
+            params.dmg = dmg;
+        }
+
+        log(msg, key, params);
         updateUI();
         
-        if (player.hp <= 0) { player.hp = 0; updateUI(); log(translations[gameSettings.lang].logs.defeat); setTimeout(() => location.reload(), 2000); }
+        if (player.hp <= 0) { 
+            player.hp = 0; 
+            updateUI(); 
+            log(t.logs.defeat, 'defeat'); 
+            setTimeout(() => location.reload(), 2000); 
+        }
         else { endEnemyTurn(); }
     }
 
@@ -719,7 +810,13 @@
     }
     function nextDialogue() { dialogueIndex++; updateDialogueText(); }
     
-    function changeLanguage(lang) { gameSettings.lang = lang; saveSettings(); updateTexts(); }
+    function changeLanguage(lang) { 
+        gameSettings.lang = lang; 
+        saveSettings(); 
+        updateTexts(); 
+        updateLogLanguage();
+    }
+
     function updateTexts() {
         const t = translations[gameSettings.lang];
         document.getElementById('ui-menu').innerText = t.ui.menu; document.getElementById('ui-title').innerText = t.ui.title; document.getElementById('ui-subtitle').innerText = t.ui.sub; document.getElementById('ui-start-btn').innerText = t.ui.start; document.getElementById('ui-next-btn').innerText = t.ui.next; document.getElementById('ui-victory').innerText = t.ui.victory; document.getElementById('ui-continue-btn').innerText = t.ui.continue; document.getElementById('ui-shop-title').innerText = t.ui.shopTitle; document.getElementById('ui-shop-close').innerText = t.ui.shopClose; document.getElementById('btn-open-shop').innerText = t.ui.shopOpen; document.getElementById('sell-mode-btn').innerText = isSellMode ? t.ui.sellOn : t.ui.sellOff; document.getElementById('ui-settings-title').innerText = t.ui.settingsTitle; document.getElementById('ui-settings-close').innerText = t.ui.settingsClose; document.getElementById('ui-music-vol').innerText = t.ui.musicVol; document.getElementById('ui-sfx-vol').innerText = t.ui.sfxVol;
@@ -751,14 +848,6 @@
         else alert("You chose peace. The Mist fades, and Viego finally rests.");
         location.reload();
     }
-
-    function log(msg) { 
-        const box = document.getElementById('combat-log');
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerText = `> ${msg}`;
-        box.insertBefore(entry, box.firstChild);
-    }
     
     function showFloat(target, text, type) { const el = document.createElement('div'); el.className = `float-text text-${type}`; el.innerText = text; const rect = target.getBoundingClientRect(); el.style.left = (rect.left + rect.width/2 - 20) + 'px'; el.style.top = rect.top + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
     
@@ -786,16 +875,59 @@
     
     function showTooltip(el, type) {
         const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
-        let text = "", title = ""; if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
+        let text = "", title = ""; 
+        if (t.tooltips[type]) {
+            title = t.tooltips[type].name; 
+            text = t.tooltips[type].desc;
+        }
         tip.innerHTML = `<div class="tooltip-title">${title}</div>${text}`; tip.style.display = 'block'; const rect = el.getBoundingClientRect(); tip.style.left = (rect.right + 10) + 'px'; tip.style.top = rect.top + 'px';
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
-    function openShop() { const modal = document.getElementById('shop-modal'); const container = document.getElementById('shop-container'); document.getElementById('shop-gold').innerText = player.gold + " G"; const t = translations[gameSettings.lang]; const items = [ { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } ]; container.innerHTML = ""; items.forEach(item => { const div = document.createElement('div'); div.className = 'shop-item'; let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`; container.appendChild(div); }); modal.style.display = 'flex'; }
+    function openShop() { 
+        const modal = document.getElementById('shop-modal'); 
+        const container = document.getElementById('shop-container'); 
+        document.getElementById('shop-gold').innerText = player.gold + " G"; 
+        const t = translations[gameSettings.lang]; 
+        const items = [ 
+            { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, 
+            { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, 
+            { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } 
+        ]; 
+        container.innerHTML = ""; 
+        items.forEach(item => { 
+            const div = document.createElement('div'); 
+            div.className = 'shop-item'; 
+            let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; 
+            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`; 
+            container.appendChild(div); 
+        }); 
+        modal.style.display = 'flex'; 
+    }
     function handleShop(id, price) { if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } else { if (player.gold >= price) { player.gold -= price; if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; openShop(); updateUI(); } else { alert(translations[gameSettings.lang].logs.notEnoughGold); } } }
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
+    
+    // Inventory Item Kullanımı (Basit ekleme)
+    function useInventoryItem(type) {
+        if (turn !== 'player' || player.stunned) return;
+        const t = translations[gameSettings.lang];
+        if (type === 'potion' && player.potions > 0) {
+            player.potions--;
+            player.hp = Math.min(player.maxHp, player.hp + 50);
+            showFloat(document.getElementById('player-box'), "+50 HP", 'heal');
+            log(t.logs.usedPot, 'usedPot');
+            updateUI();
+        } else if (type === 'elixir' && player.elixirs > 0) {
+            player.elixirs--;
+            player.power = Math.min(100, player.power + 50);
+            showFloat(document.getElementById('player-box'), "+50 MP", 'mana');
+            log(t.logs.usedElix, 'usedElix');
+            updateUI();
+        }
+    }
+
     window.onload = function() { loadSettings(); }
 </script>
 </body>
