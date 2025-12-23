@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Viego: The Ruined King RPG</title>
     <style>
+        /* --- ÖNCEKİ CSS KODLARI AYNEN KORUNDU --- */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
@@ -38,7 +39,17 @@
         }
         body.death-realm-active { filter: grayscale(100%) sepia(30%) hue-rotate(90deg) contrast(1.1); box-shadow: inset 0 0 150px #0ac8b9; }
 
-        /* --- RPG STİLİ ARAYÜZ --- */
+        /* --- SİS EFEKTİ --- */
+        #mist-container { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+        .black-mist { position: absolute; inset: -30%; background: radial-gradient(circle at 30% 40%, rgba(10,200,185,0.15), transparent 60%), radial-gradient(circle at 70% 60%, rgba(10,200,185,0.12), transparent 65%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.7), rgba(0,0,0,0.95)); filter: blur(70px); opacity: 0.45; animation: mistMove 80s linear infinite; }
+        .black-mist.layer1 { animation-duration: 120s; opacity: 0.35; transform: scale(1.2); }
+        .black-mist.layer2 { animation-duration: 160s; opacity: 0.25; transform: scale(1.4); }
+        @keyframes mistMove { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-8%, -6%) scale(1.05); } 100% { transform: translate(0,0) scale(1); } }
+        body.death-realm-active #mist-container { filter: saturate(1.5) contrast(1.2); }
+        body.death-realm-active .black-mist { opacity: 0.8; filter: blur(90px); }
+        #mist-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+        /* --- UI GENEL --- */
         .game-wrapper { 
             width: 98%; height: 95%; max-width: 1100px;
             background: var(--panel-bg); 
@@ -49,12 +60,10 @@
             position: relative; z-index: 10;
             padding: 5px;
         }
-
-        /* Köşe Süslemeleri */
         .game-wrapper::before { content: ""; position: absolute; top: -2px; left: -2px; width: 20px; height: 20px; border-top: 2px solid var(--gold-border); border-left: 2px solid var(--gold-border); z-index: 11; }
         .game-wrapper::after { content: ""; position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 2px solid var(--gold-border); border-right: 2px solid var(--gold-border); z-index: 11; }
 
-        /* --- BUTONLAR --- */
+        /* BUTONLAR */
         .info-btn { 
             position: absolute; top: 10px; left: 10px; 
             width: 24px; height: 24px; 
@@ -66,182 +75,85 @@
         }
         .info-btn:hover { background: var(--gold-border); color: #000; box-shadow: 0 0 10px var(--gold-border); }
 
-        .top-bar-controls { 
-            position: absolute; top: 15px; right: 20px; z-index: 100;
-            display: flex; gap: 10px; align-items: center; 
-        }
-        .control-btn-ui { 
-            background: linear-gradient(to bottom, #333, #111); 
-            color: #ddd; border: 1px solid #555; 
-            padding: 8px 15px; border-radius: 2px; font-size: 12px; cursor: pointer; 
-            font-family: 'Cinzel', serif; letter-spacing: 1px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
+        .top-bar-controls { position: absolute; top: 15px; right: 20px; z-index: 100; display: flex; gap: 10px; align-items: center; }
+        .control-btn-ui { background: linear-gradient(to bottom, #333, #111); color: #ddd; border: 1px solid #555; padding: 8px 15px; border-radius: 2px; font-size: 12px; cursor: pointer; font-family: 'Cinzel', serif; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         .control-btn-ui:hover { border-color: var(--ruined-green); color: var(--ruined-green); }
         .back-btn { position: absolute; top: 15px; left: 20px; z-index: 100; color: #aaa; text-decoration: none; border: 1px solid #444; padding: 6px 12px; background: rgba(0,0,0,0.8); font-size: 12px; font-family: 'Roboto'; }
 
-        /* --- SAVAŞ ALANI (Unit Frames) --- */
-        .battle-scene { 
-            flex-grow: 1; display: flex; 
-            justify-content: space-around; align-items: center; 
-            position: relative; width: 100%; 
-            padding: 20px;
-        }
-        
-        .character-box { 
-            width: 40%; max-width: 320px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid #444;
-            padding: 15px;
-            border-radius: 4px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: border-color 0.3s;
-        }
+        /* SAVAŞ ALANI */
+        .battle-scene { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; position: relative; width: 100%; padding: 20px; }
+        .character-box { width: 40%; max-width: 320px; background: rgba(0, 0, 0, 0.4); border: 1px solid #444; padding: 15px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: border-color 0.3s; }
         .character-box:hover { border-color: var(--ruined-green); }
-        
-        .character-img { 
-            width: 140px; height: 140px; 
-            object-fit: cover; object-position: center top; 
-            border-radius: 50%; border: 3px solid #333; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.8); 
-            transition: all 0.2s; margin-bottom: 10px;
-        }
-        
+        .character-img { width: 140px; height: 140px; object-fit: cover; object-position: center top; border-radius: 50%; border: 3px solid #333; box-shadow: 0 0 15px rgba(0,0,0,0.8); transition: all 0.2s; margin-bottom: 10px; }
         .viego-glow { border-color: var(--ruined-green); }
         .enemy-glow { border-color: #d63031; }
+        .character-box h2 { font-size: 1.1rem; margin: 5px 0; color: #fff; text-shadow: 0 2px 4px #000; letter-spacing: 2px; border-bottom: 1px solid #444; padding-bottom: 5px; width: 100%; text-align: center; }
         
-        .character-box h2 { 
-            font-size: 1.1rem; margin: 5px 0; 
-            color: #fff; text-shadow: 0 2px 4px #000; 
-            letter-spacing: 2px; border-bottom: 1px solid #444; padding-bottom: 5px; width: 100%; text-align: center;
-        }
-        
-        /* BARLAR */
-        .stat-bar { 
-            width: 100%; height: 12px; 
-            background: #111; margin-top: 6px; 
-            border: 1px solid #333; position: relative; 
-            border-radius: 2px; 
-        }
+        .stat-bar { width: 100%; height: 12px; background: #111; margin-top: 6px; border: 1px solid #333; position: relative; border-radius: 2px; }
         .fill { height: 100%; transition: width 0.4s ease-out; } 
         .hp-fill { background: linear-gradient(to right, #900, #c0392b); } 
         .power-fill { background: linear-gradient(to right, #b7950b, #f1c40f); box-shadow: 0 0 5px #f1c40f; }
-        .bar-text { 
-            font-size: 10px; font-weight: bold; 
-            position: absolute; top: -1px; left: 50%; transform: translateX(-50%); 
-            color: #fff; text-shadow: 1px 1px 2px black; line-height: 12px; letter-spacing: 1px;
-        }
+        .bar-text { font-size: 10px; font-weight: bold; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); color: #fff; text-shadow: 1px 1px 2px black; line-height: 12px; letter-spacing: 1px; }
         #vs-text { font-size: 2rem; color: #444; font-weight: bold; font-style: italic; opacity: 0.5; }
 
-        /* --- KONTROLLER ve LOG (Genişletilmiş) --- */
-        .controls { 
-            background: rgba(10, 12, 15, 0.9); 
-            border-top: 3px double var(--border-color); 
-            padding: 15px; 
-            display: grid; grid-template-columns: 3fr 2fr; gap: 15px;
-            height: 220px; /* Sabit yükseklik */
-        }
+        /* KONTROLLER & LOG */
+        .controls { background: rgba(10, 12, 15, 0.9); border-top: 3px double var(--border-color); padding: 15px; display: grid; grid-template-columns: 3fr 2fr; gap: 15px; height: 220px; }
         .hidden-ui { opacity: 0; pointer-events: none; }
-
-        .skills { 
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; 
-        }
-        .skill-btn { 
-            background: linear-gradient(to bottom, #2c3e50, #1a252f); 
-            border: 1px solid #444; color: #ccc; 
-            font-family: 'Cinzel'; padding: 5px; border-radius: 2px; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: 0.2s; position: relative;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
+        .skills { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; }
+        .skill-btn { background: linear-gradient(to bottom, #2c3e50, #1a252f); border: 1px solid #444; color: #ccc; font-family: 'Cinzel'; padding: 5px; border-radius: 2px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .skill-btn:hover:not(:disabled) { border-color: var(--ruined-green); color: #fff; background: linear-gradient(to bottom, #34495e, #2c3e50); }
         .skill-btn:active { transform: translateY(2px); }
         .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); background: #111; border-color: #222; }
-        
         .skill-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 4px; text-shadow: 1px 1px 0 #000; }
         .skill-cost { font-size: 0.65rem; color: #aaa; font-family: 'Roboto', sans-serif; }
         .skill-btn:hover .skill-cost { color: var(--ruined-green); }
-
         .ult-btn { border-color: #2ecc71; }
         .ult-btn:hover:not(:disabled) { border-color: #2ecc71; background: linear-gradient(to bottom, #0d3822, #082015); }
 
-        /* BATTLE LOG (RPG STİLİ) */
-        .log-box { 
-            height: 100%; 
-            background: rgba(0, 0, 0, 0.6); 
-            border: 1px solid #444; 
-            border-radius: 2px;
-            padding: 10px; 
-            font-size: 0.85rem; color: #ccc; 
-            font-family: 'Roboto', sans-serif; 
-            overflow-y: auto; 
-            display: flex; flex-direction: column-reverse; /* Yeni mesajlar altta (klasik terminal) veya üstte */
-            line-height: 1.6;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-        }
+        .log-box { height: 100%; background: rgba(0, 0, 0, 0.6); border: 1px solid #444; border-radius: 2px; padding: 10px; font-size: 0.85rem; color: #ccc; font-family: 'Roboto', sans-serif; overflow-y: auto; display: flex; flex-direction: column-reverse; line-height: 1.6; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .log-entry { border-bottom: 1px solid #222; padding: 2px 0; }
-        .log-turn { color: var(--gold-border); font-weight: bold; margin-top: 5px; }
-
-        /* --- ENVANTER (İksirler) --- */
-        #inventory-frame { 
-            position: absolute; top: 70px; left: 20px; z-index: 20; 
-            display: flex; flex-direction: column; gap: 15px; 
-            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 4px; border: 1px solid #333;
-        }
-        .inv-slot { 
-            width: 45px; height: 45px; 
-            background: #151515; border: 1px solid #444; 
-            border-radius: 4px; position: relative; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center; font-size: 22px; 
-            transition: 0.2s;
-        }
+        
+        /* ENVANTER */
+        #inventory-frame { position: absolute; top: 70px; left: 20px; z-index: 20; display: flex; flex-direction: column; gap: 15px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 4px; border: 1px solid #333; }
+        .inv-slot { width: 45px; height: 45px; background: #151515; border: 1px solid #444; border-radius: 4px; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 22px; transition: 0.2s; }
         .inv-slot:hover { border-color: var(--power-yellow); background: #222; transform: scale(1.05); }
-        .inv-count { 
-            position: absolute; bottom: -5px; right: -5px; 
-            font-size: 11px; background: #333; color: #fff; 
-            padding: 1px 4px; border-radius: 2px; border: 1px solid #555; font-family: 'Roboto';
-        }
+        .inv-count { position: absolute; bottom: -5px; right: -5px; font-size: 11px; background: #333; color: #fff; padding: 1px 4px; border-radius: 2px; border: 1px solid #555; font-family: 'Roboto'; }
 
         /* MODALLAR */
         #start-screen, #cinematic-dialogue, #overlay, #final-choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         #overlay, #final-choice-overlay, #cinematic-dialogue { display: none; }
         .dialogue-box { background: #111; border: 2px solid var(--ruined-green); padding: 20px; width: 95%; max-width: 600px; border-radius: 8px; box-shadow: 0 0 30px rgba(10, 200, 185, 0.2); }
         #cinematic-text { font-size: 1.1rem; line-height: 1.6; color: #e0e0e0; margin-bottom: 20px; font-style: italic; min-height: 50px; font-family: 'Roboto', sans-serif; }
-        .start-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 50px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; letter-spacing: 2px; }
-        .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 20px var(--ruined-green); }
+        .start-btn, .choice-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 50px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; letter-spacing: 2px; }
+        .start-btn:hover, .choice-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 20px var(--ruined-green); }
+        .btn-attack { border-color: var(--hp-red); color: var(--hp-red); } .btn-attack:hover { background: var(--hp-red); color: white; }
+        .btn-surrender { border-color: #2ecc71; color: #2ecc71; } .btn-surrender:hover { background: #2ecc71; color: white; }
 
-        /* SHOP & SETTINGS MODAL */
+        /* SHOP & SETTINGS */
         #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .shop-content, .settings-content { width: 90%; max-width: 500px; background: #151515; border: 2px solid var(--border-color); padding: 25px; border-radius: 4px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 50vh; overflow-y: auto; margin-top: 20px; }
         .shop-item { background: #0a0a0a; border: 1px solid #333; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .buy-btn { background: #222; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'Cinzel'; }
-        .buy-btn:hover { background: var(--gold-color); color: #000; }
+        .buy-btn:hover:not(:disabled) { background: var(--gold-color); color: #000; }
+        .buy-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #444; color: #555; }
 
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
-        /* TOOLTIP (Gelişmiş) */
-        #inv-tooltip { 
-            position: absolute; background: rgba(15, 20, 25, 0.98); 
-            border: 1px solid var(--gold-border); padding: 15px; 
-            font-size: 13px; z-index: 5000; pointer-events: none; 
-            display: none; width: 250px; text-align: left; 
-            font-family: 'Roboto'; color: #ccc; border-radius: 4px; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8); 
-        }
+        /* TOOLTIP */
+        #inv-tooltip { position: absolute; background: rgba(15, 20, 25, 0.98); border: 1px solid var(--gold-border); padding: 15px; font-size: 13px; z-index: 5000; pointer-events: none; display: none; width: 250px; text-align: left; font-family: 'Roboto'; color: #ccc; border-radius: 4px; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
         .tooltip-title { color: var(--gold-border); font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 8px; padding-bottom: 5px; font-size: 15px; font-family: 'Cinzel'; letter-spacing: 1px; }
+        .tooltip-body { line-height: 1.4; color: #ccc; }
+        .tooltip-highlight { color: #f1c40f; font-weight: bold; }
 
         .float-text { position: absolute; font-weight: bold; font-size: 22px; animation: floatUp 1.2s ease-out forwards; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-70px); } }
         .text-damage { color: #e74c3c; } .text-heal { color: #2ecc71; } .text-crit { color: #ffcc00; font-size: 30px; } .text-mana { color: #f1c40f; font-size: 18px; } .text-special { color: #a020f0; font-size: 24px; }
         .attacking { animation: bump 0.15s; } @keyframes bump { 50% { transform: scale(1.05); } }
         .damaged { animation: shake 0.4s; } @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        
         body.void-active { filter: hue-rotate(270deg) contrast(1.1); }
-        
+
         @media screen and (max-width: 768px) {
             .game-wrapper { width: 100%; height: 100%; border: none; }
             .battle-scene { flex-direction: column-reverse; gap: 15px; padding: 10px; }
@@ -257,6 +169,13 @@
     </style>
 </head>
 <body>
+    
+    <div id="mist-container">
+        <div class="black-mist base"></div>
+        <div class="black-mist layer1"></div>
+        <div class="black-mist layer2"></div>
+        <canvas id="mist-canvas"></canvas>
+    </div>
 
     <a href="index.html" class="back-btn" id="ui-menu">← Menu</a>
     
@@ -279,7 +198,6 @@
     </div>
 
     <div id="inv-tooltip"></div>
-
     <audio id="bgMusic" loop preload="auto"></audio>
 
     <div id="settings-modal">
@@ -371,6 +289,27 @@
     </div>
 
 <script>
+    // --- MIST FX ENGINE (CANVAS 2D) ---
+    const canvas = document.getElementById("mist-canvas");
+    const ctx = canvas.getContext("2d");
+    let w, h;
+    function resizeMist() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    window.addEventListener("resize", resizeMist); resizeMist();
+    const mistParticles = []; const spiritParticles = [];
+    function createMist() { mistParticles.push({ x: Math.random() * w, y: Math.random() * h, r: Math.random() * 80 + 40, a: Math.random() * 0.15 + 0.05, dx: Math.random() * 0.2 - 0.1, dy: Math.random() * 0.2 - 0.1 }); }
+    function createSpirit() { spiritParticles.push({ x: Math.random() * w, y: h + 50, size: Math.random() * 30 + 20, alpha: 0.6, speed: Math.random() * 0.3 + 0.2 }); }
+    for (let i = 0; i < 25; i++) createMist(); setInterval(createSpirit, 6000);
+    function animateMist() {
+        ctx.clearRect(0,0,w,h);
+        mistParticles.forEach(p => { ctx.beginPath(); ctx.fillStyle = `rgba(10,200,185,${p.a})`; ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); p.x += p.dx; p.y += p.dy; if(p.x<-100)p.x=w+100; if(p.y<-100)p.y=h+100; if(p.x>w+100)p.x=-100; if(p.y>h+100)p.y=-100; });
+        spiritParticles.forEach((s, i) => { ctx.beginPath(); ctx.fillStyle = `rgba(150,255,240,${s.alpha})`; ctx.ellipse(s.x, s.y, s.size*0.5, s.size, 0, 0, Math.PI*2); ctx.fill(); s.y -= s.speed; s.alpha -= 0.001; if(s.alpha<=0) spiritParticles.splice(i,1); });
+        requestAnimationFrame(animateMist);
+    }
+    animateMist();
+    const observer = new MutationObserver(() => { if (document.body.classList.contains("death-realm-active")) { mistParticles.forEach(p => p.a = Math.min(0.3, p.a + 0.1)); } });
+    observer.observe(document.body, { attributes: true });
+
+    // --- SES YÖNETİMİ ---
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w_skill: new Audio('W_skill.wav') };
     let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
 
@@ -397,6 +336,7 @@
         if (s) { s.volume = gameSettings.sfxVolume; s.currentTime=0; s.play().catch(e=>{}); }
     }
 
+    // --- MÜZİK KONTROLÜ ---
     function playMusic() {
         const bgMusic = document.getElementById('bgMusic');
         let track = "";
@@ -409,6 +349,7 @@
         if (bgMusic.getAttribute('src') !== track) { bgMusic.src = track; bgMusic.volume = gameSettings.musicVolume; bgMusic.play().catch(e => {}); }
     }
 
+    // --- OYUN VERİLERİ ---
     const enemiesData = [
         { id: "gangplank", level: 3, hp: 200, maxHp: 200, power: 0, maxPower: 100, damage: 15, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Gangplank_0.jpg" },
         { id: "yorick", level: 7, hp: 280, maxHp: 280, power: 0, maxPower: 100, damage: 20, img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yorick_0.jpg" },
@@ -519,7 +460,7 @@
         }
     };
 
-    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 0, elixirs: 0, gold: 0, level: 1, ultUsed: false, stunned: false };
+    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 0, elixirs: 0, gold: 0, level: 1, ultUsed: false, stunned: false, baseDmg: 0, ownedPassives: [] };
     let currentEnemyIndex = 0;
     let turn = "player";
     let dialogueQueue = [];
@@ -568,23 +509,51 @@
         updateDialogueText();
     }
 
+    // --- SAVAŞ MEKANİKLERİ ---
     function useSkill(type) {
         if (turn !== 'player' || player.stunned) return;
         const t = translations[gameSettings.lang];
         const enemy = enemiesData[currentEnemyIndex];
         let dmg = 0; let msg = "";
 
+        // GÜÇ KAZANIMI (VURUNCA)
         let pGain = Math.floor(Math.random()*11)+5;
         player.power = Math.min(100, player.power + pGain);
         showFloat(document.getElementById('player-box'), `+${pGain} MP`, 'mana');
 
-        if (type === 'basic') { playSfx('basic'); dmg = 15 + (player.level * 5); msg = t.logs.pStrike; }
-        else if (type === 'q') { player.power -= 20; playSfx('basic'); dmg = 30 + (player.level * 8); let heal = 10; player.hp = Math.min(player.maxHp, player.hp + heal); showFloat(document.getElementById('player-box'), `+${heal}`, 'heal'); msg = t.logs.pQ; }
-        else if (type === 'w') { player.power -= 30; playSfx('w'); dmg = 45 + (player.level * 10); msg = t.logs.pW; }
-        else if (type === 'r') { player.ultUsed = true; dmg = 100 + (player.level * 20); msg = t.logs.pR; document.body.classList.add('death-realm-active'); setTimeout(() => {if(!mordeRealmActive) document.body.classList.remove('death-realm-active')}, 500); }
+        let totalBaseDmg = 15 + (player.level * 5) + player.baseDmg; // Item hasarı dahil
+
+        if (type === 'basic') { 
+            playSfx('basic'); 
+            dmg = totalBaseDmg; 
+            msg = t.logs.pStrike; 
+        }
+        else if (type === 'q') { 
+            player.power -= 20; 
+            playSfx('basic'); // Ses yoktu, basic eklendi
+            dmg = totalBaseDmg * 2; 
+            let heal = 10; 
+            player.hp = Math.min(player.maxHp, player.hp + heal); 
+            showFloat(document.getElementById('player-box'), `+${heal}`, 'heal'); 
+            msg = t.logs.pQ; 
+        }
+        else if (type === 'w') { 
+            player.power -= 30; 
+            playSfx('w'); 
+            dmg = totalBaseDmg * 3; 
+            msg = t.logs.pW; 
+        }
+        else if (type === 'r') { 
+            player.ultUsed = true; 
+            dmg = 100 + (player.level * 20) + player.baseDmg; 
+            msg = t.logs.pR; 
+            document.body.classList.add('death-realm-active'); 
+            setTimeout(() => {if(!mordeRealmActive) document.body.classList.remove('death-realm-active')}, 500); 
+        }
 
         player.power = Math.min(100, player.power);
         
+        // LEBLANC PASİF
         if (enemy.id === 'leblanc' && enemy.hp < enemy.maxHp * 0.4 && Math.random() > 0.5) {
             dmg = 0; msg = t.logs.lbClone;
             showFloat(document.getElementById('enemy-box'), "MISS", 'text-mana');
@@ -603,6 +572,7 @@
         log(msg);
         updateUI();
 
+        // BELVETH FORM CHECK
         if (enemy.id === 'belveth' && enemy.hp <= 0 && enemy.form === 1) {
             enemy.form = 2;
             enemy.hp = Math.floor(enemy.maxHp * 0.6); 
@@ -624,11 +594,13 @@
         const enemy = enemiesData[currentEnemyIndex];
         const enemyName = t.enemies[enemy.id].name;
         
+        // GÜÇ KAZANIMI (DÜŞMAN SALDIRIRKEN)
         let eGain = Math.floor(Math.random()*11)+5;
         enemy.power = Math.min(100, enemy.power + eGain);
         showFloat(document.getElementById('enemy-box'), `+${eGain} MP`, 'mana');
         updateUI();
 
+        // --- BOSS AI LOGIC ---
         if (enemy.id === 'mordekaiser' && enemy.hp < enemy.maxHp * 0.5 && !mordeRealmActive) {
             mordeRealmActive = true;
             document.body.classList.add('death-realm-active');
@@ -687,10 +659,10 @@
         if (player.stunned) {
             log("STUNNED! Turn skipped.");
             player.stunned = false;
-            setTimeout(enemyTurn, 1500); 
+            setTimeout(enemyTurn, 1500); // Enemy attacks again
         } else {
             turn = "player";
-            updateUI();
+            updateUI(); // BUTONLARI TEKRAR AKTİF ET
         }
     }
 
@@ -708,6 +680,7 @@
         player.hp = player.maxHp;
     }
 
+    // --- DIALOGUE & UI HELPERS ---
     function updateDialogueText() {
         if (dialogueIndex < dialogueQueue.length) { document.getElementById('cinematic-text').innerText = dialogueQueue[dialogueIndex]; } 
         else {
@@ -739,11 +712,21 @@
         const eMpPct = (enemy.power / enemy.maxPower) * 100; document.getElementById('enemy-power-bar').style.width = eMpPct + "%";
         document.getElementById('count-potion').innerText = player.potions; document.getElementById('count-elixir').innerText = player.elixirs;
         
-        let basicDmg = 15 + (player.level * 5); let qDmg = 30 + (player.level * 8); let wDmg = 45 + (player.level * 10); let rDmg = 100 + (player.level * 20);
-        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
+        let basicDmg = 15 + (player.level * 5) + player.baseDmg;
+        let qDmg = basicDmg * 2; 
+        let wDmg = basicDmg * 3;
+        let rDmg = 100 + (player.level * 20) + player.baseDmg;
+        
+        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; 
+        document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; 
+        document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; 
+        document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
         
         const isPlayerTurn = (turn === 'player' && !player.stunned);
-        document.getElementById('btn-basic').disabled = !isPlayerTurn; document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
+        document.getElementById('btn-basic').disabled = !isPlayerTurn; 
+        document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; 
+        document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; 
+        document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
     }
 
     function makeChoice(choice) {
@@ -786,15 +769,83 @@
     
     function showTooltip(el, type) {
         const tip = document.getElementById('inv-tooltip'); const t = translations[gameSettings.lang];
-        let text = "", title = ""; if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
+        let text = "", title = ""; 
+        if (type === 'potion') { title = t.tooltips.potion.name; text = t.tooltips.potion.desc; } 
+        else if (type === 'elixir') { title = t.tooltips.elixir.name; text = t.tooltips.elixir.desc; }
+        else if (type === 'sword') { title = t.tooltips.sword.name; text = t.tooltips.sword.desc; }
         tip.innerHTML = `<div class="tooltip-title">${title}</div>${text}`; tip.style.display = 'block'; const rect = el.getBoundingClientRect(); tip.style.left = (rect.right + 10) + 'px'; tip.style.top = rect.top + 'px';
     }
     function hideTooltip() { document.getElementById('inv-tooltip').style.display = 'none'; }
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
-    function openShop() { const modal = document.getElementById('shop-modal'); const container = document.getElementById('shop-container'); document.getElementById('shop-gold').innerText = player.gold + " G"; const t = translations[gameSettings.lang]; const items = [ { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } ]; container.innerHTML = ""; items.forEach(item => { const div = document.createElement('div'); div.className = 'shop-item'; let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`; container.appendChild(div); }); modal.style.display = 'flex'; }
-    function handleShop(id, price) { if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } else { if (player.gold >= price) { player.gold -= price; if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; openShop(); updateUI(); } else { alert(translations[gameSettings.lang].logs.notEnoughGold); } } }
+    
+    function openShop() { 
+        const modal = document.getElementById('shop-modal'); 
+        const container = document.getElementById('shop-container'); 
+        document.getElementById('shop-gold').innerText = player.gold + " G"; 
+        const t = translations[gameSettings.lang]; 
+        const items = [ 
+            { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪", type: 'consumable' }, 
+            { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡", type: 'consumable' }, 
+            { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️", type: 'permanent' } 
+        ]; 
+        
+        container.innerHTML = ""; 
+        items.forEach(item => { 
+            const div = document.createElement('div'); 
+            div.className = 'shop-item'; 
+            let btnText = "";
+            let disabled = false;
+
+            if (isSellMode) {
+                 btnText = `${t.ui.sell} ${item.price/2}G`;
+                 if (item.id === 'sword' && !player.ownedPassives.includes('sword')) disabled = true;
+                 if (item.id === 'potion' && player.potions <= 0) disabled = true;
+                 if (item.id === 'elixir' && player.elixirs <= 0) disabled = true;
+            } else {
+                 if (item.type === 'permanent' && player.ownedPassives.includes(item.id)) {
+                     btnText = "OWNED";
+                     disabled = true;
+                 } else {
+                     btnText = `${t.ui.buy} ${item.price}G`;
+                 }
+            }
+
+            div.innerHTML = `<div style="color:white; cursor:help;" onmouseover="showTooltip(this, '${item.id}')" onmouseout="hideTooltip()">${item.icon} ${item.name}</div>
+                             <button class="buy-btn" onclick="handleShop('${item.id}', ${item.price}, '${item.type}')" ${disabled ? 'disabled' : ''}>${btnText}</button>`; 
+            container.appendChild(div); 
+        }); 
+        modal.style.display = 'flex'; 
+    }
+    
+    function handleShop(id, price, type) { 
+        if (isSellMode) { 
+            if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } 
+            else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } 
+            else if (id === 'sword' && player.ownedPassives.includes('sword')) {
+                player.ownedPassives = player.ownedPassives.filter(p => p !== 'sword');
+                player.baseDmg -= 10;
+                player.gold += price/2;
+            }
+            openShop(); updateUI(); 
+        } else { 
+            if (player.gold >= price) { 
+                player.gold -= price; 
+                if (id === 'potion') player.potions++; 
+                if (id === 'elixir') player.elixirs++; 
+                if (id === 'sword') {
+                    player.ownedPassives.push('sword');
+                    player.baseDmg += 10;
+                }
+                playSfx('basic'); // Cha-ching sound placeholder
+                openShop(); updateUI(); 
+            } else { 
+                alert(translations[gameSettings.lang].logs.notEnoughGold); 
+            } 
+        } 
+    }
+    
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
     window.onload = function() { loadSettings(); }
 </script>
