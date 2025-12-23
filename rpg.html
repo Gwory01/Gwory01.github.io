@@ -434,7 +434,12 @@
             skills: { basic: {name: "Basic Attack", desc: "Dmg | +MP"}, q: {name: "Blade of the Ruined King", desc: "Dmg | 20 MP"}, w: {name: "Spectral Maw", desc: "Crit | 30 MP"}, r: {name: "HEARTBREAKER", desc: "EXECUTE | 1/Round"} },
             logs: { start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.", notEnoughGold: "Not enough gold!",
             gpQ: "Gangplank uses Parrrley! CRIT!", gpW: "Gangplank eats Orange!", yorQ: "Yorick's Last Rites!", yorHeal: "Yorick heals from the Mist!", lbClone: "LeBlanc Mirror Image! Miss!", threshHook: "Death Sentence! STUNNED!", belvethTrue: "Bel'Veth transforms into TRUE FORM!", mordeRealm: "Welcome to the DEATH REALM!" },
-            tooltips: { potion: {name: "Health Potion", desc: "Restores 50 HP"}, elixir: {name: "Power Elixir", desc: "Grants 50 Power"}, sword: {name: "Ruined Blade", desc: "A memento."} },
+            tooltips: { potion: {name: "Health Potion", desc: "Restores 50 HP"}, elixir: {name: "Power Elixir", desc: "Grants 50 Power"} },
+            items: { 
+                long_sword: {name: "Long Sword", desc: "+10 AD"}, 
+                ruby_crystal: {name: "Ruby Crystal", desc: "+50 HP"}, 
+                vampiric_scepter: {name: "Vampiric Scepter", desc: "+15 AD, 15% Lifesteal"} 
+            },
             hints: {
                 viego: "Passive: Hit to gain Power.<br>Ult: Executes. Uses NO Power but 1 use/round.",
                 gangplank: "Ability: High Damage at 20 Power.<br>Weakness: Heals at Low HP. Burst him down!",
@@ -458,7 +463,7 @@
                 gangplank: { name: "Gangplank", intro: ["Gangplank: This is my city!", "Viego: I will take everything."] },
                 yorick: { name: "Yorick", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
                 akshan: { name: "Akshan", intro: ["Akshan: Not another undead tyrant...", "Viego: Step aside, pest."] },
-                gwen: { name: "Gwen", intro: ["Gwen: I remember her smile...", "Viego: You are nothing but a doll!"] },
+                gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum...", "Viego: Sen sadece bir oyuncaksın!"] },
                 lucian: { name: "Lucian & Senna", intro: ["Lucian: For Senna!", "Viego: For Isolde!"] },
                 maokai: { name: "Maokai", intro: ["Maokai: You poisoned the waters!", "Viego: I gave them purpose."] },
                 elise: { name: "Elise", intro: ["Elise: The Spider God hungers.", "Viego: Even gods bow to me."] },
@@ -479,7 +484,12 @@
             skills: { basic: {name: "Temel Saldırı", desc: "Hasar | +Güç"}, q: {name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç"}, w: {name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç"}, r: {name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur"} },
             logs: { start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.", notEnoughGold: "Yeterli altının yok!",
             gpQ: "Gangplank Çakaralmaz kullandı! KRİTİK!", gpW: "Gangplank Portakal yedi!", yorQ: "Yorick Son Dua vurdu!", yorHeal: "Yorick Sisten iyileşti!", lbClone: "LeBlanc Ayna Görüntüsü! Iskaladın!", threshHook: "Ölüm Cezası! SERSEMLEDİN!", belvethTrue: "Bel'Veth GERÇEK FORMUNA dönüştü!", mordeRealm: "ÖLÜLER ALEMİNE Hoşgeldin!" },
-            tooltips: { potion: {name: "Can İksiri", desc: "50 Can yeniler"}, elixir: {name: "Güç İksiri", desc: "50 Güç verir"}, sword: {name: "Mahvolmuş Kılıç", desc: "Bir hatıra."} },
+            tooltips: { potion: {name: "Can İksiri", desc: "50 Can yeniler"}, elixir: {name: "Güç İksiri", desc: "50 Güç verir"} },
+            items: { 
+                long_sword: {name: "Uzun Kılıç", desc: "+10 Hasar"}, 
+                ruby_crystal: {name: "Yakut Kristal", desc: "+50 Can"}, 
+                vampiric_scepter: {name: "Vampirî Asa", desc: "+15 Hasar, %15 Can Çalma"} 
+            },
             hints: {
                 viego: "Pasif: Vurdukça Güç kazan.<br>Ulti: İnfaz eder. Güç İSTEMEZ ama turda 1 kere.",
                 gangplank: "Yetenek: 20 Güçte yüksek hasar.<br>Zayıflık: Canı azken iyileşir. Hızlı bitir!",
@@ -521,7 +531,23 @@
         }
     };
 
-    let player = { hp: 150, maxHp: 150, power: 0, maxPower: 100, potions: 0, elixirs: 0, gold: 0, level: 1, ultUsed: false, stunned: false };
+    let player = { 
+        hp: 150, maxHp: 150, 
+        baseDamage: 0, // Yeni: Ekstra hasar
+        lifesteal: 0,  // Yeni: Can Çalma
+        power: 0, maxPower: 100, 
+        potions: 0, elixirs: 0, gold: 0, level: 1, 
+        ultUsed: false, stunned: false,
+        items: [] // Yeni: Satın alınan eşyalar
+    };
+    
+    // Eşya Veritabanı
+    const gameItems = {
+        long_sword: { cost: 150, dmg: 10, hp: 0, lifesteal: 0, icon: "⚔️" },
+        ruby_crystal: { cost: 150, dmg: 0, hp: 50, lifesteal: 0, icon: "💎" },
+        vampiric_scepter: { cost: 350, dmg: 15, hp: 0, lifesteal: 0.15, icon: "🩸" }
+    };
+
     let currentEnemyIndex = 0;
     let turn = "player";
     let dialogueQueue = [];
@@ -570,7 +596,7 @@
         updateDialogueText();
     }
 
-    // --- LOG SİSTEMİ (GÜNCELLENDİ) ---
+    // --- LOG SİSTEMİ ---
     function log(msg, key = null, params = null) { 
         const box = document.getElementById('combat-log');
         const entry = document.createElement('div');
@@ -623,16 +649,29 @@
         player.power = Math.min(100, player.power + pGain);
         showFloat(document.getElementById('player-box'), `+${pGain} MP`, 'mana');
 
+        // Eşya Bonusu Hesaplama
+        let extraDmg = player.baseDamage;
+
         if (type === 'basic') { 
             playSfx('basic'); 
-            dmg = 15 + (player.level * 5); 
+            dmg = 15 + (player.level * 5) + extraDmg; 
+            
+            // Can Çalma (Lifesteal)
+            if (player.lifesteal > 0) {
+                let healAmount = Math.floor(dmg * player.lifesteal);
+                if (healAmount > 0) {
+                    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+                    showFloat(document.getElementById('player-box'), `+${healAmount}`, 'heal');
+                }
+            }
+
             msg = t.logs.pStrike; 
             logKey = 'pStrike';
         }
         else if (type === 'q') { 
             player.power -= 20; 
             playSfx('basic'); 
-            dmg = 30 + (player.level * 8); 
+            dmg = 30 + (player.level * 8) + extraDmg; // Q da hasardan etkilenir
             let heal = 10; 
             player.hp = Math.min(player.maxHp, player.hp + heal); 
             showFloat(document.getElementById('player-box'), `+${heal}`, 'heal'); 
@@ -642,13 +681,13 @@
         else if (type === 'w') { 
             player.power -= 30; 
             playSfx('w'); 
-            dmg = 45 + (player.level * 10); 
+            dmg = 45 + (player.level * 10) + extraDmg; 
             msg = t.logs.pW; 
             logKey = 'pW';
         }
         else if (type === 'r') { 
             player.ultUsed = true; 
-            dmg = 100 + (player.level * 20); 
+            dmg = 100 + (player.level * 20) + (extraDmg * 2); // Ulti bonustan daha çok etkilenir
             msg = t.logs.pR; 
             logKey = 'pR';
             document.body.classList.add('death-realm-active'); 
@@ -836,8 +875,17 @@
         const eMpPct = (enemy.power / enemy.maxPower) * 100; document.getElementById('enemy-power-bar').style.width = eMpPct + "%";
         document.getElementById('count-potion').innerText = player.potions; document.getElementById('count-elixir').innerText = player.elixirs;
         
-        let basicDmg = 15 + (player.level * 5); let qDmg = 30 + (player.level * 8); let wDmg = 45 + (player.level * 10); let rDmg = 100 + (player.level * 20);
-        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
+        // Eşya hasarı UI güncellemesi
+        let extraDmg = player.baseDamage;
+        let basicDmg = 15 + (player.level * 5) + extraDmg; 
+        let qDmg = 30 + (player.level * 8) + extraDmg; 
+        let wDmg = 45 + (player.level * 10) + extraDmg; 
+        let rDmg = 100 + (player.level * 20) + (extraDmg * 2);
+        
+        document.getElementById('skill-desc-basic').innerText = `~${basicDmg} Dmg | +10 MP`; 
+        document.getElementById('skill-desc-q').innerText = `~${qDmg} Dmg | 20 MP`; 
+        document.getElementById('skill-desc-w').innerText = `~${wDmg} Dmg | 30 MP`; 
+        document.getElementById('skill-desc-r').innerText = `~${rDmg} Dmg | 1/Round`;
         
         const isPlayerTurn = (turn === 'player' && !player.stunned);
         document.getElementById('btn-basic').disabled = !isPlayerTurn; document.getElementById('btn-q').disabled = !isPlayerTurn || player.power < 20; document.getElementById('btn-w').disabled = !isPlayerTurn || player.power < 30; document.getElementById('btn-r').disabled = !isPlayerTurn || player.ultUsed;
@@ -856,8 +904,12 @@
         let html = "";
         
         if (who === 'player') {
+            let stats = "";
+            if (player.baseDamage > 0) stats += `<br>Bonus Dmg: +${player.baseDamage}`;
+            if (player.lifesteal > 0) stats += `<br>Lifesteal: ${Math.floor(player.lifesteal*100)}%`;
+            
             html = `<div class="tooltip-title">VIEGO</div>
-                    <div class="tooltip-body">${t.hints.viego}</div>`;
+                    <div class="tooltip-body">${t.hints.viego}${stats}</div>`;
         } else {
             const enemy = enemiesData[currentEnemyIndex];
             const enemyName = t.enemies[enemy.id].name.toUpperCase();
@@ -886,30 +938,80 @@
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
+    
+    // --- MARKET GÜNCELLEMESİ ---
     function openShop() { 
         const modal = document.getElementById('shop-modal'); 
         const container = document.getElementById('shop-container'); 
         document.getElementById('shop-gold').innerText = player.gold + " G"; 
         const t = translations[gameSettings.lang]; 
+        
+        // Sarf Malzemeleri
         const items = [ 
-            { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪" }, 
-            { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡" }, 
-            { id: 'sword', name: t.tooltips.sword.name, price: 300, icon: "⚔️" } 
+            { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪", type: 'consumable' }, 
+            { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡", type: 'consumable' } 
         ]; 
+        
+        // Kalıcı Eşyalar (Dinamik) - Eğer zaten alınmadıysa göster
+        const equipList = [];
+        if (!player.items.includes('long_sword')) {
+            equipList.push({ id: 'long_sword', name: t.items.long_sword.name, desc: t.items.long_sword.desc, price: gameItems.long_sword.cost, icon: gameItems.long_sword.icon, type: 'equip' });
+        }
+        if (!player.items.includes('ruby_crystal')) {
+            equipList.push({ id: 'ruby_crystal', name: t.items.ruby_crystal.name, desc: t.items.ruby_crystal.desc, price: gameItems.ruby_crystal.cost, icon: gameItems.ruby_crystal.icon, type: 'equip' });
+        }
+        if (!player.items.includes('vampiric_scepter')) {
+            equipList.push({ id: 'vampiric_scepter', name: t.items.vampiric_scepter.name, desc: t.items.vampiric_scepter.desc, price: gameItems.vampiric_scepter.cost, icon: gameItems.vampiric_scepter.icon, type: 'equip' });
+        }
+
+        const allItems = [...items, ...equipList];
+
         container.innerHTML = ""; 
-        items.forEach(item => { 
+        allItems.forEach(item => { 
             const div = document.createElement('div'); 
             div.className = 'shop-item'; 
             let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; 
-            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name}</div><button class="buy-btn" onclick="handleShop('${item.id}', ${item.price})">${btnText}</button>`; 
+            let descHtml = item.desc ? `<span style="font-size:10px; color:#aaa; margin-left:5px;">(${item.desc})</span>` : "";
+            
+            // Eğer satış modundaysak ve eşya 'equip' ise satılamaz yapabiliriz ya da mantığı değiştirebiliriz.
+            // Şimdilik sadece consumable satılıyor.
+            let disabled = (isSellMode && item.type === 'equip') ? 'disabled' : '';
+
+            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name} ${descHtml}</div><button class="buy-btn" ${disabled} onclick="handleShop('${item.id}', ${item.price}, '${item.type}')">${btnText}</button>`; 
             container.appendChild(div); 
         }); 
         modal.style.display = 'flex'; 
     }
-    function handleShop(id, price) { if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } else { if (player.gold >= price) { player.gold -= price; if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; openShop(); updateUI(); } else { alert(translations[gameSettings.lang].logs.notEnoughGold); } } }
+
+    function handleShop(id, price, type) { 
+        if (isSellMode) { 
+            if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } 
+            else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } 
+            openShop(); updateUI(); 
+        } else { 
+            if (player.gold >= price) { 
+                player.gold -= price; 
+                
+                if (type === 'consumable') {
+                    if (id === 'potion') player.potions++; 
+                    if (id === 'elixir') player.elixirs++; 
+                } else if (type === 'equip') {
+                    const itemData = gameItems[id];
+                    player.items.push(id);
+                    if (itemData.dmg) player.baseDamage += itemData.dmg;
+                    if (itemData.hp) { player.maxHp += itemData.hp; player.hp += itemData.hp; }
+                    if (itemData.lifesteal) player.lifesteal += itemData.lifesteal;
+                }
+
+                openShop(); updateUI(); 
+            } else { 
+                alert(translations[gameSettings.lang].logs.notEnoughGold); 
+            } 
+        } 
+    }
+    
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
     
-    // Inventory Item Kullanımı (Basit ekleme)
     function useInventoryItem(type) {
         if (turn !== 'player' || player.stunned) return;
         const t = translations[gameSettings.lang];
