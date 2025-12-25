@@ -30,7 +30,7 @@
             background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('Viego.jpg');
             background-size: cover; 
             background-position: center; 
-            background-attachment: fixed; /* Mobilde bazen scroll gerekir, CSS medya sorgusunda düzelttik */
+            background-attachment: fixed; 
             color: #e0e0e0; font-family: 'Cinzel', serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 100vw; height: 100dvh;
@@ -209,8 +209,11 @@
         .shop-item { background: #0a0a0a; border: 1px solid #333; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .buy-btn { background: #222; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'Cinzel'; }
         .buy-btn:hover { background: var(--gold-color); color: #000; }
+        
+        /* SETTINGS SLIDER STYLES */
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
-        input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
+        input[type=range] { width: 50%; cursor: pointer; accent-color: var(--ruined-green); }
+        .val-display { width: 40px; text-align: right; color: var(--ruined-green); font-family: 'Roboto'; font-size: 0.9rem; }
 
         /* WARNING */
         .shop-warning {
@@ -284,8 +287,19 @@
     <div id="settings-modal">
         <div class="settings-content">
             <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444;" id="ui-settings-title">SETTINGS</h2>
-            <div class="setting-row"><span id="ui-music-vol">Music Volume</span><input type="range" id="vol-music" min="0" max="1" step="0.1" oninput="updateVolume('music', this.value)"></div>
-            <div class="setting-row"><span id="ui-sfx-vol">SFX Volume</span><input type="range" id="vol-sfx" min="0" max="1" step="0.1" oninput="updateVolume('sfx', this.value)"></div>
+            
+            <div class="setting-row">
+                <span id="ui-music-vol">Music Volume</span>
+                <input type="range" id="vol-music" min="0" max="100" step="1" oninput="updateVolume('music', this.value)">
+                <span class="val-display" id="val-music">30%</span>
+            </div>
+            
+            <div class="setting-row">
+                <span id="ui-sfx-vol">SFX Volume</span>
+                <input type="range" id="vol-sfx" min="0" max="100" step="1" oninput="updateVolume('sfx', this.value)">
+                <span class="val-display" id="val-sfx">50%</span>
+            </div>
+
             <button class="start-btn" style="width:100%; padding: 10px;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
         </div>
     </div>
@@ -461,7 +475,7 @@
                 ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
                 leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin?", "Viego: Ben planlarının sonuyum."] },
                 thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama."] },
-                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Onu bulmadan asla."] },
+                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Not before I find her."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
             },
             bossSkills: { gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare" }
@@ -472,16 +486,38 @@
         try {
             const saved = localStorage.getItem('viegoRPG_settings');
             if (saved) gameSettings = JSON.parse(saved);
-            document.getElementById('vol-music').value = gameSettings.musicVolume;
-            document.getElementById('vol-sfx').value = gameSettings.sfxVolume;
+            
+            // Slider değerlerini ayarla (0-1 arası değeri 0-100'e çevir)
+            document.getElementById('vol-music').value = gameSettings.musicVolume * 100;
+            document.getElementById('val-music').innerText = Math.round(gameSettings.musicVolume * 100) + "%";
+            
+            document.getElementById('vol-sfx').value = gameSettings.sfxVolume * 100;
+            document.getElementById('val-sfx').innerText = Math.round(gameSettings.sfxVolume * 100) + "%";
+            
             document.getElementById('lang-select').value = gameSettings.lang;
             if(document.getElementById('bgMusic')) document.getElementById('bgMusic').volume = gameSettings.musicVolume;
+            
             changeLanguage(gameSettings.lang); 
         } catch(e) { console.error(e); }
     }
     
     function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify(gameSettings)); }
-    function updateVolume(type, val) { if (type === 'music') { gameSettings.musicVolume = parseFloat(val); document.getElementById('bgMusic').volume = gameSettings.musicVolume; } else { gameSettings.sfxVolume = parseFloat(val); } saveSettings(); }
+    
+    // GÜNCELLENEN SES AYAR FONKSİYONU
+    function updateVolume(type, val) { 
+        // Gelen değer 0-100 arasında, bunu 0.0-1.0 formatına çeviriyoruz
+        let decimalValue = val / 100;
+        
+        if (type === 'music') { 
+            gameSettings.musicVolume = decimalValue; 
+            document.getElementById('bgMusic').volume = decimalValue; 
+            document.getElementById('val-music').innerText = val + "%";
+        } else { 
+            gameSettings.sfxVolume = decimalValue; 
+            document.getElementById('val-sfx').innerText = val + "%";
+        } 
+        saveSettings(); 
+    }
     
     function playSfx(type) {
         if (gameSettings.sfxVolume <= 0) return;
