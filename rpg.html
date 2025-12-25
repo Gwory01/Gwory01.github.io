@@ -26,7 +26,7 @@
 
         body {
             background-color: var(--dark-bg);
-            /* GÖRSEL GÜNCELLEMESİ: Yerel dosya */
+            /* GÖRSEL: Yerel dosya */
             background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('Viego.jpg');
             background-size: cover; 
             background-position: center; 
@@ -193,6 +193,15 @@
         .start-btn { background: transparent; border: 2px solid var(--ruined-green); color: var(--ruined-green); padding: 15px 50px; font-family: 'Cinzel'; font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; letter-spacing: 2px; }
         .start-btn:hover { background: var(--ruined-green); color: black; box-shadow: 0 0 20px var(--ruined-green); }
 
+        /* NAME INPUT */
+        .name-input {
+            background: rgba(0,0,0,0.7); border: 1px solid var(--gold-border);
+            color: white; padding: 10px; font-family: 'Cinzel'; font-size: 1.2rem;
+            margin-bottom: 20px; text-align: center; width: 70%; max-width: 300px;
+            border-radius: 4px; outline: none; transition: 0.3s;
+        }
+        .name-input:focus { border-color: var(--ruined-green); box-shadow: 0 0 15px rgba(10, 200, 185, 0.3); }
+
         /* SHOP & SETTINGS */
         #shop-modal, #settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .shop-content, .settings-content { width: 90%; max-width: 500px; background: #151515; border: 2px solid var(--border-color); padding: 25px; border-radius: 4px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
@@ -297,6 +306,8 @@
         <div id="start-screen">
             <h1 style="color:white; margin-bottom:5px; font-size: 3rem; text-shadow: 0 0 20px #000;" id="ui-title">THE RUINED KING</h1>
             <p style="color:#aaa; font-style:italic; font-size: 1.2rem;" id="ui-subtitle">"She is waiting..."</p>
+            <input type="text" id="player-name-input" class="name-input" placeholder="Enter Your Name..." maxlength="15">
+            <br>
             <button class="start-btn" id="ui-start-btn" onclick="initGame()">START JOURNEY</button>
         </div>
 
@@ -323,7 +334,7 @@
             <div class="character-box" id="player-box">
                 <div class="info-btn" onmouseover="showCharacterTooltip(this, 'player')" onmouseout="hideTooltip()">?</div>
                 <img src="Viego.jpg" class="character-img viego-glow">
-                <h2>VIEGO</h2>
+                <h2 id="player-name-display">VIEGO</h2>
                 <div class="stat-bar"><div class="fill hp-fill" id="player-hp-bar" style="width: 100%;"></div><span class="bar-text" id="player-hp-text">150/150</span></div>
                 <div class="stat-bar" style="margin-top:2px; border-color:var(--power-yellow);"><div class="fill power-fill" id="player-power-bar" style="width: 0%;"></div><span class="bar-text" id="player-power-text" style="color:var(--power-yellow); top:-2px;">0/100</span></div>
             </div>
@@ -363,13 +374,16 @@
 <script>
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w_skill: new Audio('W_skill.wav') };
     let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
-    let player = { hp: 150, maxHp: 150, baseDamage: 0, lifesteal: 0, power: 0, maxPower: 100, potions: 0, elixirs: 0, gold: 0, level: 1, ultUsed: false, stunned: false, items: [] };
+    let player = { hp: 150, maxHp: 150, baseDamage: 0, lifesteal: 0, power: 0, maxPower: 100, potions: 0, elixirs: 0, gold: 0, level: 1, ultUsed: false, stunned: false, items: [], name: "Unknown" };
     let currentEnemyIndex = 0;
     let turn = "player";
     let dialogueQueue = [];
     let dialogueIndex = 0;
     let isSellMode = false;
     let mordeRealmActive = false;
+    
+    // --- OYUN LOG KAYDI (Discord için) ---
+    let gameLogHistory = [];
 
     // --- EŞYA VE DÜŞMAN VERİLERİ (Görseller Yerel Dosyalarla Güncellendi) ---
     const gameItems = {
@@ -401,7 +415,7 @@
         en: {
             ui: { menu: "← Menu", title: "THE RUINED KING", sub: "\"She is waiting...\"", start: "START JOURNEY", next: "NEXT", victory: "VICTORY", continue: "CONTINUE", shopTitle: "RUINED SHOP", shopClose: "CLOSE", shopOpen: "🛒 SHOP", sellOff: "SELL: OFF", sellOn: "SELL: ON", buy: "BUY", sell: "SELL", settingsTitle: "SETTINGS", settingsClose: "CLOSE", musicVol: "Music Volume", sfxVol: "SFX Volume" },
             skills: { basic: {name: "Basic Attack", desc: "Dmg | +MP"}, q: {name: "Blade of the Ruined King", desc: "Dmg | 20 MP"}, w: {name: "Spectral Maw", desc: "Crit | 30 MP"}, r: {name: "HEARTBREAKER", desc: "EXECUTE | 1/Round"} },
-            logs: { start: "Battle Started!", pStrike: "Viego strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.", notEnoughGold: "Not enough gold!",
+            logs: { start: "Battle Started!", pStrike: "strikes!", pQ: "Blade of the Ruined King hits!", pW: "Spectral Maw hits! Next hit CRITS!", pR: "HEARTBREAKER!", enemyAtk: "attacks for", defeat: "DEFEAT...", usedPot: "Used Potion (+50 HP)", usedElix: "Used Elixir (+50 Power)", won: "Game Over! You conquered all.", notEnoughGold: "Not enough gold!",
             gpQ: "Gangplank uses Parrrley! CRIT!", gpW: "Gangplank eats Orange!", yorQ: "Yorick's Last Rites!", yorHeal: "Yorick heals from the Mist!", lbClone: "LeBlanc Mirror Image! Miss!", threshHook: "Death Sentence! STUNNED!", belvethTrue: "Bel'Veth transforms into TRUE FORM!", mordeRealm: "Welcome to the DEATH REALM!" },
             tooltips: { potion: {name: "Health Potion", desc: "Restores 50 HP"}, elixir: {name: "Power Elixir", desc: "Grants 50 Power"} },
             items: { 
@@ -428,30 +442,12 @@
                 belveth: "Ability: TRUE FORM at death.<br>Strategy: Save Ult for Form 2.",
                 mordekaiser: "Ability: DEATH REALM at 50% HP.<br>Strategy: Survive the Realm."
             },
-            enemies: {
-                gangplank: { name: "Gangplank", intro: ["Gangplank: This is my city!", "Viego: I will take everything."] },
-                yorick: { name: "Yorick", intro: ["Yorick: The Mist is a curse.", "Viego: It is my love."] },
-                akshan: { name: "Akshan", intro: ["Akshan: Not another undead tyrant...", "Viego: Step aside, pest."] },
-                gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum...", "Viego: Sen sadece bir oyuncaksın!"] },
-                lucian: { name: "Lucian & Senna", intro: ["Lucian: For Senna!", "Viego: For Isolde!"] },
-                maokai: { name: "Maokai", intro: ["Maokai: You poisoned the waters!", "Viego: I gave them purpose."] },
-                elise: { name: "Elise", intro: ["Elise: The Spider God hungers.", "Viego: Even gods bow to me."] },
-                vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, the romantic fool.", "Viego: Watch your tongue, uncle."] },
-                hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Serve your King, Hecarim."] },
-                illaoi: { name: "Illaoi", intro: ["Illaoi: You are stagnant.", "Viego: My love is timeless."] },
-                kalista: { name: "Kalista", intro: ["Kalista: Betrayer...", "Viego: I did what I had to do!"] },
-                ledros: { name: "Ledros", intro: ["Ledros: End this madness.", "Viego: Only when she returns."] },
-                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Are you real?", "Viego: I am the end of your schemes."] },
-                thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience."] },
-                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
-                mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
-            },
             bossSkills: { gpQ: "Parrrley", gpW: "Remove Scurvy" }
         },
         tr: {
             ui: { menu: "← Menü", title: "MAHVOLMUŞ KRAL", sub: "\"O beni bekliyor...\"", start: "YOLCULUĞA BAŞLA", next: "İLERİ", victory: "ZAFER", continue: "DEVAM ET", shopTitle: "MAHVOLMUŞ MARKET", shopClose: "KAPAT", shopOpen: "🛒 MARKET", sellOff: "SATIŞ: KAPALI", sellOn: "SATIŞ: AÇIK", buy: "SATIN AL", sell: "SAT", settingsTitle: "AYARLAR", settingsClose: "KAPAT", musicVol: "Müzik Sesi", sfxVol: "Efekt Sesi" },
             skills: { basic: {name: "Temel Saldırı", desc: "Hasar | +Güç"}, q: {name: "Mahvolmuş Kralın Kılıcı", desc: "Hasar | 20 Güç"}, w: {name: "Hortlağın Pençesi", desc: "Kritik | 30 Güç"}, r: {name: "KALP KIRAN", desc: "BİTİRİCİ | 1/Tur"} },
-            logs: { start: "Savaş Başladı!", pStrike: "Viego saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.", notEnoughGold: "Yeterli altının yok!",
+            logs: { start: "Savaş Başladı!", pStrike: "saldırdı!", pQ: "Mahvolmuş Kralın Kılıcı!", pW: "Hayalet Ağız çarptı! Kritik hazır!", pR: "KALP KIRAN!", enemyAtk: "saldırdı ve vurdu:", defeat: "YENİLGİ...", usedPot: "İksir İçildi (+50 Can)", usedElix: "Elixir İçildi (+50 Güç)", won: "Oyun Bitti! Hepsini fethettin.", notEnoughGold: "Yeterli altının yok!",
             gpQ: "Gangplank Çakaralmaz kullandı! KRİTİK!", gpW: "Gangplank Portakal yedi!", yorQ: "Yorick Son Dua vurdu!", yorHeal: "Yorick Sisten iyileşti!", lbClone: "LeBlanc Ayna Görüntüsü! Iskaladın!", threshHook: "Ölüm Cezası! SERSEMLEDİN!", belvethTrue: "Bel'Veth GERÇEK FORMUNA dönüştü!", mordeRealm: "ÖLÜLER ALEMİNE Hoşgeldin!" },
             tooltips: { potion: {name: "Can İksiri", desc: "50 Can yeniler"}, elixir: {name: "Güç İksiri", desc: "50 Güç verir"} },
             items: { 
@@ -477,24 +473,6 @@
                 thresh: "Yetenek: 60 Güçte SERSEMLETİR.<br>Strateji: Güç barını takip et!",
                 belveth: "Yetenek: Ölünce GERÇEK FORMA geçer.<br>Strateji: Ultini 2. forma sakla.",
                 mordekaiser: "Yetenek: %50 Canda ÖLÜLER ALEMİ.<br>Strateji: Alemde hayatta kal."
-            },
-            enemies: {
-                gangplank: { name: "Gangplank", intro: ["Gangplank: Bu şehir benim!", "Viego: Her şeyi alacağım."] },
-                yorick: { name: "Yorick", intro: ["Yorick: Kara Sis bir lanet.", "Viego: O benim aşkım."] },
-                akshan: { name: "Akshan", intro: ["Akshan: Yine mi bir ölü tiran...", "Viego: Çekil yolumdan böcek."] },
-                gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum...", "Viego: Sen sadece bir oyuncaksın!"] },
-                lucian: { name: "Lucian & Senna", intro: ["Lucian: Senna için!", "Viego: Isolde için!"] },
-                maokai: { name: "Maokai", intro: ["Maokai: Suları zehirledin!", "Viego: Onlara amaç verdim."] },
-                elise: { name: "Elise", intro: ["Elise: Örümcek Tanrı aç.", "Viego: Tanrılar bile bana boyun eğer."] },
-                vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, romantik aptal.", "Viego: Dilini koparırım amca."] },
-                hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Serve your King, Hecarim."] },
-                illaoi: { name: "Illaoi", intro: ["Illaoi: Sen durgunsun.", "Viego: Aşkım zamansız."] },
-                kalista: { name: "Kalista", intro: ["Kalista: Hain...", "Viego: Yapmam gerekeni yaptım!"] },
-                ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
-                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin?", "Viego: Ben planlarının sonuyum."] },
-                thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama."] },
-                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Not before I find her."] },
-                mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
             },
             bossSkills: { gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare" }
         }
@@ -543,11 +521,25 @@
 
     // --- OYUN AKIŞI ---
     function initGame() {
+        const nameInput = document.getElementById('player-name-input');
+        const name = nameInput.value.trim();
+        
+        if (!name) {
+            alert("Please enter a name! / Lütfen bir isim girin!");
+            return;
+        }
+        
+        player.name = name;
+        document.getElementById('player-name-display').innerText = player.name.toUpperCase();
+        
         document.getElementById('start-screen').style.display = 'none';
+        
+        // Log kaydını başlat
+        gameLogHistory = [];
+        recordAction(`OYUN BAŞLADI - Oyuncu: ${player.name}`);
+        
         playMusic();
         loadLevel(0);
-        // Loglama burada arka planda çağrılır, oyun açılışını etkilemez
-        sendLogToDiscord("Oyun Başlatıldı / Giriş Yapıldı");
     }
 
     function loadLevel(index) {
@@ -583,6 +575,8 @@
         document.getElementById('combat-controls').classList.add('hidden-ui'); 
         document.getElementById('cinematic-dialogue').style.display = 'flex';
         updateDialogueText();
+        
+        recordAction(`VS: ${enemy.id.toUpperCase()} (Level ${enemy.level})`);
     }
 
     // --- LOGLAMA ---
@@ -598,6 +592,15 @@
             }
         }
         box.insertBefore(entry, box.firstChild);
+        
+        // Arka plan loguna kaydet
+        recordAction(msg);
+    }
+    
+    function recordAction(text) {
+        // Zaman damgası ekle
+        const time = new Date().toLocaleTimeString('tr-TR', {hour12: false});
+        gameLogHistory.push(`[${time}] ${text}`);
     }
 
     function updateLogLanguage() {
@@ -651,7 +654,7 @@
                     showFloat(document.getElementById('player-box'), `+${healAmount}`, 'heal');
                 }
             }
-            msg = t.logs.pStrike; 
+            msg = `${player.name} ${t.logs.pStrike}`; 
             logKey = 'pStrike';
         }
         else if (type === 'q') { 
@@ -712,8 +715,11 @@
             return;
         }
 
-        if (enemy.hp <= 0) { enemy.hp = 0; updateUI(); turn = 'none'; setTimeout(victory, 1000); } 
-        else { turn = "enemy"; updateUI(); setTimeout(enemyTurn, 1000); }
+        if (enemy.hp <= 0) { 
+            enemy.hp = 0; updateUI(); turn = 'none'; setTimeout(victory, 1000); 
+        } else { 
+            turn = "enemy"; updateUI(); setTimeout(enemyTurn, 1000); 
+        }
     }
 
     function enemyTurn() {
@@ -794,6 +800,8 @@
             player.hp = 0; 
             updateUI(); 
             log(t.logs.defeat, 'defeat'); 
+            // KAYBETME LOGU
+            sendFinalLog("Kaybetti (Defeat)");
             setTimeout(() => location.reload(), 2000); 
         }
         else { endEnemyTurn(); }
@@ -822,10 +830,6 @@
         player.level++;
         player.maxHp += 20;
         player.hp = player.maxHp;
-        
-        if(enemiesData[currentEnemyIndex]) {
-            sendLogToDiscord(`Boss Kesildi: ${enemiesData[currentEnemyIndex].id.toUpperCase()}`);
-        }
     }
 
     function updateDialogueText() {
@@ -881,8 +885,13 @@
     }
 
     function makeChoice(choice) {
-        if(choice === 'attack') alert("You chose vengeance. The Ruination continues forever.");
-        else alert("You chose peace. The Mist fades, and Viego finally rests.");
+        if(choice === 'attack') {
+            sendFinalLog("Kazandı (Final: Vengeance)");
+            alert("You chose vengeance. The Ruination continues forever.");
+        } else {
+            sendFinalLog("Kazandı (Final: Peace)");
+            alert("You chose peace. The Mist fades, and Viego finally rests.");
+        }
         location.reload();
     }
     
@@ -895,7 +904,7 @@
             let stats = "";
             if (player.baseDamage > 0) stats += `<br>Bonus Dmg: +${player.baseDamage}`;
             if (player.lifesteal > 0) stats += `<br>Lifesteal: ${Math.floor(player.lifesteal*100)}%`;
-            html = `<div class="tooltip-title">VIEGO</div><div class="tooltip-body">${t.hints.viego}${stats}</div>`;
+            html = `<div class="tooltip-title">${player.name.toUpperCase()}</div><div class="tooltip-body">${t.hints.viego}${stats}</div>`;
         } else {
             const enemy = enemiesData[currentEnemyIndex];
             const enemyName = t.enemies[enemy.id].name.toUpperCase();
@@ -988,48 +997,50 @@
         }
     }
     
-    // --- GÜVENLİ WEBHOOK LOGLAMA (Adblock Dostu) ---
-    // NOT: Adblockers Cloudflare'i nadiren engeller.
+    // --- GÜVENLİ WEBHOOK LOGLAMA (TOPLU) ---
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1453773711613235284/h-TKf-qG4b_vy01sS96i68ANZUuee-D8n9rGA84D9fopsw80xYghbxG2jVHN_B6M8s2C";
 
-    function sendLogToDiscord(action) {
-        // Gecikmeli başlat (UI yüklenmesini beklesin)
-        setTimeout(() => {
-            fetch('https://www.cloudflare.com/cdn-cgi/trace')
-                .then(res => res.text())
-                .then(data => {
-                    // Cloudflare'in text formatındaki verisini parse et
-                    let ip = data.match(/ip=(.*)/)[1];
-                    let loc = data.match(/loc=(.*)/)[1];
-                    
-                    const payload = {
-                        username: "Viego RPG",
-                        embeds: [{
-                            title: "🛡️ " + action,
-                            color: 3066993,
-                            fields: [
-                                { name: "IP", value: ip, inline: true },
-                                { name: "LOC", value: loc, inline: true },
-                                { name: "Time", value: new Date().toLocaleString(), inline: false }
-                            ]
-                        }]
-                    };
-                    return fetch(WEBHOOK_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
-                    });
-                })
-                .catch(err => {
-                    console.log("Loglama pas geçildi (Gizlilik/Adblock). Oyun devam ediyor.");
-                });
-        }, 3000); // 3 saniye sonra gönder
+    async function sendFinalLog(result) {
+        try {
+            // IP çekmeye çalış
+            let ip = "Gizli";
+            try {
+                const trace = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+                const data = await trace.text();
+                ip = data.match(/ip=(.*)/)[1];
+            } catch(e) {}
+
+            // Oyun geçmişini bir metin haline getir (Son 40 işlem)
+            // Discord sınırı 2000 karakter olduğu için son işlemleri almak mantıklı
+            const historyText = gameLogHistory.slice(-40).join("\n");
+
+            const payload = {
+                username: "RPG Game Logger",
+                embeds: [{
+                    title: `🎮 Oyun Bitti: ${result}`,
+                    color: result.includes("Kazandı") ? 3066993 : 15158332, // Yeşil veya Kırmızı
+                    fields: [
+                        { name: "👤 Oyuncu", value: player.name, inline: true },
+                        { name: "🌍 IP", value: ip, inline: true },
+                        { name: "💰 Altın / Seviye", value: `${player.gold} G / Lvl ${player.level}`, inline: true },
+                        { name: "📜 Oyun Özeti (Son İşlemler)", value: "```" + (historyText || "İşlem yok") + "```" }
+                    ],
+                    footer: { text: new Date().toLocaleString('tr-TR') }
+                }]
+            };
+
+            await fetch(WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+        } catch (error) {
+            console.log("Log gönderilemedi.");
+        }
     }
 
-    window.onload = function() { 
-        loadSettings(); 
-        sendLogToDiscord("Oyun Başlatıldı");
-    }
+    window.onload = function() { loadSettings(); }
 </script>
 </body>
 </html>
