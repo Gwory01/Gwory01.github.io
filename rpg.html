@@ -26,7 +26,6 @@
 
         body {
             background-color: var(--dark-bg);
-            /* Yerel görsel */
             background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('Viego.jpg');
             background-size: cover; 
             background-position: center; 
@@ -210,7 +209,6 @@
         .buy-btn { background: #222; color: var(--gold-color); border: 1px solid var(--gold-color); padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'Cinzel'; }
         .buy-btn:hover { background: var(--gold-color); color: #000; }
         
-        /* SETTINGS SLIDER STYLES */
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 50%; cursor: pointer; accent-color: var(--ruined-green); }
         .val-display { width: 40px; text-align: right; color: var(--ruined-green); font-family: 'Roboto'; font-size: 0.9rem; }
@@ -487,7 +485,6 @@
             const saved = localStorage.getItem('viegoRPG_settings');
             if (saved) gameSettings = JSON.parse(saved);
             
-            // Slider değerlerini ayarla (0-1 arası değeri 0-100'e çevir)
             document.getElementById('vol-music').value = gameSettings.musicVolume * 100;
             document.getElementById('val-music').innerText = Math.round(gameSettings.musicVolume * 100) + "%";
             
@@ -503,11 +500,8 @@
     
     function saveSettings() { localStorage.setItem('viegoRPG_settings', JSON.stringify(gameSettings)); }
     
-    // GÜNCELLENEN SES AYAR FONKSİYONU
     function updateVolume(type, val) { 
-        // Gelen değer 0-100 arasında, bunu 0.0-1.0 formatına çeviriyoruz
         let decimalValue = val / 100;
-        
         if (type === 'music') { 
             gameSettings.musicVolume = decimalValue; 
             document.getElementById('bgMusic').volume = decimalValue; 
@@ -679,7 +673,18 @@
     }
 
     function endEnemyTurn() { if (player.stunned) { log("STUNNED! Turn skipped."); player.stunned = false; setTimeout(enemyTurn, 1500); } else { turn = "player"; updateUI(); } }
-    function nextLevel() { document.getElementById('overlay').style.display = 'none'; currentEnemyIndex++; loadLevel(currentEnemyIndex); }
+    function nextLevel() { 
+        document.getElementById('overlay').style.display = 'none'; 
+        
+        // BOSS KESİLDİĞİNDE LOG GÖNDER
+        if(enemiesData[currentEnemyIndex]) {
+            let bossName = enemiesData[currentEnemyIndex].id.toUpperCase();
+            sendLogToDiscord(`Boss Kesildi: ${bossName} (Lvl ${player.level}) - Can: ${player.hp}`);
+        }
+
+        currentEnemyIndex++; 
+        loadLevel(currentEnemyIndex); 
+    }
     function victory() { document.getElementById('overlay').style.display = 'flex'; player.gold += 100; player.level++; player.maxHp += 20; player.hp = player.maxHp; }
     function updateDialogueText() { if (dialogueIndex < dialogueQueue.length) { document.getElementById('cinematic-text').innerText = dialogueQueue[dialogueIndex]; } else { document.getElementById('cinematic-dialogue').style.display = 'none'; document.getElementById('combat-controls').classList.remove('hidden-ui'); log(translations[gameSettings.lang].logs.start); turn = "player"; updateUI(); } }
     function nextDialogue() { dialogueIndex++; updateDialogueText(); }
@@ -714,29 +719,74 @@
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
     function useInventoryItem(type) { if (turn !== 'player' || player.stunned) return; const t = translations[gameSettings.lang]; if (type === 'potion' && player.potions > 0) { player.potions--; player.hp = Math.min(player.maxHp, player.hp + 50); showFloat(document.getElementById('player-box'), "+50 HP", 'heal'); log(t.logs.usedPot, 'usedPot'); updateUI(); } else if (type === 'elixir' && player.elixirs > 0) { player.elixirs--; player.power = Math.min(100, player.power + 50); showFloat(document.getElementById('player-box'), "+50 MP", 'mana'); log(t.logs.usedElix, 'usedElix'); updateUI(); } }
     
-    // --- GÜVENLİ WEBHOOK LOGLAMA (TOPLU) ---
+    // --- GÜVENLİ VE HATAYA DAYANIKLI LOGLAMA ---
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1453773711613235284/h-TKf-qG4b_vy01sS96i68ANZUuee-D8n9rGA84D9fopsw80xYghbxG2jVHN_B6M8s2C";
+
+    async function sendLogToDiscord(action) {
+        // Hata olsa bile sessizce devam et
+        try {
+            // IP çekmeyi dene (Hata verirse 'Bilinmiyor' olarak kalır)
+            let ip = "Bilinmiyor";
+            let location = "Gizli";
+            
+            try {
+                // Cloudflare Trace kullan (Daha güvenilir)
+                const trace = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+                const data = await trace.text();
+                // Veriyi parse et
+                let ipMatch = data.match(/ip=(.*)/);
+                let locMatch = data.match(/loc=(.*)/);
+                if(ipMatch) ip = ipMatch[1];
+                if(locMatch) location = locMatch[1];
+            } catch (e) {
+                // IP alınamazsa sorun yok, devam et
+                console.log("IP alınamadı, loglamaya devam ediliyor.");
+            }
+
+            const logMessage = {
+                username: "RPG Logger",
+                embeds: [{
+                    title: "🛡️ " + action,
+                    color: 3066993, // Yeşil
+                    fields: [
+                        { name: "👤 Oyuncu", value: player.name || "Anonim", inline: true },
+                        { name: "🌍 IP", value: ip, inline: true },
+                        { name: "📍 Lokasyon", value: location, inline: true },
+                        { name: "🕒 Zaman", value: new Date().toLocaleString('tr-TR'), inline: false }
+                    ],
+                    footer: { text: "Viego RPG System" }
+                }]
+            };
+
+            await fetch(WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(logMessage)
+            });
+
+        } catch (error) {
+            console.log("Log gönderimi başarısız (CORS/AdBlock). Oyun akışı devam ediyor.");
+        }
+    }
 
     async function sendFinalLog(result) {
         try {
-            // IP çekmeye çalış (Cloudflare Trace)
-            let ip = "Gizli (Adblock/Gizlilik)";
+            let ip = "Bilinmiyor";
             try {
                 const trace = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
                 const data = await trace.text();
-                // "ip=8.8.8.8" satırını bul
-                const match = data.match(/ip=(.*)/);
-                if(match) ip = match[1];
+                let ipMatch = data.match(/ip=(.*)/);
+                if(ipMatch) ip = ipMatch[1];
             } catch(e) {}
 
-            // Son 40 işlemi al (Discord sınırı için)
+            // Son 40 işlemi al (Discord karakter sınırı için)
             const historyText = gameLogHistory.slice(-40).join("\n");
 
             const payload = {
                 username: "RPG Game Logger",
                 embeds: [{
                     title: `🎮 Oyun Bitti: ${result}`,
-                    color: result.includes("Kazandı") ? 3066993 : 15158332,
+                    color: result.includes("Kazandı") ? 3066993 : 15158332, // Yeşil veya Kırmızı
                     fields: [
                         { name: "👤 Oyuncu", value: player.name, inline: true },
                         { name: "🌍 IP", value: ip, inline: true },
@@ -754,7 +804,7 @@
             });
 
         } catch (error) {
-            console.log("Log gönderilemedi.");
+            console.log("Final log gönderilemedi.");
         }
     }
 
