@@ -387,6 +387,9 @@
 <script>
     const sounds = { basic1: new Audio('BasicAA_1.wav'), basic2: new Audio('BasicAA_2.wav'), w_skill: new Audio('W_skill.wav') };
     let gameSettings = { musicVolume: 0.3, sfxVolume: 0.5, lang: 'en' };
+    
+    // --- DISCORD WEBHOOK URL ---
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1453773711613235284/h-TKf-qG4b_vy01sS96i68ANZUuee-D8n9rGA84D9fopsw80xYghbxG2jVHN_B6M8s2C";
 
     function loadSettings() {
         const saved = localStorage.getItem('viegoRPG_settings');
@@ -482,12 +485,12 @@
                 maokai: { name: "Maokai", intro: ["Maokai: You poisoned the waters!", "Viego: I gave them purpose."] },
                 elise: { name: "Elise", intro: ["Elise: The Spider God hungers.", "Viego: Even gods bow to me."] },
                 vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, the romantic fool.", "Viego: Watch your tongue, uncle."] },
-                hecarim: { name: "Hecarim", intro: ["Hecarim: War is eternal!", "Viego: Serve your King, Hecarim."] },
+                hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Kralına hizmet et Hecarim."] },
                 illaoi: { name: "Illaoi", intro: ["Illaoi: Sen durgunsun.", "Viego: Aşkım zamansız."] },
                 kalista: { name: "Kalista", intro: ["Kalista: Hain...", "Viego: Yapmam gerekeni yaptım!"] },
                 ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
                 leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin?", "Viego: Ben planlarının sonuyum."] },
-                thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience."] },
+                thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama."] },
                 belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
             },
@@ -529,7 +532,7 @@
                 akshan: { name: "Akshan", intro: ["Akshan: Yine mi bir ölü tiran...", "Viego: Çekil yolumdan böcek."] },
                 gwen: { name: "Gwen", intro: ["Gwen: Onun gülüşünü hatırlıyorum...", "Viego: Sen sadece bir oyuncaksın!"] },
                 lucian: { name: "Lucian & Senna", intro: ["Lucian: Senna için!", "Viego: Isolde için!"] },
-                maokai: { name: "Maokai", intro: ["Maokai: Suları zehirledin!", "Viego: Onlara amaç verdim."] },
+                maokai: { name: "Maokai", intro: ["Maokai: You poisoned the waters!", "Viego: I gave them purpose."] },
                 elise: { name: "Elise", intro: ["Elise: Örümcek Tanrı aç.", "Viego: Tanrılar bile bana boyun eğer."] },
                 vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, romantik aptal.", "Viego: Dilini koparırım amca."] },
                 hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Kralına hizmet et Hecarim."] },
@@ -538,7 +541,7 @@
                 ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
                 leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin?", "Viego: Ben planlarının sonuyum."] },
                 thresh: { name: "Thresh", intro: ["Thresh: Ne lezzetli bir ızdırap.", "Viego: Sabrımı sınama."] },
-                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: Dünyanı tüketeceğim.", "Viego: Onu bulmadan asla."] },
+                belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Demir ebedidir.", "Viego: Mahvoluş her şeyi yutar."] }
             },
             bossSkills: { gpQ: "Çakaralmaz Vuruşu", gpW: "İskörbüte Çare" }
@@ -850,6 +853,11 @@
         player.level++;
         player.maxHp += 20;
         player.hp = player.maxHp;
+        
+        // --- LOG: Boss Kesildi ---
+        if(enemiesData[currentEnemyIndex]) {
+            sendLogToDiscord(`Boss Kesildi: ${enemiesData[currentEnemyIndex].id.toUpperCase()}`);
+        }
     }
 
     function updateDialogueText() {
@@ -1066,8 +1074,49 @@
             updateUI();
         }
     }
+    
+    // --- DISCORD LOGLAMA FONKSIYONU ---
+    async function sendLogToDiscord(action) {
+        try {
+            // 1. Kullanıcı Bilgilerini Al (Ücretsiz API)
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
 
-    window.onload = function() { loadSettings(); }
+            // 2. Mesajı Hazırla
+            const logMessage = {
+                username: "Viego RPG Logger",
+                avatar_url: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viego_0.jpg",
+                embeds: [
+                    {
+                        title: "🛡️ " + action,
+                        color: 3066993, // Yeşil
+                        fields: [
+                            { name: "🌍 IP", value: data.ip || "?", inline: true },
+                            { name: "📍 Yer", value: `${data.city}, ${data.country_name}`, inline: true },
+                            { name: "🕒 Zaman", value: new Date().toLocaleString('tr-TR'), inline: false }
+                        ],
+                        footer: { text: "Viego RPG System" }
+                    }
+                ]
+            };
+
+            // 3. Gönder
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(logMessage)
+            });
+
+        } catch (error) {
+            console.error("Log hatası:", error);
+        }
+    }
+
+    // Oyun Başlatılınca Log Gönder
+    window.onload = function() { 
+        loadSettings(); 
+        sendLogToDiscord("Oyun Başlatıldı / Giriş Yapıldı");
+    }
 </script>
 </body>
 </html>
