@@ -223,7 +223,21 @@
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; font-family: 'Cinzel'; }
         input[type=range] { width: 60%; cursor: pointer; accent-color: var(--ruined-green); }
 
-        /* TOOLTIP (Gelişmiş) */
+        /* --- YENİ: Market Uyarısı --- */
+        .shop-warning {
+            position: absolute;
+            color: #e74c3c;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: none;
+            z-index: 4000;
+            transition: all 0.4s ease-out;
+            text-shadow: 1px 1px 0 #000;
+            opacity: 1;
+        }
+
+        /* TOOLTIP */
         #inv-tooltip { 
             position: absolute; background: rgba(15, 20, 25, 0.98); 
             border: 1px solid var(--gold-border); padding: 15px; 
@@ -469,10 +483,10 @@
                 elise: { name: "Elise", intro: ["Elise: The Spider God hungers.", "Viego: Even gods bow to me."] },
                 vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, the romantic fool.", "Viego: Watch your tongue, uncle."] },
                 hecarim: { name: "Hecarim", intro: ["Hecarim: War is eternal!", "Viego: Serve your King, Hecarim."] },
-                illaoi: { name: "Illaoi", intro: ["Illaoi: You are stagnant.", "Viego: My love is timeless."] },
-                kalista: { name: "Kalista", intro: ["Kalista: Betrayer...", "Viego: I did what I had to do!"] },
-                ledros: { name: "Ledros", intro: ["Ledros: End this madness.", "Viego: Only when she returns."] },
-                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Are you real?", "Viego: I am the end of your schemes."] },
+                illaoi: { name: "Illaoi", intro: ["Illaoi: Sen durgunsun.", "Viego: Aşkım zamansız."] },
+                kalista: { name: "Kalista", intro: ["Kalista: Hain...", "Viego: Yapmam gerekeni yaptım!"] },
+                ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
+                leblanc: { name: "LeBlanc", intro: ["LeBlanc: Gerçek misin?", "Viego: Ben planlarının sonuyum."] },
                 thresh: { name: "Thresh", intro: ["Thresh: Such delectable agony.", "Viego: Do not test my patience."] },
                 belveth: { name: "Bel'Veth", intro: ["Bel'Veth: I will consume your world.", "Viego: Not before I find her."] },
                 mordekaiser: { name: "Mordekaiser", intro: ["Mordekaiser: Iron stands eternal.", "Viego: Ruin consumes all."] }
@@ -533,12 +547,12 @@
 
     let player = { 
         hp: 150, maxHp: 150, 
-        baseDamage: 0, // Yeni: Ekstra hasar
-        lifesteal: 0,  // Yeni: Can Çalma
+        baseDamage: 0, 
+        lifesteal: 0, 
         power: 0, maxPower: 100, 
         potions: 0, elixirs: 0, gold: 0, level: 1, 
         ultUsed: false, stunned: false,
-        items: [] // Yeni: Satın alınan eşyalar
+        items: [] 
     };
     
     // Eşya Veritabanı
@@ -973,17 +987,15 @@
             let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; 
             let descHtml = item.desc ? `<span style="font-size:10px; color:#aaa; margin-left:5px;">(${item.desc})</span>` : "";
             
-            // Eğer satış modundaysak ve eşya 'equip' ise satılamaz yapabiliriz ya da mantığı değiştirebiliriz.
-            // Şimdilik sadece consumable satılıyor.
             let disabled = (isSellMode && item.type === 'equip') ? 'disabled' : '';
 
-            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name} ${descHtml}</div><button class="buy-btn" ${disabled} onclick="handleShop('${item.id}', ${item.price}, '${item.type}')">${btnText}</button>`; 
+            div.innerHTML = `<div style="color:white;">${item.icon} ${item.name} ${descHtml}</div><button class="buy-btn" ${disabled} onclick="handleShop('${item.id}', ${item.price}, '${item.type}', this)">${btnText}</button>`; 
             container.appendChild(div); 
         }); 
         modal.style.display = 'flex'; 
     }
 
-    function handleShop(id, price, type) { 
+    function handleShop(id, price, type, btnElement) { 
         if (isSellMode) { 
             if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } 
             else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } 
@@ -1005,9 +1017,34 @@
 
                 openShop(); updateUI(); 
             } else { 
-                alert(translations[gameSettings.lang].logs.notEnoughGold); 
+                showShopWarning(btnElement);
             } 
         } 
+    }
+
+    function showShopWarning(btn) {
+        const t = translations[gameSettings.lang];
+        const msg = t.logs.notEnoughGold || "Not enough gold!";
+        
+        const el = document.createElement('div');
+        el.className = 'shop-warning';
+        el.innerText = msg;
+
+        const rect = btn.getBoundingClientRect();
+        el.style.left = rect.left + 'px';
+        el.style.top = (rect.top - 20) + 'px'; 
+        el.style.width = rect.width + 'px'; 
+
+        document.body.appendChild(el);
+
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-15px)';
+        }, 50);
+
+        setTimeout(() => {
+            el.remove();
+        }, 500);
     }
     
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
