@@ -285,19 +285,16 @@
     <div id="settings-modal">
         <div class="settings-content">
             <h2 style="color:var(--ruined-green); text-align:center; border-bottom:1px solid #444;" id="ui-settings-title">SETTINGS</h2>
-            
             <div class="setting-row">
                 <span id="ui-music-vol">Music Volume</span>
                 <input type="range" id="vol-music" min="0" max="100" step="1" oninput="updateVolume('music', this.value)">
                 <span class="val-display" id="val-music">30%</span>
             </div>
-            
             <div class="setting-row">
                 <span id="ui-sfx-vol">SFX Volume</span>
                 <input type="range" id="vol-sfx" min="0" max="100" step="1" oninput="updateVolume('sfx', this.value)">
                 <span class="val-display" id="val-sfx">50%</span>
             </div>
-
             <button class="start-btn" style="width:100%; padding: 10px;" onclick="closeSettings()" id="ui-settings-close">CLOSE</button>
         </div>
     </div>
@@ -318,7 +315,6 @@
         <div id="start-screen">
             <h1 style="color:white; margin-bottom:5px; font-size: 3rem; text-shadow: 0 0 20px #000;" id="ui-title">THE RUINED KING</h1>
             <p style="color:#aaa; font-style:italic; font-size: 1.2rem;" id="ui-subtitle">"She is waiting..."</p>
-            
             <input type="text" id="player-name-input" class="name-input" placeholder="Enter Your Name..." maxlength="15">
             <br>
             <button class="start-btn" id="ui-start-btn" onclick="initGame()">START JOURNEY</button>
@@ -395,6 +391,7 @@
     let isSellMode = false;
     let mordeRealmActive = false;
     let gameLogHistory = [];
+    let defeatedBosses = [];
 
     const gameItems = {
         long_sword: { cost: 150, dmg: 10, hp: 0, lifesteal: 0, icon: "⚔️" },
@@ -467,7 +464,7 @@
                 maokai: { name: "Maokai", intro: ["Maokai: Suları zehirledin!", "Viego: Onlara amaç verdim."] },
                 elise: { name: "Elise", intro: ["Elise: Örümcek Tanrı aç.", "Viego: Tanrılar bile bana boyun eğer."] },
                 vladimir: { name: "Vladimir", intro: ["Vladimir: Ah, romantik aptal.", "Viego: Dilini koparırım amca."] },
-                hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Kralına hizmet et Hecarim."] },
+                hecarim: { name: "Hecarim", intro: ["Hecarim: Savaş sonsuzdur!", "Viego: Serve your King, Hecarim."] },
                 illaoi: { name: "Illaoi", intro: ["Illaoi: Sen durgunsun.", "Viego: Aşkım zamansız."] },
                 kalista: { name: "Kalista", intro: ["Kalista: Hain...", "Viego: Yapmam gerekeni yaptım!"] },
                 ledros: { name: "Ledros", intro: ["Ledros: Bu deliliği bitir.", "Viego: Sadece o geri döndüğünde."] },
@@ -547,6 +544,7 @@
         document.getElementById('start-screen').style.display = 'none';
         
         gameLogHistory = [];
+        defeatedBosses = [];
         recordAction(`OYUN BAŞLADI - Oyuncu: ${player.name}`);
         playMusic();
         loadLevel(0);
@@ -676,10 +674,13 @@
     function nextLevel() { 
         document.getElementById('overlay').style.display = 'none'; 
         
-        // BOSS KESİLDİĞİNDE LOG GÖNDER
+        // BOSS KESİLDİ - KAYDET
         if(enemiesData[currentEnemyIndex]) {
             let bossName = enemiesData[currentEnemyIndex].id.toUpperCase();
-            sendLogToDiscord(`Boss Kesildi: ${bossName} (Lvl ${player.level}) - Can: ${player.hp}`);
+            // Boss listesine ekle
+            defeatedBosses.push(`${bossName} (Player HP: ${Math.floor(player.hp)})`);
+            // Detay loguna ekle
+            recordAction(`--- ${bossName} KESİLDİ ---`);
         }
 
         currentEnemyIndex++; 
@@ -714,84 +715,34 @@
     function toggleSellMode() { isSellMode = !isSellMode; updateTexts(); openShop(); }
     
     function openShop() { const modal = document.getElementById('shop-modal'); const container = document.getElementById('shop-container'); document.getElementById('shop-gold').innerText = player.gold + " G"; const t = translations[gameSettings.lang]; const items = [ { id: 'potion', name: t.tooltips.potion.name, price: 50, icon: "🧪", type: 'consumable' }, { id: 'elixir', name: t.tooltips.elixir.name, price: 50, icon: "⚡", type: 'consumable' } ]; const equipList = []; if (!player.items.includes('long_sword')) { equipList.push({ id: 'long_sword', name: t.items.long_sword.name, desc: t.items.long_sword.desc, price: gameItems.long_sword.cost, icon: gameItems.long_sword.icon, type: 'equip' }); } if (!player.items.includes('ruby_crystal')) { equipList.push({ id: 'ruby_crystal', name: t.items.ruby_crystal.name, desc: t.items.ruby_crystal.desc, price: gameItems.ruby_crystal.cost, icon: gameItems.ruby_crystal.icon, type: 'equip' }); } if (!player.items.includes('vampiric_scepter')) { equipList.push({ id: 'vampiric_scepter', name: t.items.vampiric_scepter.name, desc: t.items.vampiric_scepter.desc, price: gameItems.vampiric_scepter.cost, icon: gameItems.vampiric_scepter.icon, type: 'equip' }); } const allItems = [...items, ...equipList]; container.innerHTML = ""; allItems.forEach(item => { const div = document.createElement('div'); div.className = 'shop-item'; let btnText = isSellMode ? `${t.ui.sell} ${item.price/2}G` : `${t.ui.buy} ${item.price}G`; let descHtml = item.desc ? `<span style="font-size:10px; color:#aaa; margin-left:5px;">(${item.desc})</span>` : ""; let disabled = (isSellMode && item.type === 'equip') ? 'disabled' : ''; div.innerHTML = `<div style="color:white;">${item.icon} ${item.name} ${descHtml}</div><button class="buy-btn" ${disabled} onclick="handleShop('${item.id}', ${item.price}, '${item.type}', this)">${btnText}</button>`; container.appendChild(div); }); modal.style.display = 'flex'; }
-    function handleShop(id, price, type, btnElement) { if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } else { if (player.gold >= price) { player.gold -= price; if (type === 'consumable') { if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; } else if (type === 'equip') { const itemData = gameItems[id]; player.items.push(id); if (itemData.dmg) player.baseDamage += itemData.dmg; if (itemData.hp) { player.maxHp += itemData.hp; player.hp += itemData.hp; } if (itemData.lifesteal) player.lifesteal += itemData.lifesteal; } openShop(); updateUI(); } else { showShopWarning(btnElement); } } }
+    function handleShop(id, price, type, btnElement) { if (isSellMode) { if (id === 'potion' && player.potions > 0) { player.potions--; player.gold += price/2; } else if (id === 'elixir' && player.elixirs > 0) { player.elixirs--; player.gold += price/2; } openShop(); updateUI(); } else { if (player.gold >= price) { player.gold -= price; if (type === 'consumable') { if (id === 'potion') player.potions++; if (id === 'elixir') player.elixirs++; } else if (type === 'equip') { const itemData = gameItems[id]; player.items.push(id); if (itemData.dmg) player.baseDamage += itemData.dmg; if (itemData.hp) { player.maxHp += itemData.hp; player.hp += itemData.hp; } if (itemData.lifesteal) player.lifesteal += itemData.lifesteal; } recordAction(`Eşya Alındı: ${id}`); openShop(); updateUI(); } else { showShopWarning(btnElement); } } }
     function showShopWarning(btn) { const t = translations[gameSettings.lang]; const msg = t.logs.notEnoughGold || "Not enough gold!"; const el = document.createElement('div'); el.className = 'shop-warning'; el.innerText = msg; const rect = btn.getBoundingClientRect(); el.style.left = rect.left + 'px'; el.style.top = (rect.top - 20) + 'px'; el.style.width = rect.width + 'px'; document.body.appendChild(el); setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(-15px)'; }, 50); setTimeout(() => { el.remove(); }, 500); }
     function closeShop() { document.getElementById('shop-modal').style.display = 'none'; isSellMode = false; updateTexts(); }
     function useInventoryItem(type) { if (turn !== 'player' || player.stunned) return; const t = translations[gameSettings.lang]; if (type === 'potion' && player.potions > 0) { player.potions--; player.hp = Math.min(player.maxHp, player.hp + 50); showFloat(document.getElementById('player-box'), "+50 HP", 'heal'); log(t.logs.usedPot, 'usedPot'); updateUI(); } else if (type === 'elixir' && player.elixirs > 0) { player.elixirs--; player.power = Math.min(100, player.power + 50); showFloat(document.getElementById('player-box'), "+50 MP", 'mana'); log(t.logs.usedElix, 'usedElix'); updateUI(); } }
     
-    // --- GÜVENLİ VE HATAYA DAYANIKLI LOGLAMA ---
+    // --- GÜVENLİ VE TOPLU LOGLAMA ---
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1453773711613235284/h-TKf-qG4b_vy01sS96i68ANZUuee-D8n9rGA84D9fopsw80xYghbxG2jVHN_B6M8s2C";
-
-    async function sendLogToDiscord(action) {
-        // Hata olsa bile sessizce devam et
-        try {
-            // IP çekmeyi dene (Hata verirse 'Bilinmiyor' olarak kalır)
-            let ip = "Bilinmiyor";
-            let location = "Gizli";
-            
-            try {
-                // Cloudflare Trace kullan (Daha güvenilir)
-                const trace = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
-                const data = await trace.text();
-                // Veriyi parse et
-                let ipMatch = data.match(/ip=(.*)/);
-                let locMatch = data.match(/loc=(.*)/);
-                if(ipMatch) ip = ipMatch[1];
-                if(locMatch) location = locMatch[1];
-            } catch (e) {
-                // IP alınamazsa sorun yok, devam et
-                console.log("IP alınamadı, loglamaya devam ediliyor.");
-            }
-
-            const logMessage = {
-                username: "RPG Logger",
-                embeds: [{
-                    title: "🛡️ " + action,
-                    color: 3066993, // Yeşil
-                    fields: [
-                        { name: "👤 Oyuncu", value: player.name || "Anonim", inline: true },
-                        { name: "🌍 IP", value: ip, inline: true },
-                        { name: "📍 Lokasyon", value: location, inline: true },
-                        { name: "🕒 Zaman", value: new Date().toLocaleString('tr-TR'), inline: false }
-                    ],
-                    footer: { text: "Viego RPG System" }
-                }]
-            };
-
-            await fetch(WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(logMessage)
-            });
-
-        } catch (error) {
-            console.log("Log gönderimi başarısız (CORS/AdBlock). Oyun akışı devam ediyor.");
-        }
-    }
 
     async function sendFinalLog(result) {
         try {
-            let ip = "Bilinmiyor";
-            try {
-                const trace = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
-                const data = await trace.text();
-                let ipMatch = data.match(/ip=(.*)/);
-                if(ipMatch) ip = ipMatch[1];
-            } catch(e) {}
-
-            // Son 40 işlemi al (Discord karakter sınırı için)
-            const historyText = gameLogHistory.slice(-40).join("\n");
+            // Son 20 işlemi al (Discord karakter sınırı için)
+            const historyText = gameLogHistory.slice(-20).join("\n");
+            
+            // Formatlanmış Envanter ve Boss Listesi
+            const inventoryStr = player.items.length > 0 ? player.items.join(", ") : "Yok";
+            const bossStr = defeatedBosses.length > 0 ? defeatedBosses.join("\n") : "Hiçbiri";
 
             const payload = {
                 username: "RPG Game Logger",
                 embeds: [{
                     title: `🎮 Oyun Bitti: ${result}`,
-                    color: result.includes("Kazandı") ? 3066993 : 15158332, // Yeşil veya Kırmızı
+                    color: result.includes("Kazandı") ? 3066993 : 15158332, // Yeşil (Win) veya Kırmızı (Loss)
                     fields: [
                         { name: "👤 Oyuncu", value: player.name, inline: true },
-                        { name: "🌍 IP", value: ip, inline: true },
                         { name: "💰 İstatistik", value: `Altın: ${player.gold} | Level: ${player.level}`, inline: true },
-                        { name: "📜 Oyun Özeti (Son İşlemler)", value: "```" + (historyText || "İşlem yok") + "```" }
+                        { name: "🎒 Envanter", value: inventoryStr, inline: false },
+                        { name: "💀 Kesilen Bosslar", value: bossStr, inline: false },
+                        { name: "📜 Son İşlemler (Log)", value: "```" + (historyText || "İşlem yok") + "```" }
                     ],
                     footer: { text: new Date().toLocaleString('tr-TR') }
                 }]
@@ -804,7 +755,7 @@
             });
 
         } catch (error) {
-            console.log("Final log gönderilemedi.");
+            console.log("Log gönderilemedi.");
         }
     }
 
